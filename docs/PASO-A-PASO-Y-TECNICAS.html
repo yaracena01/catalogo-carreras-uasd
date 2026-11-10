@@ -1,0 +1,1168 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paso a paso y técnicas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Concepto: cuaderno técnico. Barra lateral con índice, texto en columna ancha, código en bloques propios.
+   Un azul añil (el de la bandera UASD) como único acento; ámbar solo para "dónde está en el código". */
+:root {
+  --bg: #f5f6fa;
+  --surface: #ffffff;
+  --fg: #1a1f2e;
+  --muted: #566078;
+  --line: #dde1ea;
+  --accent: #1f3a7a;
+  --accent-soft: #e7ecf8;
+  --mark: #9a4a05;
+  --mark-soft: #fbefdc;
+  --ok: #17663a;
+  --ok-soft: #e1f3e8;
+  --warn: #8a5a00;
+  --warn-soft: #fbf0d0;
+  --code-bg: #eef1f7;
+  --code-fg: #1d2540;
+  --c-com: #66708a;
+  --c-str: #1b6b46;
+  --c-kw: #7b2d8e;
+  --c-ann: #a14a00;
+  --font-body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d111e; --surface: #141a2c; --fg: #e6e9f2; --muted: #9ba5bd; --line: #252d46;
+    --accent: #93acee; --accent-soft: #1a2442; --mark: #f0b35a; --mark-soft: #2d2212;
+    --ok: #67d193; --ok-soft: #12291d; --warn: #f0c35a; --warn-soft: #2d2512;
+    --code-bg: #0a0e19; --code-fg: #d6dcf0; --c-com: #7f8aa8; --c-str: #7fd6a4; --c-kw: #c99bef; --c-ann: #f0b35a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d111e; --surface: #141a2c; --fg: #e6e9f2; --muted: #9ba5bd; --line: #252d46;
+  --accent: #93acee; --accent-soft: #1a2442; --mark: #f0b35a; --mark-soft: #2d2212;
+  --ok: #67d193; --ok-soft: #12291d; --warn: #f0c35a; --warn-soft: #2d2512;
+  --code-bg: #0a0e19; --code-fg: #d6dcf0; --c-com: #7f8aa8; --c-str: #7fd6a4; --c-kw: #c99bef; --c-ann: #f0b35a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.62;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 64px;
+}
+.layout { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 48px; }
+aside.indice { position: sticky; top: calc(16px + env(safe-area-inset-top, 0px)); align-self: start; max-height: calc(100vh - 32px); overflow-y: auto; font-size: 14px; }
+aside.indice .t { font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+aside.indice a, details.indice-m a { display: block; color: var(--muted); text-decoration: none; padding: 5px 0 5px 12px; border-left: 2px solid var(--line); }
+aside.indice a:hover, details.indice-m a:hover { color: var(--accent); border-left-color: var(--accent); }
+details.indice-m { display: none; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin-bottom: 20px; }
+details.indice-m summary { cursor: pointer; font-weight: 600; }
+main { min-width: 0; max-width: 820px; }
+
+.portada { padding: 8px 0 12px; }
+.portada .sup { font-family: var(--font-mono); font-size: 13px; color: var(--accent); margin: 0 0 8px; }
+h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.12; letter-spacing: -.02em; margin: 0 0 14px; text-wrap: balance; }
+.portada .lead { font-size: 18px; color: var(--muted); max-width: 62ch; margin: 0; }
+h2 { font-size: 27px; line-height: 1.2; letter-spacing: -.01em; margin: 56px 0 14px; padding-top: 22px; border-top: 1px solid var(--line); text-wrap: balance; scroll-margin-top: 16px; }
+h3 { font-size: 19px; margin: 30px 0 8px; text-wrap: balance; }
+h4 { font-size: 15px; margin: 18px 0 4px; }
+p { margin: 0 0 14px; max-width: 70ch; }
+ul, ol { margin: 0 0 16px; padding-left: 22px; max-width: 70ch; }
+li { margin-bottom: 5px; }
+a { color: var(--accent); }
+code { font-family: var(--font-mono); font-size: .88em; background: var(--code-bg); color: var(--code-fg); padding: 1px 6px; border-radius: 5px; overflow-wrap: anywhere; }
+strong { font-weight: 600; }
+
+.datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 22px 0 6px; }
+.datos div { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 12px 14px; }
+.datos b { display: block; font-size: 26px; line-height: 1.1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.datos span { font-size: 13px; color: var(--muted); }
+
+.tabla { overflow-x: auto; margin: 6px 0 20px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+th, td { text-align: left; padding: 9px 13px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: var(--code-bg); font-weight: 600; white-space: nowrap; }
+td code { white-space: nowrap; }
+
+pre.code { font-family: var(--font-mono); font-size: 13px; line-height: 1.55; background: var(--code-bg); color: var(--code-fg); padding: 14px 16px; border-radius: 10px; overflow-x: auto; margin: 10px 0 18px; border: 1px solid var(--line); tab-size: 4; }
+pre.code .com { color: var(--c-com); font-style: italic; }
+pre.code .str { color: var(--c-str); }
+pre.code .kw { color: var(--c-kw); font-weight: 500; }
+pre.code .ann { color: var(--c-ann); }
+.archivo { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin: 18px 0 -4px; }
+
+details.ver { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); margin: 12px 0 18px; padding: 0 16px; }
+details.ver > summary { cursor: pointer; padding: 11px 0; font-weight: 500; color: var(--accent); }
+details.ver[open] > summary { border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+details.ver pre.code { margin-top: 0; }
+
+.nota, .aviso, .ok { border-radius: 10px; padding: 12px 16px; margin: 16px 0; max-width: 70ch; font-size: 15px; }
+.nota { background: var(--accent-soft); }
+.aviso { background: var(--warn-soft); }
+.ok { background: var(--ok-soft); }
+.nota p:last-child, .aviso p:last-child, .ok p:last-child { margin-bottom: 0; }
+.nota b.k, .aviso b.k, .ok b.k { display: block; font-size: 12px; letter-spacing: .07em; text-transform: uppercase; margin-bottom: 3px; }
+.nota b.k { color: var(--accent); } .aviso b.k { color: var(--warn); } .ok b.k { color: var(--ok); }
+
+.concepto { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px 6px; margin: 18px 0; }
+.concepto h3 { margin: 0 0 4px; font-size: 20px; }
+.concepto .que { color: var(--muted); margin-bottom: 10px; }
+.donde { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 8px 0 12px; }
+.donde a, .donde span { font-family: var(--font-mono); font-size: 12px; background: var(--mark-soft); color: var(--mark); padding: 3px 9px; border-radius: 999px; text-decoration: none; }
+
+ol.pasos { list-style: none; padding: 0; counter-reset: p; max-width: 74ch; }
+ol.pasos li { counter-increment: p; position: relative; padding: 0 0 16px 46px; margin: 0; border-left: 0; }
+ol.pasos li::before { content: counter(p); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: 14px; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+ol.pasos li::after { content: ""; position: absolute; left: 14px; top: 34px; bottom: 4px; width: 2px; background: var(--line); }
+ol.pasos li:last-child::after { display: none; }
+ol.pasos li b { display: block; }
+
+.capturas { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+.capturas figure { margin: 0; }
+.capturas img { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; display: block; }
+.capturas figcaption { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+.flujo { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin: 14px 0 20px; }
+.flujo .caja { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; min-width: 130px; flex: 1 1 130px; }
+.flujo .caja b { display: block; font-size: 14px; color: var(--accent); }
+.flujo .caja span { font-size: 12.5px; color: var(--muted); line-height: 1.35; display: block; }
+.flujo .caja.bd { background: var(--accent-soft); border-color: var(--accent); }
+.flujo i { font-style: normal; align-self: center; color: var(--muted); font-size: 18px; }
+.flujo i.tcp { font-family: var(--font-mono); font-size: 11.5px; line-height: 1.3; color: var(--mark); text-align: center; }
+.enlace-flujo { font-size: 13px; color: var(--muted); margin: -12px 0 8px 14px; }
+pre.code code { background: none; padding: 0; font-size: inherit; color: inherit; border-radius: 0; overflow-wrap: normal; }
+.er { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 14px 0 20px; }
+.er .ent { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 150px; flex: 1 1 150px; overflow: hidden; align-self: flex-start; }
+.er .ent h5 { margin: 0; padding: 7px 12px; background: var(--accent); color: var(--surface); font-family: var(--font-mono); font-size: 13px; font-weight: 500; }
+.er .ent ul { list-style: none; margin: 0; padding: 4px 0; max-width: none; }
+.er .ent li { display: flex; justify-content: space-between; gap: 10px; margin: 0; padding: 4px 12px; font-size: 13.5px; }
+.er .ent li em { font-style: normal; font-size: 11px; font-weight: 600; color: var(--mark); background: var(--mark-soft); padding: 1px 7px; border-radius: 999px; align-self: center; }
+.er .rel { font-size: 12.5px; color: var(--muted); text-align: center; line-height: 1.4; flex: 0 1 96px; }
+
+details.pregunta { border-bottom: 1px solid var(--line); padding: 0; margin: 0; max-width: 74ch; }
+details.pregunta summary { cursor: pointer; padding: 12px 0; font-weight: 500; }
+details.pregunta p { color: var(--muted); }
+
+.chk { list-style: none; padding-left: 0; }
+.chk li { padding-left: 30px; position: relative; }
+.chk li::before { position: absolute; left: 0; top: 0; font-weight: 600; }
+.chk li.si::before { content: "✓"; color: var(--ok); }
+.chk li.no::before { content: "○"; color: var(--warn); }
+
+footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+
+@media (max-width: 920px) {
+  .layout { display: block; }
+  aside.indice { display: none; }
+  details.indice-m { display: block; }
+  h2 { font-size: 24px; margin-top: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+
+</head>
+<body>
+<style>
+.maqueta { border: 2px solid var(--accent); border-radius: 10px; overflow: hidden; margin: 14px 0 20px; max-width: 640px; }
+.maqueta .zona { padding: 10px 14px; font-size: 14px; border-bottom: 1px dashed var(--line); }
+.maqueta .zona:last-child { border-bottom: 0; }
+.maqueta .zona b { font-family: var(--font-mono); font-size: 12.5px; color: var(--accent); display: block; }
+.maqueta .norte { background: var(--accent-soft); }
+.maqueta .centro { min-height: 110px; background: var(--surface); }
+.maqueta .sur { background: var(--code-bg); }
+.fase { display: inline-block; font-family: var(--font-mono); font-size: 12px; color: var(--accent); background: var(--accent-soft); padding: 3px 10px; border-radius: 999px; margin: 26px 0 4px; }
+ol.pasos li p { margin: 4px 0 6px; font-size: 15.5px; }
+ol.pasos li .cmd { font-family: var(--font-mono); font-size: 12.5px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; margin: 6px 0 8px; overflow-x: auto; white-space: pre; max-width: 100%; }
+ol.pasos li .por { font-size: 14px; color: var(--muted); }
+.analogia { border-left: 3px solid var(--mark); background: var(--mark-soft); padding: 8px 14px; border-radius: 0 8px 8px 0; margin: 10px 0 12px; font-size: 15px; max-width: 70ch; }
+.analogia b { color: var(--mark); }
+</style>
+<div class="layout">
+<aside class="indice" aria-label="Índice">
+  <p class="t">Contenido</p>
+  <a href="#resumen">El programa en un minuto</a><a href="#tecnologias">Las tecnologías que se usaron y qué es cada una</a><a href="#pasos">El paso a paso de todo lo que se hizo</a><a href="#organizacion">Cómo está organizado el proyecto</a><a href="#ejecucion">Cómo se ejecuta el programa, y por qué con un comando</a><a href="#conexion-bd">La conexión a la base de datos: ConexionBD e InicializadorBD</a><a href="#swing">Swing: la ventana, y qué es todo eso</a><a href="#paradigmas">Los paradigmas de programación</a><a href="#tecnicas">Las técnicas de programación orientada a objetos, con ejemplos</a><a href="#patrones">Los patrones de diseño que aparecen</a><a href="#practicas">Buenas prácticas con base de datos y robustez</a><a href="#construccion">El driver (JAR)</a><a href="#correr">Cómo ejecutarlo</a><a href="#glosario">Glosario rápido</a>
+</aside>
+
+<main>
+<details class="indice-m"><summary>Contenido del documento</summary>
+  <a href="#resumen">El programa en un minuto</a><a href="#tecnologias">Las tecnologías que se usaron y qué es cada una</a><a href="#pasos">El paso a paso de todo lo que se hizo</a><a href="#organizacion">Cómo está organizado el proyecto</a><a href="#ejecucion">Cómo se ejecuta el programa, y por qué con un comando</a><a href="#conexion-bd">La conexión a la base de datos: ConexionBD e InicializadorBD</a><a href="#swing">Swing: la ventana, y qué es todo eso</a><a href="#paradigmas">Los paradigmas de programación</a><a href="#tecnicas">Las técnicas de programación orientada a objetos, con ejemplos</a><a href="#patrones">Los patrones de diseño que aparecen</a><a href="#practicas">Buenas prácticas con base de datos y robustez</a><a href="#construccion">El driver (JAR)</a><a href="#correr">Cómo ejecutarlo</a><a href="#glosario">Glosario rápido</a>
+</details>
+
+<header class="portada">
+  <p class="sup">Catálogo de Carreras UASD · Java, Swing y SQL Server</p>
+  <h1>Paso a paso, organización y técnicas del proyecto</h1>
+  <p class="lead">Todo lo que se hizo para construir el programa, en orden, y todas las técnicas que se usaron: qué es cada una, con un ejemplo del código real y el archivo y la línea donde está.</p>
+  <div class="datos">
+    <div><b>18</b><span>pasos, de la lectura al repositorio</span></div>
+    <div><b>14</b><span>archivos Java en 4 paquetes</span></div>
+    <div><b>3</b><span>paradigmas aplicados</span></div>
+    <div><b>13</b><span>técnicas de programación orientada a objetos</span></div>
+  </div>
+</header>
+
+<h2 id="resumen">El programa en un minuto</h2>
+<p>Es una ventana con un selector de facultades de la UASD y un botón <b>Consultar</b>. Al pulsarlo, el programa pide a una base de datos SQL Server las carreras de esa facultad y las muestra en una tabla, con su escuela, nivel (Técnico o Grado) y estado (Vigente o Proyectada).</p>
+<div class="capturas">
+  <figure><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3QAAAIoCAIAAACuyT7UAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAFbESURBVHhe7d19tGZVfeD5K3+7Vv7qbmbWxG40a9Lj6pWXTobmpo1xMhW1DUmmTWsn3W2ola56iBETUBEwvlRJLBS5TxRUEIyVgVZiqJiOoR6ZqrLQQtQgJALXl7orlSG9ogNRLCysEgXCrPO23/c+e5+7n3vP8+zvZ+0lzz1nn3323mc/v/O753luufILv/pzf3b01t+/7i3/+oU/9oIXn/fzv/jCl/zKjpe9/KWvvmT3xZdfdPHlF733xrUPfPi9b/79y1728pdo5d/Hlhe99IUv/IUXiPKSX96h7v3N39r5J7d99NcueMXL/v1Lrnv/H7zzmnf84stf+q61q9Sy88LfMNp8yS/vUNvcbHn9Vbfcdu2e9sc3fvC2/dPXW3WiyqXXf+zD17zO3h6zd7vLrkuvu+7S37C3Dyq/sfeaG66+UN1y8dXvv+oNL3jhL1x41Y3XvHVXqNq+qlpEecPeG6679FX29gFl16XX9jV18dXvu3bPK7yHND/uuvTaG/deLI+a7LvxfdZwJvtuvOYtzQy8Ye8NWv1uY9vyK95ynX24aGTvxWpTdTE7+QsveNWea264eqL+eO2eVxgbY8rFV1c96W2/6fO115nt19X2it5q7chJizrWcd2NaXdfi9Cuqj/XXWM2W51o777uEthjb0rVPbtNu5NWcTRoHRXTMa0o3XC0XxVzzQSK2YJ79hyrVB6oVXbUdJylKdZU+NZ8f3F3WxbPauwp8ZdmyJvO3Wf3BDb1q+i969Lr7M57dl189fuv2/tKs52qXHhVVdMM1F3lV771unr7rkuv00O3VpTTaSeqL2t9l7nwqhubO4I8RXcv0E7dnbSrLFtwnCuitOfVh1+1b82GclJnufTtH7zp7c7zXvzuD7zPbG1Q2f3G933o7ZfY27Xyyre9//p3Xmpv/613fmj6tt329hdccs3173t70z21jvL60rff+P43tpP84v7yMz9/3k+/4Cf/1bn/27/4Vz/8P/+v/7QqP/rPVi5604Uf/9RHfuU//eIvv/L8D9/8h58+duff/Y+/exwAAAAIeujvHjpy9PANH7r+/3zZi57/0z/a5Jcrb3n3ZX/4x9e/5e2/t/E3G+YRAAAAQJ/jG8ffcMXrfvpn/3WVXP7eVW/8xB0fN6sAAAAAKV5/+SXP/+kfXXndm37nGw9/3dwJAAAApDi+cfznX/ailY/88S3mHgAAACDdDR+6fuXTx+40NwMAAADpjhw9vOL72/BPfepTt/0/n//0X/3NnfduiHLoC1++60t/e+d9csun/+pvPjb77P4/+iPzeAAAABTmob97aMXc1vno7LOnTn3/iTNPP3HmqSfOPPX97z39ncfOXH7Z5cc+c/c/Pv2M2P7EmadOf/cHR//qb8zjAQAAUB5vcnnH57985rtPnvrO95ty+vRTx7/2/5577rn/7qX/7hN/PvvemX88darb9d0nP3n3unk8AAAAyuNNLj/x6b9+/NT3Hzv5vbqc+d6Zfzxw239/znOf+1P/9t++6MUv/uQnP3X69NMnT5557OT3Hj/1/aoyAAAAIlx44YVnnXXWiuWss8668MILzdrzdM5zn3dwNjO3Pv74wdnsuc/7EXNrHG9yeeDwPd957My3Hv3uo49+99vfPn3y22f+8wW/+dIfed7tO3bs+/n/45d+5f/627/9+smTZx599LvfeezMgcP3mMd3Dh06JKZs//795m6/lZWVQ4cONS3s2LHD3J3POeec8+CDD5pbXXbt2iXGYu4bgStr4kdj3vbv3293WwxHTLXYsrKyorYGAAByOeuss+65556/t9x///1nnXWWWXueDs5m/+zss4380rkxnpltCB+d3f3otx7/1re+e/LkE9/5zg/+4vbD//yHf/gTP/Zjz/zSLz1z/vmv+pf/8t3v/cCp7/zgm9/87slvn/nI7G7z+JqR0OzatUvb3bHTx127domEz96bV2RyuWPHDtH/Bx98cISJVzi53LVr144dO9T8Xh14c6BxyDnnnDPXmQcAoEwrKyt///d/b26t2U+C5s1IJTeZWYaSy/3//c6T3z5z370PvvvqtQt3X3jhq3/7117+8lefffaRH//xu5///P3/9b/efujIV7/60Cc/efTop+665S/uMo+vRU6QnT42D9J8e/OKSS7379/vy4zHI5xcnnPOOfYW8bphT3VzlLoFAABs0qiSSzWh3HxmGUoubzpw5JabP/r6d+1/03/7yze/95Zbbrnlxptu+l+e/eyfe/azX/TsZ999+PB3Hj/1znde8573vP/a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" alt="Ventana del programa con las carreras de Ingeniería y Arquitectura" loading="lazy"><figcaption>Facultad de Ingeniería y Arquitectura: 9 carreras.</figcaption></figure>
+  <figure><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3QAAAIoCAIAAACuyT7UAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAIDdSURBVHhe7b171LVXVdi7zd/+4T9tOWecck6047TH0dFCdWTkbZV6PPFSTcupLfR2lIw2304toKDcPm98IRIU+LaQyEWCpgeq1BJtq3wbzpcYNIhYCCrks/i+w/TEDvGQgiQEEkCgnPHc1mXOuZ7bXvvyvuv3G2uQvdez1lxzzjXXfOb77L0/Ft/yD/72v7/3bT9++4/+jaf9tW/41mu/+Tuf9m1Pv+47vuvbv/f55573kuc87yXPee2bLr7+5177Iz/+4u/4rm+L2t8f277p25/2tG/5Bte+7e9dF1795//yhn/39l/4x896xnf8/W+7/XU/9ROvfvl3fte3/+TFV4Tthpu+R8j8tr93XShz0/aDr3jr22+70L590c+8/c7VD6oxo9oL3/CLP/fqH9D9Y67uu934wttvf+H36P5Z7XtufvUbX3lT2PO8V77uFS/4hqd9y02veNOrf+zGvmG3VsNGtBfc/MbbX/jdun9Gu/GFtw2Jet4rf/q2C89ITmne3vjC29508/P8rOWtb/ppZc7y1je9+kcbD7zg5jdG47vOVvIzfvR2Pd0Jufl5oai6SSW/5Ru++8Kr3/jKZfj2tgvPEJ1j2vNeWWkyKL/R+bbbpfx62M1O20iOd9qouca+C7fbe9F3qdLn9ldLsdVCN9/abYG2vWmVelqmVlI1Q6CaNUaxqAVqGPKrJmOmp0kJtveMKPUTo8HGSGOVpilXpGJ+uNlq+5aIxoE2fmvmHDpbZ9uBzfgqe9/4wtu18olLz3vl626/+ZlSTtVuekU1UibqbvAzf+z2uv/GF94ep+6oBctFC9XbWt9lbnrFm5o7gl+iuxdES3eLdoO9BGOtEa1dNza/kq+8ESxqthe+7GfueJm57vNe9fqfltJmtXMv+uk3v+z5uj9qz3zp697wEy/U/f/yJ968euk53f8Nz3/1G376ZY164Zjg9Qtf9qbXvah18rcOt7/5zdd+/Tc89a9e87/9L3/1L/6P/+ufr9pf/guL5/zQTb/8az//9H/6nX/vmdf/3Ft+9tfve/cf/dc/+jQAAAAAQC8P/dFD99x79xvf/Ib/4zu+6Wu//i839eXiR1/14p/9t2/40Zf98MkfnsgZAAAAAABDHJ8cv+D8D3z9N/6Nqrj84Ve86Ffe9ctyCAAAAADAFH7wJc//2q//y4sf+KHv+5OPfVReBAAAAACYwvHJ8Td/xzctfv7fvlVeAQAAAACYzhvf/IbFr9/3btkNAAAAADCde+69e5H6bfiv/dqvvf3/ed+v/84fvvv+E9cu//bvv+f3/su7P+h7fv13/vAX179557/+13I+AAAAABTGQ3/00EL2dfzC+jcfe+zzn3viS5974oufe+KLn//slz716BMvefFL7vuN9/73L33Z9X/uiS8+/pk/u/d3/lDOBwAAAIDySBaX73rf7z/xmS889qnPN+3xx794/Af/7zXXXPN3vv3v/Mp/XH/2if/+2GPdpc984Z3vvSLnAwAAAEB5JIvLX/n13/30Y59/9JHP1u2Jzz7x3+96+3948ld/9df9rb/1Td/6re985689/viXHnnkiUcf+eynH/t8NRgAAAAARnDTTTddddVVC8VVV1110003ydHb5Oqv/ppL67Xs/fSnL63XX/01f0n2jiNZXN519/s/9egTn/jTz/zpn37mk598/JFPPvHPnvXPv/0vfc07rrvu1m/+3//u0//P//JfPvrII0/86Z9+5lOPPnHX3e+X8zsuX77sXHbnnXfKy2kWi8Xly5cbCdddd528nI+rr776gQcekL0WN954o7NFXjsAbqlxb4Xf7rzzTq22M8e52vUsFotQGgAAAOTiqquuev/73//Hig996ENXXXWVHL1NLq3Xf+FJTxL1pdk5HlltOH5h/d4//cSnP/GJzzzyyOc+9ak/+9V33P0//8W/+Ct/7a99+e/+3S9ff/13/5W/8qrXvv6xT/3Zxz/+mUc++cTPr98r59eIgubGG2+MLnfo8vHGG290BZ++mpeRxeV1113n9H/ggQcOsPDqLy5vvPHG6667LqzvQ8ObiWLK1VdfvVXPAwAAlMlisfjjP/5j2VujnwRtG1FKblhZ9hWXd/6Hdz/yySc+eP8Dr3rlxZvO3XTT9/6rf/xd3/W9T3rSPX/9r7/3a7/2zn/xL95x+Z6PfOShd77z3nt/7T1v/dX3yPk1Ix2ky8fmQVrqal7GFJd33nlnqjI+HPqLy6uvvlr3uNcN2tXNrLAHAAAANuSgisuwoNy8suwrLu+46563vuUXfvAn7/yhf/OffuS1b33rW9/6pjvu+J++8iv/9ld+5Td95Ve+9+67P/Xpx37iJ179mte87rbbXv+v/+NvyPnpguyWW25xH7w+8MAD4nNz/TF6WPGYH0xfd911Tc8tt9ziRopV3OAGt8qNN97oissHHnggNeW6664zayy3tCvUrrvuumbpxvzmdVPzhXo2y1199dWNRU0Z11zVxo58StpTXLq9CCvp62rceLO4vPHGGyd9mQEAAAAGObTi0tWXm1eWfcXlrW9427d/27f9k2f/8H/8jd/56Tfc8Ytv+4Xbbr/9KU996p//c3/ue571rM99/vNf/vKXn/e851933be+5MU/9Nq3/IqcXxc0/VWRq3h0TeNqr/BqWDveeeedzdWw01VL7qqrI73crohsaqzmg/vmtRv2wAMPCH2uu+46XaGGuCIsrNiaylUMcNIaNXTp1hSypk/66SkuXXEsxoS1r7kRYjwAAMCppn2GlECO3hqFFpcveMXrv+kb/+bRX//qq5/8Pzz7n/+Df/9Ld/3SL/3ST/7kT77qVa968MEHv1zzlrf8/JOe9KRnPuMf/cSb/p2cn35yGW6tWVyKx4Huqnh82DyECzvdSPG8TUwUijVyxG9ZxNamnlzq56zhyFAN92DSDXbVc0NT5jY0Epx/BO6JpriaKi7DhS5fvqw/DXdfJ9XFJU8uAQAAsnNoxeWOPha/5fW/8N3/17Oe8Yxn3nLrxZtfduvb3/72u++++z3vec/x8fEXvvCFpri8dOldq9Xr/s1b/92tP2MUl82TOdlbe809NdQ1jfvRiX5yqYtL8Uyxp7gMnzuKR6quuOx5UnjLLbfoOi8s1MInl6niUjz7DGu+O++8Uz9ldBXnyGeHomh2b8NvCITFa0izU9oJ+hsCAAAAsCEHVVzu7gc9L73tre9//wPv+08f/sgf/Nfbbn/Dz/zMG++666677777Qx/6vY997GOfrz8W/5Vfecf7P/D7Dz74//3Ia/5vOb8m/Fy4eRt6zT0wC8us8APc/o/FXR3pKqrUx+LiWV34Qbn4WFxXXY6wyGt+LR6WYoNPLkM9G0Rx6Vwh1NAFX4rw4/7wtzjiRzlNoRz+4N25SKw1vq4FAACA8Vx11VUf+tCHZO+nP318fHyW/ymiF73yjl//jf/0sz/3C7e+4qee/Zzve/GLX/T93//9L37xi2699dY777zzN3/zNz/+8Y/f++5ff+9vfej3f/+hF7/qzXJ+R/jYrClxwk91Xb3VfGp8Z427qiseNzesF90nzqkf9LiRDnc1/EFP+Bm3fk4ZLuRWdz2DTy7FJ+OiuGwquUay+86lGzz+2WE4q6kLdW3tnijrX0eJ7wb0lNoAAAAwmwP5R9Qfe+yxr/6av2QWkZfW66u/+mtk7ziMwqvhX730p974xp/7wRf80DOe+c++8Ruf9g//4T/4uq/7uq/92q99ylOees011zznOc9597vvfdu/ffu7f+MDH/7wgy/4yTfJ+fug51ueAAAAACB47LHHZNfGJIvLf/x9P/bu37j/t973od+47/43vektL3zBD/3AD7z45S9/9Wte84Z/+k+++2lP+9vLc8s3/+xbf/O9v/fe3/7wP3rOj8j5+8D88TUAAAAA7IxkcXnHm9/87Jf99LMv3P7sC7c995bXfd+Pv/65t7yuad/70tf+k++/8Ixn/8i//LHXPOfm25/5vedf8cqLcv6uCH9kzRcEAQAAAPZLsrgEAAAAAJgKxSUAAAAAZIPiEgAAAACyQXEJAAAAANmguAQAAACAbFBcAgAAAEA2KC4BAAAAIBsUlwAAAACQjcX//Dd/iEaj0Wg0Go1Gy9IoLmk0Go1Go9Fo2RrFJY1Go9FoNBotW6O4pNFoNBqNRqNlaxSXNBqNRqPRaLRsjeKSRqPRaDQajZatUVzSaDQajUaj0bI1iksajUaj0Wg0WrZGcUmj0Wg0Go1Gy9YoLmk0Go1Go9Fo2RrFJY1Go9FoNBotW6O4pNFoNBqNRqNlaxSXNBqNRqPRaLRsjeKSRqPRaDQajZatUVzSaDQajUaj0bI1iksajUaj0Wg0WrZGcUmj0Wg0Go1Gy9YoLmk0Go1Go9Fo2dqBFpdPPnrbPV+uue9t1x+d7zpf+8aHmt6H33hD27nf9uQb7n2w0eihe52eNNqMtnksbS4hVwuO6pXn71WTzdvheJVGo9FOS5tfXD75hre98b6H27Rb8fCDD115482v1SN1GywTn3+fkc0HZ+2+5brxbOLMM9yCHf/yg2/x3rj+LQ+3vaPd7ndqT8EzqMDmsTRSQujV/pFmG3MMn3zzlf4Bp6iN9Gp/Sx3w2QJFG7MpY5o/WQEPPvTwPW/xf+RvqQ0eEBqNdorazOLy+puvBIkyIiwCUq0/FXZ3JvnMo3/WXlqWG8+GzjzDjeJyUhspIdAkqUxPGzyG3ccO9tVT10Z6tac9OX3A77l5jkDdBjdlZDOLy46NJA+2wQNCo9FOUZtTXHbFX8WD3cfWzZ/mI+uhealw3qyttiw3ng2deYZbxuLy8FuGWBonQRQQU2PsAI/hVttIr6aa/4ZP5Wp5wA+3uOyMffINb7vHPefeTDiNRiunTS4u+z9Tu/4tDzf3quvfcuXBh8J7WPUx0PNvqC6F2Tagek7ZMyuVQOvc56fU44VKwWMDNzLQfFCCaMGDxofvua97HQuMPgJ76OF7Eh9wb+5MIeSem8936l153rWvMfub58E9SqYEDm5QM/f5ocO//PCD993b78+eNr64bL9HUSkcKmAa9fAbnhV5ph3gqvzgtjrDRSkPmNHbH0uD3h6UoFsUctbgwJPKM/e9refwDh6lwT1ql0sLiX342ufX9Zn7q6y6GvQ4gWPcKNqgV3tiQ7Tgr0f5Ucz1b3m4cfKghv2u22RTRNMnS8ZM4NgeyTN2Sh+QfqsDnYPjliPD02i0zdv04jL4TK3nz26XFwT33Hy+JxX2zDKzT/jYL8Rln5RAX0AMSRAt+bGRr0jCzxw95vOhzZ0pU78nKi7D/qoA6lUyJXDKBhlXZ7QZxaVG6VYFj5fQ3dtcT+uEWS5K+LwJexm9g7GUMsr5c1CCbt6u+650xzB6HDW7uBw8Silz7LViuirKdHvNQ2FBX+FkptZNheWgV/tjQzT50YRV1gxqmBrQhdb8TRFNnyxlRVez9kqesVP6gPRbPeCZuRmeRqNladOLS5VlzPb8+/x3wKtnOS4F1Gde55EZs8KU2mSK8HlDNSAq3eKKoRU4IEHaPkFgV/7eIHsigZmdGZIqdK4871qpklAyJbAuLvs0CSu27jZcPeBJ3cUHW5bisikfZfDIjUuF1jQXvTLtAbnEUCwN7/sICbo5191zs/9TIfRtf3GpPdnt1PBRGrFHA0ISbk/Q/dnQ70bhn0GvDsaGFGhVfuLneoMajnDdzE0RTZ8syy3DmXPGTmkThq2esFm2ntoDNBotS9tWcSlnyTMv84jZ+mfpPChqEWNALNAYkKhmmmaMFxp2zjErIV1j5XZmbXUnJ9k/pGRqom5pfw78Eta445p3+sR26I0I66S2J6jzYlHi5heXeuP2MeWiHg8MR+9QaZj29mgJXof4sVYwfl5xaSij9m5wjwaFhEu3xYSqFbQQ6YReL+npU2PDWNErGWMpoFcc47rZmyKantKqFFVpVuxtvFPahEGrDTUGz8iQB2g0Wpa2xeLy+pvvvee+hx98KPwHOJJ5ZMYsnziCrwGF+cj/4eu+1pNKPQkJwqIJAi20wNzOjO5tqf5BJVMThzVx3vA8fI+yWtyrWqwbbepOoO8ZfSWR9JK8t1UmxxXDbBf1eEAoMBhLg94eKSHyp/yzxHjk1ufJMXVM+ij1SR53HvXSgQnuK4aGE3rcKFw06NXB2BACOyH1twa7mNHj+zUcdJ32zMhNEU2frE5/F9ijcq/WZ3Cn9JRBqydsVkJP7QEajZalTS8ug9unrjzaMUfhDwxjEnlkxqzBxKGTyIapR19KCrTQAnM7c7vF5aAmjUV6jDZ8ZNtqcRnu3Rvb6bLuNOlxUY8HUsVlKpYGvT0oQfuzxy4npM+Tp7C4HHSjcNGgV3t8ODLUr7/Zn/ovP3Tvd147rOGg67RnRm6K1E2dLLlc7edByVqfETslpwxarW1JblZCT+0BGo2WpU0vLoPbanhim1Z9oyX6PLr6zWP0TCuRR+K8NmqWSDSNkDBx6MwiBQ5JkNaNF6g8Y7bczhxVXA4qmZo4qEko4fqb39Zj2vhmboe+BQ7eh3TIRc4PRm7ionCA8IBQYDCWBr09KEGrJO0NUZ5svjZaGRIvpD2pvd10Ti0uB4XopQdLlkE3Ci8NenUwNkR78s1X9G9HIieP0HDYdcozeoxYWuc382TJyGliYEiy1mdwp/SUQasnbFZCT+0BGo2WpU0uLqMTXv3+sf2HZqrPfbp/mtGdeffPTPivUcs84k/4lFl1cTn0Ze1AzzZbXS8z8oCEtOGDAqtvGrl0dn39b2HYVUhWZ44qLoeUTE0c1KT6N0GC38Ne/5Zpt2GzBf650t6lbrjX7dqo523SS9bfMzX++cd8FyU9IKN3KJYGvT0oQXpSlSxRp7qjG8ji0vRY8iiN2KMBIXoTB0uWQTdKLw15dTA2bIHBPy0U/ABo1AEf57qZmyKaLi6rX6S5ytI5eUjyjJ3SU4atnrBZtp7aAzQaLUubU1xGOUhR/dnq71iKLmcpCVee96yBWTr7hJVZSJNew4QrcamzV4JoowSmbdc3nizOTBU6qf5BJVMTe2aJG3nMRkk8+vGsICgOhu9DKniURZGePcb2uKjHA7K4HIqlHgWURYrAM1q3MLZ1UZI6ERWu+pFmxj8Pihn/B0DP6upEjy5ZhtwovDTGqz0y9RlPWeSqyR5pbsUxrpu3KaIpIQEPtX/dSQVi5u+UmjJo9ajN6tWTRqNtqc0sLuvUoP7fcu+71/37GtX3ityxr345G+WRJvs8/y3hv0Jcf5Wnd5bOPo0a6h/Ije6d7t/v1QLHSJBWB//8b6WGLVB+eX/w/5x3E2emCp1U/6CSPRMHNDGssP9hv6mtet4Q7ZH8h5Sn3IeC4AlvTqrUmOGiHg9oBQZjqd/bYyR4xRIKR/WEX9c/3ansdZ50Hz5ah3fwKA3ukfNhSojlw4GSZYwbRRvj1Z7Y0AKrH+vEv9QR/xTRoIZjXDdvU6SqRnFZ/cwofEbrWo/kGTulp4y1OmuGp9FoWdr84vI0Np+bNviglkaj0WgH2MjwNNqBtDNeXFb/D4rhP2fdPR7gMxEajUY77Y0MT6MdZjv7xWWbbEISH4fRaDQa7RQ1MjyNdpjtrBeX8Xf1vpz+XhSNRqPRTlcjw9Noh9nOeHFJo9FoNBqNRttlo7ik0Wg0Go1Go2VrFJc0Go1Go9FotGyN4pJGo9FoNBqNlq1RXNJoNBqNRqPRsjWKSxqNRqPRaDRatkZxSaPRaDQajUbL1iguaTQajUaj0WjZGsUljUaj0Wg0Gi1bo7ik0Wg0Go1Go2VrFJc0Go1Go9FotGyN4pJGo9FoNBqNlq1RXNJoNBqNRqPRsjWKSxqNRqPRaDRatrZ4FAAAAAAgExSXAAAAAJANiksAAAAAyAbFJQAAAABkg+ISAAAAALJBcQkAAAAA2aC4BAAAAIBsUFwCAAAAQDYoLgEAAAAgGxSXAAAAAJCNM1JcXrly5cMAAFvmypUrMvsAAEDMWSgur1y58vjjj38JAGDLPP744yPry3dd+W9f9dL//BXnryxeQsvWnnTLR9515b9JXwPAgXEWissPf/jD8g4AALAdPvzhD8scpHjXlf/2FeevvPTuhz/x+BfkfJjLJx7/wuo9H/+Kl1yhvgQ4cCguAQAmMKa4fNKPf+Sn3vOJxWLxpS99if/N+L+LxeLHLn/sq176n6XHAeCQoLgEAJjAmOJy8ZIrPLPcEp94/M++4iWjvpkAAPuC4hIAYAIji0v3vA0y0j7CpLgEOGwoLgEAJjC+uIQtQXEJcOBQXAIATGB8ccmTy+zw5BLgVEBxCQAwgfHFJWwJikuAA2frxeUjH7z1mmtu/eAjj8gLCaaOp7gEgF0yvrg81U8uv/gHF6+99uIffPGL8sJe4cklwKlgoLi8pvm3H1puuGtKzdfgisWRVePIYSG6uPxilRcXi0RmPMykCQCngvHF5c744jvO+Tx97h3y8ixcnjzAhElxCXDgDBWXE+s8zX6KyyobnjtXZ0RxieISADZhfHG5myeX9V/S597RJbR3nPOvN+Ewi0ueXAKcCiYXlx+81T3NrK5V5eAjd93QdT3rtpe7KU2ZeP8Hqp77P/kBN++aWz9oCAm66r66GO2u9qOLyyYZvuNc9ezSZcmL1d/25371C3UqrqkSZvyuy9Su4yDyKQDsgM997nMPPvig7P3Slx588MHPfe5z7u344nIHuNJP9vtEVtWaQQ5su0Su+8gfvNpVkM3gpucjccL0b5r8GKTWLBXtSCguAQ6coeKySyQ10cfiVUlZdVQ14A13tf3hc8ewuEw9ueyEVOVpIyR60jmruPR/aDfVZZNYu3wa/UVejWhzos+nXU+uBwAAcCr47Gc/+9znPvf+++8PO++///7nPve5TzzxhOsZX1zu4MllndxkpqozW1BBnntHmAObxChy3a8misvUk8s2d8apdQfw5BLgVDBUXOpyMH7E6GpHf3VEcdkjxKxB+5HFZVQ7+j+vXXL0A4I/w2vO/eoXmu8uyWQNACXw2GOPhfVlU1k+9thj4ZjxxeUOsCu/oLOpPo3aMc51ckqiuIxyZvy8c5dQXAIcONOKy/Bpoqgd/YCh4rJfyObFpagYq9TXU1xambH5u58SE6BAXH1pVpaTistdPLns/oSOOmU5aBSX7esu1+kBurisRbVriTHh6luFJ5cAp4LpxWXX05SIzZcpo4/Fu0/P2wFhcVlfsoS8/Yau3Owqz5kfizf5z38C7j4AEsVlXTiGHx65S+ear2l2CdVdAoBCaOpLs7KcVFzuhu6j6TZZVZ9x108l5cfiqnYMc92r3+U/JW9qyKi4bBJmIESMkTptGYpLgANnWnH56KOPuh/vXHPDDUHV2HLDXf5dMyB8KtnMvebWDxpCuq5Y7PTiUjykrKvLKm/GGbD5a73qE5/ytB8VtVfdeAAoisdrZG/N+OJyB08uG6KPa+p/iijIbLIubItLlevcjOZf2ggLR5cw3Rw9Zjfw5BLgVDBQXJ4K9K/FAQC2xPjiErYExSXAgUNxCQAwgfHF5c6eXJYDTy4BTgUUlwAAExhfXMKWoLgEOHAoLgEAJjC+uOTJZXZ4cglwKqC4BACYwPjiErYExSXAgUNxCQAwgTHF5Vecv/KJx7/Ak8vsLBaLTzz+ZxSXAAcOxSUAwATGFJdf9dL//GOXH24/w+V/s/7v6r6PP+mWj0iPA8AhQXEJADCBMcXlu6587CvOX1m95+OfePwLcj7M5ROPf+HHLleOfdeVj0mPA8AhcRaKyytXrqT+uWMAgIw8/vjjV66M+kz2XVc+9qQffu/iOe9ePPteWpb2Fc/+ta960fuoLAEOn7NQXD766KP33XffPQAAW+a+++6T2QcAAGLOSHEJAAAAAIcAxSUAAAAAZIPiEgAAAACyQXEJAAAAANmguAQAAACAbFBcAgAAAEA2KC4BAAAAIBsUlwAAAACQDYpLAAAAAMgGxSUAAAAAZGPxsle8hkaj0Wg0Go1Gy9Kq4vLLAKD46Ec/+uijj8peAICzTiHZrxAzZ9P4ZwYUlwBJyDsAUCaFZL9CzJwNxSVAfsg7AFAmhWS/QsycDcUlQH7IOwBQJoVkv0LMnA3FJUB+yDsAUCaFZL9CzJwNxSVAfsg7AFAmhWS/QsycDcUlQH7IOwBQJoVkv0LMnA3FJUB+yDsAUCaFZL9CzJzNwReXJ6ujo9WJ7AU4aMg7AFAm+bPfQZYB+c0MOUiTJ5G1uDxZHS1Ccvjm9LsYCiSZd9ZLfz6Wa3kVAOCUY2S/ujbwd/L6tn48/uY+fuQOSZkZYCk90paRww6Y3MVldndsQybAljHyTpt5fEW5XlJdAsBZw8h+1X18uXT38qm39anjd0LCzCE9x4wZP+yA2Xpx6Uv59pJ/dHPujmC8mysmdP3BnwRqDYADw8g75vHQgV2PWlWHZHkpeF2VodbRcFelHACAfWBkvyb5rZftH9f12+bJZfW//k/uboSV6w4tqyXNjLoiU45jw4ykHT77lBXRKXsYkbu4dH5pXBnEzXq5vFSP8B4Kd6KJMxdbcfxFuxUMAThM7LzTH7hNYNeHqB0XvjaPhplvOCAAsD/s7Fffx9vkFN/cfcZqX1m5ThVte8c2s7cEautmbYs3PEj+bUXU9gzeQA6N3MWl9FrznDIKFD9AF5dib7qHN3H9zqMZOHTsvGPGbRzYURoVr92wiuBo6AHmQgAA26cv+zUvRMnYFZPrZf1+MNcdBn1meuISqCerW8lf9pyq6nLbxWVD618ZIv2uFP3hc2N7FYBDwcg71SlQgasCW2YT87XuUXI4IACwF4zsFySlk9XRciVyXdW37mpLI4PpngOg38yYoMR0Y1TS1slf9lBchj3LwHkXw2fEsbMaP4cPgf2Y2MXhjgAcJkbeaUI3iO7qiyIqsGU28aFuHw09kgMCAHvEyH4qlYlcV1WXy7a2HMh1B8OQmW1PWAJVL13Zo5J2Xf+0XboiOm21Zfbi0j/KrsLn4rH/+U7gs5buC2b1VfdLslBIEH9OUPibM4DDxMg7NdERaT8JigI7XVwmj0YDBwQADgEj+4lUVhdRMteJz47Tue5AsM10ateqGyVQl6ubHzi1l1zS7rqsiuhUlZaZi0sAqDHyDgBAARSS/QoxczYUlwD5Ie8AQJkUkv0KMXM2FJcA+SHvAECZFJL9CjFzNhSXAPkh7wBAmRSS/QoxczYUlwD5Ie8AQJkUkv0KMXM2FJcA+SHvAECZFJL9CjFzNhSXAPkh7wBAmRSS/QoxczabFpeyGwAAAABgOjy5BOjjwoULsgsAoAAKyX6FmDmbxj+yeByC4hKgD/IOAJRJIdmvEDNnQ3EJkB/yDgCUSSHZrxAzZ0NxCZAf8g4AlEkh2a8QM2dDcQmQH/IOAJRJIdmvEDNnQ3EJkB/yDgCUSSHZrxAzZ3N4xeXJ6uhodSJ7E0wavFWEJuvlYnEgmsEeIO8cBIeTHwCKIUP2Ow0nN4OZeTkwp21WXJ6sjhYhOSyb5KCxg2tFUyPHCgmIDF+upZBeie5i7yg41VTnSuxvru3ukdNzaYts4XDFR+ni5elCGmasDgCb4aqu8D457SCehpPbJnlRCWyDkd4YOWxXbFxcZjdmksyRg6thy2Vq6EghIeGU9XJxtDoeL2T8SDi1GMXlDtj9its4XOGcOdMDNpwOANNpqoqq7vKn72S1nHIST8PJlUm+rgS2ovNIb4wctivyF5e+lG8vVZ8QN5y7Ixjv5ooJXX/wJ0HPGt1FtaoYfrQ68Vtfv19Vai0viZlKjuoIJLZv1svF8lJa7VDCcfDu2vPnOyHeRcv1gARlHBwiMu9EMRNtt9xdH5zdgHiKO0QqTszQagU2f/w0MR+tqUNqlD7R8MyHK3ZVO1GYLP6c0wMC5WPfDCwNABtSVxVWqTWYhYIuldV07tkzKsn7SsDZqPSv3gdZXeW1VlaQ8CuJ/vIYpxlj9sHGxaWzymX8znXrZXt38UGh7gfH9X6014O7YOSQYEj3vutICIn92XW5aK/VtrSScoQ5XolglWpIj9paQnjD68pN+9ykJMDBo/JOarvNkPP77f4gscK1w8mIQys6aCLmHcbhGtBn64crGNv+1xrv/pxzAg2ftD6fsjQAbIaR/RoGspB5Z2970rfJvSHM9JVA/FBA6u+ykbc6zk7aVtOZCacZaXBPbFxcSpubijtylri/6nteQHDPCC9NFBK5048P/lAwBSo5l4Q54RQ3ys3VQrrjEUkIR5pV6aAEOHiM9Gputw45M7yVHB1pMggHhYi5ur/C0EfGatuT73BVuNqwvtqY0JNbzFU6q3V+6F0aADYizn7d8RvKQtFVnbWqwYd1YOV3LhO5V+kfF5U6O/Wl2WGn6TQYidoh2YvLhjZ3SzcpR8hoC/vDp75ThQSIvasGpgQm5ahbkR45oHYgIV5OKj9GAhw8E4pLK5D6wrsn0vQLU4g5Nxjcr094dSuHq+09Wq3b2jKea+WWhE98cTllaQDYBONjcX0SE6dVnuho/GEdVSPJ9yTMQP+6rOweKvZLED0jnZZK77sld3Hpv7ZbXbtYG+ojInjXeCB87u3HxC4LfVUTfb/LFuKJFTB/fOOHKDmxOX6OZbip9rGW4JZrpggNx0iAg8fIO+Z2WyEnk4UVITrSqtdhaImDpsTKuS3D+gSDt3O4GurCz9ugDkL1E/K0jWGPkR/6lwaADWiqiii3qKyls1B9TtuuoKc9uSJvHgJGkpcZJaF/9cb5RmUnbWuY2AedpsbsK71tXFyGDy4WRxePm4cB9RtvcUv4axX/A9NQSOAaJ8j4KWp3LSXED5Z7X+2E/pdNGnlVn1DGaxHvkRTre4TapoSmy//qInbRGAlw4MhPTBLf96gSRiL+K6wp7gc95gFxkSwOmqj5zLktY/Qx3+Y6XH5el2DrhfR4nUzk2bEcOGJpAJhPU1WoYyc/1jCyUNdl3dkPrLQcVVym9I8HSTepe0SQRcc4zRizDzYrLgHAwqVXAICiKCT7zTdTl6RnEYpLgPzMzzsAAKeZQrLfbDP3+hvu3UFxCZCf2XkHAOBUU0j2K8TM2fQUl7fddtvtt98ue2soLgH6IO8AQJkUkv0KMXM2PcXly2tkbw3FJUAf5B0AKJNCsl8hZs6G4hIgP+QdACiTQrJfIWbOhuISID/kHQAok0KyXyFmzobiEiA/5B0AKJNCsl8hZs5mo+LyAgAAAABAzPziUlaqAFDDH7UAUCaFZL9CzJwNxSVAfsg7AFAmhWS/QsycDcUlQH7IOwBQJoVkv0LMnA3FJUB+yDsAUCaFZL9CzJwNxSVAfsg7AFAmhWS/QsycDcUlQH7IOwBQJoVkv0LMnM3hFZcnq6Oj1YnsTTBp8FYRmqyXi8WBaAZ7gLwzisM5vwCQiQzZ7zRkhgxm5uXAnLZZcXmyOlqE5LBskoPGDq4VTY0cKyQgMny5lkJ6JbqLvaPgVFOdK7G/uba7R07PpW2w+fHnLACcOVzVFWaIaef7NCSENsn7BFhXAttgpDdGDtsVGxeX2Y2ZJHPk4GrYcpkaOlJISDhlvVwcrY7HCxk/Ek4tRnG5A3a84ubLUVwCnDmaqqKqu/yhPlktpxzw05AQZJKvK4Gt6DzSGyOH7Yr8xaUv5dtL1SfEDefuCMaH95VwQtcf/EnQs0Z3Ua0qhh+tTvzW1+9XlVrLS2KmkqM6Aontm/VysbyUVjuUcBy8u/b8+U6Id9FyPSBBGQeHiMw7UcxE2y131wdnNyCe4g6RihMztFqBzR8/TcxHa+qQGqVPN3Jotqm5m9tolTgU0zUHgAOgriqsUmvwLAddKqtt7bngXFSS95WAs1HpX70PsrpI5U5WkDYrif7yGKcZY/bBxsWls6opngLXrZdt6eaDItyJ9r5S7Ud7PbiXRA4JhnTvu46EkNifXZeL9lptSyspR5jjlQhWqYb0qK0luJGt8rGLQlIS4OBReSe13WbI+f12f5BY4drhZMShFR00EfMO43AN6BNZtOHx1wqbY0ZpDgAHgZH9GgbOsnln97nNmrlPhJm+EvA2Wvq7xOWtjlOuttV0ZsJp9q1hH2xcXEqbm4o7cpa4v+o7R4B/BNgEYstEIZE7/fjgDwVToJJzSZgTTnGjxE0xvtQcj0hCONKsSgclwMFjpFdzu3XImeGt5OhIk0E4KETM1f0Vhj6GJp7pxz+X5gBwGMTZrzuxQ2c5uqrPvqq49o78zmUigyn946KyP+XacvyK0kVOh2DMvpJk9uKyob3HSDcpR8hoC/vDp75ThQSIvasGpgQm5ajyTo8cUDuQEC8nlR8jAQ6eCcWlFUh94d0TafqFKcScGwzu16dvcMv0469f6DH9mgPAYWB8LD7iLMuruufAbn9GkrcymNa/Liu7h4r9EkTPSKcdRpLMXVz6r+1W1y7WhvqICN41Hgife/sxsctCX9VEX560hXhiBcwf3/ghSk5sjp9jGW6qfawluOWaKULDMRLg4DHyjrndVsjJZGFFiI606nUYWuKgKbFybsuwPsIicQqmHX8nIYPmAHAQNFVFdEJV1tJnub6Pt11BT5sO4lRyEBhJXmbFhP7VG+cblXK1rWF6HHSaGrOvJLlxcRk+FVwcXTxuHlrUb7zFLeGvVfyvt0MhgWucION33t21lBA/WO59tRMXL8uAaORVfUIZr0W8R1Ks7xFqmxKaLv/bhdhFYyTAgSM/MUl836NKGIn4r7CmuJ/FmAfERbI4aOIPKnNuyxh99Mh69NTjHwrPoDkAHABNVaFyifzM0DjLfXf2AystRxWXKf3jQdJNMm2G6XGM04wx+2Cz4hIALFx6BQAoikKy33wzdUl6FqG4BMjP/LwDAHCaKST7zTZzr7/h3h0UlwD5mZ13AABONYVkv0LMnA3FJUB+yDsAUCaFZL9CzJwNxSVAfsg7AFAmhWS/QsycDcUlQH7IOwBQJoVkv0LMnA3FJUB+yDsAUCaFZL9CzJwNxSVAfsg7AFAmhWS/QsyczUbF5QUAAAAAgJj5xaWsVAGghj9qAaBMCsl+hZg5G4pLgPyQdwCgTArJfoWYORuKS4D8kHcAoEwKyX6FmDkbikuA/JB3AKBMCsl+hZg5G4pLgPyQdwCgTArJfoWYORuKS4D8kHcAoEwKyX6FmDmbwysuT1ZHR6sT2Ztg0uCtIjRZLxeLA9EM9kCheafEU1AZuVzL3iSbpqyJywHsnAzZb9NjsgsymJmXA3PaZsXlyepoEZLDskkOGju4VjQ1cqyQgMjwOtVHQnoluou9o+BUU50rsb+5trtHTs+lbXCgp6D3sG++Yjx9vZxY6o1cvaohI9e67oHlRsoH2Bqu6gozxLSoPA1h3CZ586DmZaQ3Rg7bFRsXl9mNmSRz5OBq2HKZGjpSSEg4Zb1cHK2OxwsZPxJOLUZxuQN2vOJhnoL+w753Rhhe37D8jWq93NpNC2ALNFVFFcY+1E9Wy4GwjxhxTPaOTPJ1DtyKziO9MXLYrshfXPpSvr3k/wY/d0cw3s0VE7r+4E+CnjW6i2pVMfxodeK3vn6/qtRaXhIzlRzVEUhs31RPEy6l1Q4lHAfvrj1/vhPiXbRcD0hQxsEhIvNOFDPRdsvd9cHZDYinuEOk4sQMrVZgU/Y1MR+tqUNqlD7dyB2egmDV0C1S//RhbyUHDlku60WW63a1Rqy1tOH/YJx/ams7KhaqtksbKI1qu0PZKf1TYQawK+qqwjibwRlJZKG+Y3JwUaySvM+Bzkalv5W+jFQQJJxKor88xmnGmH2wcXHprGpuG4Hr1su2dPNBEe5Ek+Lr/Wiv+6QfO0R+FBR86yghJPZn1+WivVbb0krKEeZ4JYJVqiE9amsJbmSrfOyikJQEOHhU3klttxlyfr9dKWaFa4eTEYdWdNBEzDuMwzWgj7BoR6fA7NGXnFzzsAePV2u7upHuham85f8653ivdzYmHBUMDqZHfo68qqwKJQTLGfq31iWkAOwAI/s1DGQh85jEYX9ICDN9DvQ2WvrL9CVTgXF4TWcmnGZlsP2wcXEpbW4q7shZ5t2o9WO9EwH+4UcTiC0ThUTu9OODPxRMgUrOJWFOOMWNcnO1kO54RBLCkeb9eFACHDxGejW3W4ecGd5Kjo40GYSDQsRc3V9h6GMP1goEl4wYjlWV6ikJ0SUjK3d4OdZhD9byK5ovQuW11aKzvhcMOErr4JaosDwT0rNc/EJaB7Bz4uzXxboOy56DpsO4DvuDugnK71yK86hft/rH6UulgiiT2HL8itJFTodgzL7yQPbisqG9l0g3KUfIaAv7nVdmCAkQe1cNTAlMyknfGuOetNqBhHg5qfwYCXDwTCgurUDqC++eSNMvTCHm3GBwvz6Dg23dKjY/BS11XrZry77DHqzlV9SaxEsbuhn+nF5cKqM65GPPip7ltP4D8gG2i/GxuA7L/oNm9qjzvl+MJK+PqqV/lL76JYiekU7rTZ47I3dx6b+2W127WBvqIyJ413ggfO7tx8QuC31VE32fyhbiiRUIPjnyAv0QJSc2x8+xDDfVPtYS3HLNFKHhGAlw8Bh5x9xuK+RksrAiREda9ToMLXHQlFg5t2VYH2HRbk6BjPqqV3fHQvRhD9Tz/fELQ3lLN+MDO7VQ7NX2fSdT+TmgNi60o/0IxV7O0l/qDLBDmqoiOrnqcIVnJDgUyWNygAFtJHl59hP6R+lLpwJlq+sY4zQ1JlJvh2xcXIYPChZHF4+bhxPdY4POjw3h9/T9DzpDIYFrnCDjp5/dtZQQP1jufbUTFy/LgGjkVX1CGa9FvEdSrO8RapsSmi7/U4bYRWMkwIEjPzFJfN+jShiJ+K+wprgflJgHxEWyOGjiDypzbssYfcy32zwFKu712rpPHfZ6QH9xqZVP+T/olHlfaTIlZdXEsePuTsF7pXZonfYnwM5oqgojxuNzYRy0vmNycFE8orhM6R8Pkm4yDq9L7GOcZozZB5sVlwBg4dIrbAWd0wHgMCgk+803s4z0RXEJkJ/5eQdGYHzdEgAOg0Ky32wzC0lfFJcA+ZmddwAATjWFZL9CzJwNxSVAfsg7AFAmhWS/QsycDcUlQH7IOwBQJoVkv0LMnA3FJUB+yDsAUCaFZL9CzJwNxSVAfsg7AFAmhWS/QsycDcUlQH7IOwBQJoVkv0LMnM1GxeUFAAAAAICY+cWlrFQBoIY/agGgTArJfoWYORuKS4D8kHcAoEwKyX6FmDkbikuA/JB3AKBMCsl+hZg5G4pLgPyQdwCgTArJfoWYORuKS4D8kHcAoEwKyX6FmDkbikuA/JB3AKBMCsl+hZg5m8MrLk9WR0erE9mbYNJgaFgvFzXn7lgdLXDfVhjKO9UeLNeytxT2FYE7SxdnbyGA0RSS/YbMLJ3NisuT1VFzl2jJkecmpcuRg7ubWcVyPXaWjbR5sVhce/58IHC0dCkpcdxGyxvHetlt03qZWhI25cKFCzpO3DZO8Hzm3Y85vRHYaB5Mro74oJK1IcczzamXHDlx6kLjRwpmTwTYGqcj+21MVTxFGlZvLl7eTOfDNnkSGxeX2R0xSeaIwfU9wQfzejk2sAdQUdW+GaFSy8iRI4eNpHJHJg9AGv9Hbd7ty8tI3UYOG0mWCKxUWi6jQ3c0rOQmhogV+9lkoUnsbCGA0ZyO7LcxtZmzbv09ZBFyGOQvLv3TkPaSf2xYfQrmxru5YkLXHzxV6Vmju6hWDYZa07vnCqtOufZ2l5SjiAX7d+tlPDO8l/pnNu0VvYhXoJkUKySvSlcERlUDlA+DR7hPefpTB/0Mc0mmVyPA5AGJYjIMrG5YvLWqULMOlIxzN1LvuZS8xwgcODvrTv3qWciqe6M9bGkYjxw+/c0kr0ToOkNg70KhWbXul7qRoQLRg089INhc02rVAbAj9pn9dkhjZqhj9cI4kp25wnyfKp0l8QjDXaeJjYvL1vjWA1VC7PZ7vVxeqkf4/Vfp8jh8Rt70iHA0HqMH39hICImjWcWfW8jJqW8afXI0YkA3VSobdolrwnuL5aXANK94fMDiq8oVoVEhbukw9Af8DPNJpFcZYMciQHVMmsOMSAgvxUsomVauP9QI7Dk71dy6t3ndOkqZb2oY97e2BK5Un290ujoHhsorgQMLhdY0r7zrvAKu4gzX94QTtdV9tgBsl/1lv53SmtmZ1f5XnfreQxrZGycWOT46/qeBjYtLaXPzF0bCKSpdNv6Nbm9uTHhpohAfboaGwazxcjRSskv2elYbJfLWKSUo05rhoUPiq/r2I0tz7UMtTY+BjbHTqwqwaAf1YJde+4eJgO9ZokeO7jmICBw4Oz7duNWdqPpKSkN5/LvC2j71fnB3E0iI1T2yv5Hvb0heWnNDspNnwld+icBm90eCbQvAltlb9tstnZnxrV/rnDqkakx7wPVJr8fvy8zZZC8uG9rUNjJ6Igl+J7oLM4R4xLOaGj1L9wyiBlf3ibVVW7bRJ++PWoI0bfDWHhqnTTB9GL/o8zNsQDK99uy4NXhyeu1fokeO7jmMCBw4O7GS0lFaZ9OlkQ+Nskzk+WpeQqzukf2t5OZW1H2HJlLbSp5OVOwrY4kIwxaAbbO37LdbnJnRrb/RuT8xBv3SOfrFqSV3cXmyWgbJ72KdDv3mB++aPBk9PXZj4p0IM2pN9MUnW0hAfWPwF93nTTLpJ+Wo9V236K0zuZpeUyshhWgJgQLRbah9pa8GIZwwSvowjt1eP8N87PRqBJg6ICIm28gUSVRHgnGpRcn0W3wqInDk2WkdpczX6UKNbG2Jc1fspkCm+8Cu62vFjl+om7Vcdt/P7lwRJc/LagnlK71ES9IWgK2zv+y3U7yZ4a3fH8ngrCYOqZEqvUlq/Glj4+Iy/It+cXSxqti7Nz7RtrTfa2quul9ehkKCBOoEGb/R7K6lhIhcGqkZfsPJ3lohx3r2KY9Ng3q+4jFGm32BAtHtzD8vEVe9vyPviYuRo+IXxhjYmER6tQIs6NG/ePMbGp8jIxISS9hxbr51nUryXiPQ0lL3WY5qPRynC8ulPpuH86TkljYhGKls7EKdWPe22WulgF5C+Mpaot4FJQpgZ+wz++0Qb2Z463c6x4nROKShc4LXVrI9lcd4s+KyBHoqxvHI+9MWyKInZCLIO8WwpQjcwdkBgHwUkv3GmrmlxHjwUFwOYP5CZyrbi67gr6MtrQBzGJt3Tj/bjsDtnR0A2AaFZL9+M7edGA8fikuA/PTnHQCAs0oh2a8QM2dDcQmQH/IOAJRJIdmvEDNnQ3EJkB/yDgCUSSHZrxAzZ0NxCZAf8g4AlEkh2a8QM2dDcQmQH/IOAJRJIdmvEDNnQ3EJkB/yDgCUSSHZrxAzZ7NRcXkBAAAAACBmfnEpK1UAqOGPWgAok0KyXyFmzobiEiA/5B0AKJNCsl8hZs6G4hIgP+QdACiTQrJfIWbOhuISID/kHQAok0KyXyFmzobiEiA/5B0AKJNCsl8hZs6G4hIgP+QdACiTQrJfIWbO5vCKy5PV0dHqRPYmmDQYGtbLRc25O1ZHC9y3FYbyTrUHy7XshdME5wjAopDsN2Tmzjmwcmiz4vJkddTk15Yclk1y0MjB3W2gYrkeO8tG2rxYLK49fz4QOFq6lJQ4bqPljWO97LZpvUwtCZty4cIFHSduGyd4fsbuB3E1darNDB0mkfN4pskslnMEYLPP7LdDquIpuomPNWsyI/0wctiu2Li4zG7MJJkjBte773d9vcwUAdHSwZsRKrWMHDly2Egqd2TyAKTxf9Tm3b5hfNGTMdi3x7aOpybvRnCOABLsL/vtlLa4DKvmLRk70o0jh+2K/MWlL+XbS/65RPX5kRvv5ooJXX/f85fwzwVTSDTUmn60Oq7/d9Up194oknIUsWD/br2MZ4Z3oTj6LNUCBZpJsULyqnRFYFQ1QPkweEb0lKc/ddDPMJdkejUCTB6QKCbDwOqGxVsrShz1XCBUwEf+cinmW8ewCaRLxlGtJ8XBFq1oiwqW80NV1I0/noEhy3V7TR4bM0Fo73GOADKxv+y3U2RxWefeJlv6rChVrd53Snf1QL9bKon+spFn4tx1OLlo4+LSWeWScue69XJ5KXJlHGrNLSS8FwY3lcgh8nYZfGMjISSOZhV/biEnp97lPjkaMaCbKpUNu8Q14b3F8lJgmlc8PmDxVeWK0KgQt7STpg00VIeZJNKrDLBjEaA6Js1hRiR42rTkOvWhq+Z0XbWkOvBixUJN/CmLF7WDrVeU+ONea5+epY+nN6RSrXuRimrOEcBO2GP22yWiuGyyUZw6LFVlPTDkFunGDj+9G6yH7TUXbVxcSpubW1vkrOheYtzn4gIrzNque6IQ705Dw2DWeDkaKbnZxpPVkZ6lg6hGSlCmNcNDh8RXva9Mo0wfaml6DGyMnV5VgEU7qAe79No/zAxUdxATMjtpVRa/eLlXMT1Lh5+j38YeQ+JOuZx1PKNcoV+4gfpSjyF69ZHS9BiAItl/9tsJ8juXZnoxVI3rgUG3GHL8ijpPHk4uyl5cNrR3Nukm5QgZN2F/+NR3qhCPfpRhzdI9g6jB1efha6u2bMNI1pZagjRtsLgMjdMmmD6MX/T5GTYgmV57dtwavFl6rUJuqHLqissexfQsXZM5dKcSFVzd7Hi6nviFHdX6hTOEcwSQj8PIfltHfSxeo6zQqkb1QL8E0aPyjMxUh5SLcheXJ6tlYNbF2lC/+cG7xgPhZ21+TOyy0Fc1/laQFBJQjQkuVh/WqyXaRW05an3XLXrrilpNr6mVkEK0hEAB7yr/Sl8N7ooJo6QPXacan7AT5mCnVyPA1AERMdlGZjzMiISO8NG5kyAOXbiK/8TZOIap09GKNALYslGJCqdsdDzdmPiFHdWcI4CdsLfst1uGi8uUqnXW60YNuSXsUHmmzoptl07v+81FGxeX7ulr/QT24nFdYYWPY4Mx3de06qvLpc/O3YDQNU6QH+norqWECG9GanY3Rfv+YcixHq7IGGpQzyY9xmizL1AgvON26uir3t/qIbnpw9DSQT/DXBLp1QqwoEf/4s1vaHyOjEhILuC7mi2uy01HNz1xDNtLUgeZ6SLGiEoMn3Q8I+eMiGrOEcAO2F/22ykjisuUqvGgXrc001zuMvKMKoeMMftgs+KyBHoqxvHoEMxOFj0hEz69HiA7iMbTC+cIYDMOOvvlY76ZZWRgissBzF/oTGV7N6zggcuWVoA5zM87O6CM1DYJzhFALg46++VjtpnbqwcOCopLgPzMzjsAAKeaQrJfIWbOhuISID/kHQAok0KyXyFmzobiEiA/5B0AKJNCsl8hZs6G4hIgP+QdACiTQrJfIWbOhuISID/kHQAok0KyXyFmzobiEiA/5B0AKJNCsl8hZs5mo+LyAgAAAABAzPziUlaqAFDDH7UAUCaFZL9CzJwNxSVAfsg7AFAmhWS/QsycDcUlQH7IOwBQJoVkv0LMnA3FJUB+yDsAUCaFZL9CzJwNxSVAfsg7AFAmhWS/QsycDcUlQH7IOwBQJoVkv0LMnM3hFZcnq6Oj1YnsTTBpMDSsl4uac3esjha4bysM5Z1qD5Zr2QsGmc84ngfYLoVkvyEzd07mVLkpmxWXJ6ujpk5pyWHZJAeNHNyVUxXL9dhZNtLmxWJx7fnzgcDR0qWkxHEbLW8c62W3TetlaknYlAsXLug4cds4wfMzdj+Iq6lTbWboMAp5AGyFx69ujow7J3geAGaxz+y3Q6riKcphY82azEg/jBy2KzYuLrMbM0nmiMH17vtdXy8zRUC0dPBmhEotI0eOHDaSyh2ZPABp/B+1ebdvGP/HQ8Zg3y79Luq/CgAHxv6y305pi8sg3Vp/HOdgpBtHDtsV+YtLX8q3l/xjw+pzWDfezRUTuv6+5y/hnwumkGioNf1odVz/76pTrr0LJ+UoYsH+3XoZzwyruTj6LNUCBZpJsULyqnRFYFQ1QPkweIT7lKc/ddDPMJdkejUCTB6QKCbDwOqGxVsr6kf1XCBUwEf+cinmW8ewCaRLxlGtJ8XBFq1oiwqWE+N7XGSs7gLXCausdnqGA5sT0au86wKADOwv++0UWVwGWchnRalqmLa6eqDfLZVEf9m/cYODLilvr/f0jYtLZ5VL5Z3r1svlpfgOEO1Ec58L74VNjwhH43YZfGMjISSOZhV/biEnp97lPjkaMaCbKpUNu8Q14b3F8lJgmlc8PmDxVeWK0KgQt7STpg00VIeZJNKrDLBjEaA6Js1hRiR42rTkOvWhq+Z0XbWkOvBixUJN/CmLF7WDrVeU+cd9v4v86lH/STi0eeWXc91trh9Q3tQKAGaxx+y3S0Rx2aTV+BZsqSrrgSG3SDd2+OndYD1sr/f0jYtLaXNza4uc5QeEb/2dIC6w3Jjw0kQh3p2GhsGs8XI0UrK7v+lZOohqpARlWjM8dEh81fvKNMr0oZamx8DG2OlVBVi0g3qwS6/9w8xAdQcxIbOTVmXxi5d7FdOzdPg5+m1MTRlykX02uxPVflrQjLRS0IDyplYAMIv9Z7+dIL9z2WilrFCqxvXAoFsMOX5FmdmcDsGYfWW27MVlQ5vfpZuUI2TchP3hU9+pQjzWQwk9S/cMogZXd7i1VVu2YSRrSy1BmjZYXIbGaRNMH8Yv+vwMG5BMrz07bg3eLL1WIaerKLu47FFMz9L1mUN3KlF9U/QAvXp0bbl230SRdsW1aY/ytnAAmMNhZL+toz4Wr1FWaFWjeqBfguhR92uZ2Q7pnp67uDxZLQOzLtaG+s0P3jUeCD+u8mNil4W+qvElVVJIQDUmuOg/KdO7YstR67tu0VvfztT0mloJKURLCBTwrvKv9NWgukwYJX3oOtX4hJ0wBzu9GgGmDoiIyTYy42FGJHSEj86dBHHowlX8F0KMY5g6Ha1II4AtG5UoOaXfRWr1kMrcZfct587eKAXVdfOA8qZWADCLvWW/3TJcXKZUrd64m+2QW8KOQHibzIMaQKf3pmdfmW3j4tI9fa2fwF48rius5o23uKX7plN9dblsXRAKCVzjBPmRju5aSojwZqRm+N2sOJQTcqxnnzKGGtSzSY8x2uwLFPCiGnOrsfqq97d6SG76MLR00M8wl0R6tQIs6NG/ePMbGp8jIxKSC/iuZovrctPRTU8cw/aS1EFmuogxosT4tItMD/gTWXUGJviPxbtRxnSlvKkVAMxif9lvp4woLlOqxoN63dJMczWAcb9W5ZAxZh9sVlyWQE/FOB4dgtnJoidkwqfXA2QH0QgApXLQ2S8f880sIwNTXA5g/kJnKtsr/IIHl1taAeYwP+/sgDJSGwDshYPOfvmYbeb26oGDguISID+z8w4AwKmmkOxXiJmzobgEyA95BwDKpJDsV4iZs6G4BMgPeQcAyqSQ7FeImbOhuATID3kHAMqkkOxXiJmzobgEyA95BwDKpJDsV4iZs6G4BMgPeQcAyqSQ7FeImbPZqLi8AAAAAAAQM7+4lJUqANTwRy0AlEkh2a8QM2dDcQmQH/IOAJRJIdmvEDNnQ3EJkB/yDgCUSSHZrxAzZ0NxCZAf8g4AlEkh2a8QM2dDcQmQH/IOAJRJIdmvEDNnQ3EJkB/yDgCUSSHZrxAzZ3N4xeXJ6uhodSJ7E0waDA3r5aLm3B2rowXu2wrknUNnL6dgZ/lqZwsNUzl6uZa9cIbJkP0OKICTZDDzTLNZcXmyOmoydEuOcJgUVSMHdzeSiuV67CwbafNisbj2/PlA4GjpUlIiA4+WN471stum9TK1JGxKda7ExuXaxx45PZe2R87DlSaz2IynoD7GI3WrrTgeb8v4kYKpE5tcFDii2tVJEhzx0hPcu5tAgu3jqq7wFjdtM0/D7qskX725eHkzzU+D4SPZuLjM7ohJMkcMruPb57f1cmyuG0BFVftmhEotI0eOHDaSyh2ZPABpVN7ZCTtfcVuHS5PXtIynoFJsuRypXF4repi6kLCiens0TcJm7C6QYPs0VUW1p+EtcjklnKYG8D6ozZx16+8hi5DDIH9x6f9YaS/5P0irT6DceDdXTOj6gz96etboLqpVg6HW9O75wapTrk1mSTmKWLB/t17GM8P7mH9e0l7Ri3gFmkmxQvKqdEVgVDVA+TB4OPCUpz910M8wF6O4DEOk83i8Sd1+6LC0DpHaON8RPUqX0W4GRsAofdxQa/rIw1WNWS7rruW6vSaDXpm281NQXbHPb3f5aHXiL4Quca8t9eL+eoVwqfqR36VuZGh/9OBTDwh2TXvO6vBy1t2kau1VQoK5s1Z8GtYZE4PlZwcSHBh1VWEcliAGzIMZdamjH4fMAeBq6Fb75tZvHD1tS+ooxSNOeZxvXFy2xrceqHJBFwTr5fJSPcIHhUqLx+HHJkE2iTwpP1kJvsSTEBIlTR2UbiEnpz4IfXI0YkA3VSobdolrwnuL5aXANK94GLzyqnJFaFSIWzoM/QE/w3xSxeWxjEgZclZYpg9RQ//marEhctOH9cl1uOoxtTj3Eay+H2nTdn8KUue3opvvNNeeN9WL+50j/QrNK2+O6/YVZ7i+J5xo+9yL8sa0curxzes+CYGSifg0rFMTcwVSZD4cAEb2axg4mOqk6Cg6JNpP/7t4bP+rNO89jOpEeL/J8dKZB8/GxaW0ufkTNuGU8G3g36jAcmPCSxOF+Bg0NAxmjZejkZJdUtez/NGJrkkJyrRmeOiQ+Kq+zURGmT7U0vQY2BgjvQ5uUMW4PU1tnN7cHiFiru6vMPQxNAnRy7melGTzhRuoL4WSLQ2HjdXS9BhP4vxGynQ3h35lgh7ZH92gus8/mpE9STWhv1/CddYSmj9fjczWyfGXUxLU6oa3Lev0RDEl9nlCjqWStAX2TZz9ug0zQ8VtY2qv9Rk5GNriUtz6Tc2tuLVPRPgiHn9Qto8he3HZ0OaoyH0iieg9EP0ux88Q4tEPQ6xZumcQNbi6H6yt2rKNPnVvUhKkaYPFZWicNsH0Yfyiz8+wAROKy/4YSEyxN06/MIWYc4PB/foEVzc7XFrbGabt5BTY57eRHVDN6zc86JH9rfDmFtV9tyZSxkqqCf2NJSJUiRk6JEg7hgRz9XCM7my2SU0MxG4WSHBgGB+L671LBG1yr/0ZORS64jK+9Tea9yeloF+eCP3i1JK7uPRf262uXazTno+I4F0TWtHTYzcm3okwCGv8viWFBNQ3AH/Rfa4kAzcpR63vukVvnbHV9JpaCSlESwgUiG437St9NQjhhFHSh3Hs9voZ5pMsLoPtrFEhp3ZQTunZODdQHzQlVs5tGdYnjJCNDlccigMxud9TUNupuuN9aT601Z7X+Uo5JBRUVZfL7nvbnXpRUr2sllD66yVaYlHeoPid6zElqJ2N/aAmtpfVxHC5jQIJDgz3ZcS+AksHrT4pOooOCVdc1moGZzK2JRm3pje8nWr8aWPj4jL8y31xdLGq2Ls3Pkxaui/e1FfdbxNDIUH8OUHGbzG7aykh0eD4oktzdqAbcqy/qkVktBjPNjqM0WZfoECYajt19FXvb/XJgunD0NJBP8Nc2uLS7439fY9qFxPxX2FNcT+YMDfOhYo4aMOB4RijT2L4pMPlx6gXpnp7PQUJy6O+NlEYKS7OV5Hh7bJB3qg6u7eNMwPzxDy3hNDfWqL2jBLlFxX2pSQM7Wz/D3rkxIDZgSTkwN5xVZfcqHjfjUMXnxQjig4JX1xWekdnNrSltseIWzu27UR3KuN8s+KyBHoqxvFYyTQzWfSETAR5B3bIlk7BDs4vwFmhkOw31swtJaWDh+JyAPMXOlPZXnQFfx1taQWYw9i8AznY9inY3vkFOHsUkv36zdx2Ujp8KC4B8tOfdwAAziqFZL9CzJwNxSVAfsg7AFAmhWS/QsycDcUlQH7IOwBQJoVkv0LMnA3FJUB+yDsAUCaFZL9CzJwNxSVAfsg7AFAmhWS/QsycDcUlQH7IOwBQJoVkv0LMnM1GxeUFAAAAAICY+cWlrFQBoIY/agGgTArJfoWYORuKS4D8kHcAoEwKyX6FmDkbikuA/JB3AKBMCsl+hZg5G4pLgPyQdwCgTArJfoWYORuKS4D8kHcAoEwKyX6FmDkbikuA/JB3AKBMCsl+hZg5m8MrLk9WR0erE9mbYNJgaFgvFzXn7lgdLXDfViDvHDp7OQU7y1c7W2iYytHLteydTGaLMmkFFhmyX+bt3goZzDzTbFZcnqyOmgzdkiMcJkXVyMHdjaRiuR47y0bavFgsrj1/PhA4WrqUlMh1o+WNY73stmm9TC0Jm1KdK7FxufaxR07Ppe2R83ClySw24ymoj/FI3WorjsfbMn6kYOrEJhcFjqh2dZIER7z0CPfKPGjfSMZbZI6crBXMx1Vd4dbqPenD3MQDQyX56s3Fy5tpfhoMH8nGxWV2R0ySOWJwHd8+k6yXmbKKiqr2zQiVWkaOHDlsJJU7MnkA0qi8sxN2vuK2Dpcmr2kZT0Gl2HI5Urm8VvQwdSFhRfX2aJqEzenXuf8qHBJNVVEdsvAWuZyyfadhu2szZ936e8gi5DDIX1z6P1baS/7JRvUJlBvv5ooJXX/wR0/PGt1FtWow1JrePT9Ydcq1t5qkHEUs2L9bL+OZ4X3MPy9pr+hFvALNpFgheVW6IjCqGqB8GDxlesrTnzroZ5iLUVyGIdJ5PN6kbj90WFqHSG2c74gepctoNwMjYJQ+bqg1feThqsYsl3XXct1ek0GvTNv5Kaiu2Oe3u3y0OvEXQpe415Z6cX+9QrhU/XDtUjcytD968KkHBLumPWd1eDnrblK19iohwdxZKz4N64yJASKarHVtfSY5bapWMJ26qjAOS+Bt82BGXeroH9zmuBq61b659RuRpm1JHaV4hH1WTw0bF5et8a0HqjPcBcF6ubwUH/1gH9rXx+EHFE2PSDFtxgjjKvi6TEJInKFUULqFnJz6IPTJ0YgB3VSpbNglrgnvLZaXAtO84mHwyqvKFaFRIW7pMPQH/AzzSRWXxzIiZchZYZk+RA39m6vFhshNH9Yn1+Gqx9Ti3Eew+n6kTdv9KUid34puvtNce95UL+53jvQrNK+8Oa7bF0/h+p5wou1zL8ob08qpxzev+yQESibi07BOTYzUlrZY61r6NL4f6bQ5WsF0jOzXMHAw1UnR+3VItJ/+d/HX/ldpHvSokNax5/0mx0tnHjwbF5fS5uZP2IRTwreBf6MCy40JL00U4mPQ0DCYNV6ORkp2iU3P8kcnuiYlKNOa4aFD4qv6NhMZZfpQS9NjYGOM9Dq4QRXj9jS1cXpze4SIubq/wtDH0CREL+d6UpLNF26gvhRKtjQcNlZL02M8ifMbKdPdHPqVCXpkf3SD6j7/aEb2JNWE/n4J11lLaP58NTJbJ8dfTklQqxvetqzTE2MnK7usdbU+k5w2RyuYTpz9uj0zQ8XtpN4d3aPjdq+0xaW49ZuaW6Frx174Ih5/ULaPIXtx2dAe7Mh9On3oaIt2orswQ4jH+mtUz9I9g6jBVWpbW7VlG33q3qQkSNMGi8vQOG2C6cP4RZ+fYQMmFJf9MZCYYm+cfmEKMecGg/v1Ca5udri0tjNM28kpsM9vIzugmtdveNAj+1vhzS2q+25NpIyVVBP6G0tEqBIzdEiQdgwJ5urhGN3ZbJOaKBXrH6DFRtdGOW2OVjAd42Nx2//dG/Oq7lEHcL90xWV86280709KQb+MPf3i1JK7uPRf262uXazTno+I4F0TWtHTYzcm3okwCGv8viWFBNQ3AH/Rf0SitjYhR63vukVvncfU9JpaCSlESwgUiG437St9NQjhhFHSh3Hs9voZ5pMsLoPtrFEhp3ZQTunZODdQHzQlVs5tGdYnjJCNDlccigMxud9TUNupuuN9aT4j1p7X+Uo5JBRUFUrL7nvbnXpRUr2sllD66yVaYlHeoPid6zElqJ2N/aAmtpfVRMPJvtNe19CnuzjstHlawXTclxH7CqzgdfKk6P06JFxxWasZnMnYlmTomt7wdqrxp42Ni8vwL/fF0cWqYu/e+DBp6b7iUl91v00MhQTx5wQZv8XsrqWEiAQRqRl+KcfeWiHHejwjIqPFeLbRYYw2+wIFvKjG3Gqsvur9rT5ZMH0YWjroZ5hLW1z6vYk/BXa98dfa5Q5aU9wPJsyNc6EiDtpwYDjG6JMYPulw+THqhaneXk9BwvKor00URoqL81VkeLtskDeqzu5t48zAPDHPLSH0t5aoPaNE+UWFfSkJQzvb/4MeOTFEdKbWjfu9wH6nGdPHaQXTcVWX3KvYw8ahi0+KsV+HhC8uK72j8Attqe0xQtc+SnaiE8f1dLBZcVkCPRXjeHaQtrLoCZkI8g7skC2dgh2cX4CzQiHZb6yZW0pKBw/F5QDmL3Smsr3oCv462tIKMIexeQdysO1TsL3zC3D2KCT79Zu57aR0+FBcAuSnP+8AAJxVCsl+hZg5G4pLgPyQdwCgTArJfoWYORuKS4D8kHcAoEwKyX6FmDkbikuA/JB3AKBMCsl+hZg5G4pLgPyQdwCgTArJfoWYORuKS4D8kHcAoEwKyX6FmDmbnuLytttuu/3222VvTVtcXgAAAAAAiEkVlz3w5BKgD/6oBYAyKST7FWLmbCguAfJD3gGAMikk+xVi5mwoLgHyQ94BgDIpJPsVYuZsKC4B8kPeAYAyKST7FWLmbCguAfJD3gGAMikk+xVi5mwoLgHyQ94BgDIpJPsVYuZsDq+4PFkdHa1OZG+CSYNTnKyOFptLOUhS/kn1QybIO1uLsfVysViuZe9GnOEMALBzMmS/bWWPnGQwMy8H5rTNissqKYfksGySg0YOru5HHeq+tF7WfU7USJljEKLqt8cp+al+wchhDanBdn+9nUZ/jT0FbKpzZe1+Bgf2yOm5tA36j38uZWI57Wkdxdh4tmW6AbkMASgDV3WFGWLaGToNh65N8j4BGlkkDyO9MXLYrti4uMxuzCSZIwbXu+93fb1MRMAIUZOZVF70X51HSqbZX3Uul8aFGnMKJDCKyx2w4xX7l+u/ugM2jOfBAQBg0VQV8ecBJ6vllNN0Gk6fTPLr5cQKejQjvTFy2K7IX1z6Ur695B8bnrsjGO/migldf/AnQc8a3UW1ajDUmn60WlVqLS/Vr4+D+deeP9/N8Jov1yP1iS+JxZu1tIGxAtVF/64uhZXCm/on6ZUTf0DCRZPqKSlQI/NOFAxRXElnerd3A+Ip7hCpADBjOIq6ZjejNfUOjtKnG6lmh6KrwA7HJDxgKWPYG4wTh8J1RYyMZ+er0O5NEwJAwdRVhVVqDWahOHsYp/6QUEm++gikuUE7G5X+1fsgq6vUoxNgJdFfHuM0Y8w+2Li4dFa5e0nnuvWyTeI+KNSd5jj8SCq4C0YOkZ9aBV+6Sgjx0+P1g85IQhvEwYvm7qJm1hj69Kwe0xkoHNVGYTvXG9iOMhV2GPoM+MdwspPrckK4qFQvYS90qLyTiivpzDowfGS4QsfaiA4nI47h6KCJ3XQYwTOgTzK820iLY09rIj0Q4L+hIu0NJRuHwriRjY5nb6YTVr8QA4bVBoAKI/s1DGQhlT30qT8khJmVhjLTWvq7dOGt7oanUo3pzITT7FvDPti4uJQ2NxV35Cxxf9X3vAD/ZK4JxJaJQrw7DQ0NCe4WEt1sxMQefUauHkhujo09WKgX+kQMc2uqVfr9EwmUs4I/p0yxStregveAMdKrGVfKmXqvjSl6I0TkjBEi5ur+CkMfQxOzR6+re1x/oIwcoGf1HIp4Vt0zIp5HnEeplVI7ugRQMHH2686JPkQ9B18fuvrUH9S9Rn7nMkgXRl7y+sdFZX/KteX4FaWLnA7BmH2lpuzFZUObqaWblCNktIX9ziszhHiMZxpaQrsfwQspc6Q+AmtkLDm4pWlN2nWN++im/lE9IsKriymxai5oJhSXPVuTnmIHgH5hCjHnBoP79Zk0WK5rmhMrYwzQcqxDEWoyN56T59HQKuVDgLIxPhbXh0idIHlV9xxmcSnOvrJC61+Xld1DxX4Jomek0w4jNeUuLv3XdqtrF2tDfUQE7xoPRJ+juTGxy0Jf1URfo7KFBNS3GX+x+rBe7Ue3bX6z5aPpAX0Sqwv/BKYdx46qXvoF1bN0pfCm/pEbFxvbfBqrlVfqQQoj75hxpZ2p91pM6QmAMIa7GW0MKLFybsuwPsKiYK4Ve1oTy5xQGXOA8QFZj2JCQn88d/5Mnsf0LiR8CFA0TVURnQuVtfQJqs94nD30qT8kjCQvc1FC/+qN841KudrWOBcNOE2N2Vdq2ri4DJ8PLI4uHjd/+ndPCzo/NoTfgve/4wyFBK5xgoxffHbXUkKENyM107elRqr//n6seZ8+qdX1/cwVl16en9F0VW+9QBlS7nWfPkP+MW60kYQqXi9elsfGUs/wNhifmCS+71Htbs/WWFPcD1zMAHB7JA6a2HFzbssYffTIZnSglpPcf+Ttk2XZG3QmD4VXLDKqL56b895zHuckBICCaaoKlUvkpwfGCVLZQ576Q2JEcZnSPx4k3SRTTZjYxzjNGLMPNisuAcDCpVcAgKIoJPvNN1OXpGcRikuA/MzPOwAAp5lCst9sM/f6G+7dQXEJkJ/ZeQcA4FRTSPYrxMzZUFwC5Ie8AwBlUkj2K8TM2VBcAuSHvAMAZVJI9ivEzNlQXALkh7wDAGVSSPYrxMzZUFwC5Ie8AwBlUkj2K8TM2VBcAuSHvAMAZVJI9ivEzNlsVFxeAAAAAACImV9cykoVAGr4oxYAyqSQ7FeImbOhuATID3kHAMqkkOxXiJmzobgEyA95BwDKpJDsV4iZs6G4BMgPeQcAyqSQ7FeImbOhuATID3kHAMqkkOxXiJmzobgEyA95BwDKpJDsV4iZszm84vJkdXS0OpG9CSYNTnGyOlpsLuUgSfkn1Q+ZIO8cKBkPe+oQpfoByiBD9jsNhyiDmWeazYrLKlOH5AiHSVE1cvB66XVcrvXFqs+JGilzDEJU/fY4JT/VLxg5rCE12O6vt9Por7GngE11rqzdz+DAHjk9l7aBZeBOw9tkZ4c9Ndfu53BBKbiqKywQpgX4aTgRKslXby5e3kzz02D4SDYuLrM7YpLMEYPr+PY3mfVS3XAaRoiajJDZv0T/1XmkZJr9VedyaVyoMadAApV3dsKOV9x7eCt2ethTQsx+DhcUQ1NVxB8SnKyWUyL8NJyI2sxA0Sw6ZxFyGOQvLv0fK+0l/yTh3B3BeDdXTOj6gz96etboLqpVg6HW9KPVqlJreal+fRzMv/b8+W6G13y5HqlPfEks3qylDYwVqC76d/XdUSm8qX+SXjlZLztx4aJJ9ZQUqDGKS/82iivpTO/2bkA8xR0iFQBmDEdR1+xmtKbewVH6dCOVgdsP7+pK4BalgTZnW4ddO957TE/icEEh1FWFOJs1g1mo73Al/lDcH66GdimkPb9Sc22LTxRxaj1TqWDj4rI1vvVAdWvpgmC9bPOmD4ow7baJvv2cyvfo1BwM6d53HQkhfnq8ftAZSWg3PnjR3IHUzBpDn57VYzoDhaPcLbYN0k69dpSpsMPQZ8A/hpOdXJcTwkWlegl7oSNVXKq4ks6sA8NHhqvMrI3ocDLiGI4OmthNhxE8A/rsO7yDHnHJPLKm8PiF9HCIXJ3DBTCAkf0aBrKQebjanvQR3Rvtp//dkW3/qzTvSxQ6tZ6hVLBxcSltbh4AJJwSvg38G+AfXTSB2DJRiI9BQ0NDQrSpTqaY2KPPyNUDyU3w2YOFeqFPxDC3plql3z+RQDmrC3NLebluLe2wTvxhYKRXM66UM/VeG1P0RojIGSNEzNX9FYY+hibB262Hd4W/F0XBJ/TRnVoH0zk9qytpHC4AQZz9upjWBy0+ZdFVfTDrXHFQx6EtLts8dLI6qtUzNR9MFGEGOCupIHtx2dDeWmSeVd6U0RbtRHdhhhBP8uF836ZqmSP1EVgjY8nBPVhr0q5rROGm/lE9IpKriymxai5oJhSXPVuTnmIHgH5hCjHnBoP79UkO1gttI7xr6nQua8tdH3Zzrp7SyONwQTEYH4vrw6JOmbyqe+R53zNdcVl/Hr5ua8tW89B6bUvQH46JMoAef9rIXVz6r+1W1y7WdwkfEcG7JrSip8duTLwTYRDWRN9csoUE1JndX6w+rE9tanAXlJ+UDeiTWF34JzDtOHZU9dIvqD4LUApv6h+5cbGxzaexWnmlHqRIFpfC1dqZeq/FlJ4ACGO4m9HGgBIr57YM6yMskgZ2/7u18Ha9qe4wkLdx2Nv3rWP7PdYN5HBBObgvI/YVWOqU1UcpebjiU3QQuOKyVjNIuLEtQU86UejUpMefNjYuLsM/yRdHF6uKPfgDvXVWS/hNef/TyVBIEH9OkPEjy+5aSkg0OL5o3sya141U/x3/WPM+fVKr61uIu/t6eX5G01W99QL9LVAo3KfPkH+Me1skoToY+p9UsNQzvA2+uHReSnzfo9rdnq2xprgf9JgB4PZIHDSx4+bcljH6pN/uIrzDcYqtH3YOF0AvruqSsTyYhfoO18EVWr64rPTu1HM2+hTYHeSeRKFS0xlIBZsVlwBgEeQd2AKyYgOAQ6GQ7DfWTP39nTKguATIz9i8A7MoNV0DnAIKyX79ZgYPLgvNVRSXAPnpzzsAAGeVQrJfIWbOhuISID/kHQAok0KyXyFmzobiEiA/5B0AKJNCsl8hZs6G4hIgP+QdACiTQrJfIWbOhuISID/kHQAok0KyXyFmzobiEiA/5B0AKJNCsl8hZs5mo+LyAgAAAABAzPziUlaqAFDDH7UAUCaFZL9CzJwNxSVAfsg7AFAmhWS/QsycDcUlQH7IOwBQJoVkv0LMnA3FJUB+yDsAUCaFZL9CzJwNxSVAfsg7AFAmhWS/QsycDcUlQH7IOwBQJoVkv0LMnM3hFZcnq6Oj1YnsTTBp8BzWy8VicbQ6OVkdLdfy4jy2pPM8sfNmDbIlsacH8s4ItnC4tse8kJ43K0VeaQDbIUP2Ow2hnsHMM81mxeXJ6mgRkiMcJkXV4OBYw/YWNjiro7nrNTIGbn9+oYGB41e3R5qdPf39DM5SxlcVQf+UMWLPOtW5Ek7I5ZMeOT2XtsHODldLPTYlfPS6M5knf+ysXtMcWpru6WHSYIC5uKorzBDTQu80xKpK8tWbi5c30/w0GD6SjYvL7I6YJHNwcDigjvRxt7FZDCrTMHLYpJFTBzsGZ1UDlks3qHp7NDBljNizjso7O2HHK+7ycOlQFGzb9nnyR87qN80xUlqKDacDjKOpKqqU4OPtZLWcEnunIVZrMwNFs+icRchhkL+49H+stJfqD79qzt0R342a12JC1x/80dOzRndRrepHhh3122O9hCmkHrbqtPcPZuIOT2hR38RKvNMhnBiufxy8u/b8+U7g8pIeHPst0MapuF5qt3STbdvDkUerdSd7vVwsV3rjunWUWKlkMRjFpX/rT0TluDFRZx0i5VsZMGF0NfHWhFC0pt6XUfp0I5WB2zpc3Wo+lAOLLgnpcm3ZIc23lDHH5D9f3XBl2nJZT1iu25nttnX9UittobRomosAZlNXFepQxGfWzkJ9B8fICfvF1dCt9utle7Kk5tqWmYf0dLFxcdka33qgurV0QbBetknfB0WYoOvXx3W54ksTUXU1BEO698HdyBLip0tp1cimPlOqSiH1AD+iLvj80rFhfpaLodREw0xLnzbStEBpUeefVH8eB9YDmtd+inCFFGsrUwap4rL5myHwhPS8FXXpQ9TgZIQBY0SXtQNyX4b1UbHh2Obhcos5HYRFXhlzLa9MJNednZSN4Riz3/Zh19FuulQpkmOb1vW4F60h7eTmZZNGtHzt3jgqzPEJFwFMxMh+DQNZyDw4bY+VE/ZM++l/d5ja/yrNU0lg6iGVzjx4Ni4upc3NI5aEU8K3gX8D/JO5JhBbJgrxMSg1DO5/WtVYiNckXCjsEcEeat4/0ewR+vQK1P6JBLb4IxspqqSNcaBXztTfcpdWMlbvLGOkV+034Z/awdqNxpSUb8NLg0LEXN1fYehjaNKyk8Pl0nBKGb2WebLcdb20lqMdWJHjfPWbFr+QekalfCRfu1dKE+O1iwDmEme/Ltr0Ieo5YomAP6j4bIvLNgF0P0s0Nc9xSA/K9jFkLy4b2lQVuS9Ko9YeiH5305shxGHNjccnVB1cSMe6uzo40eoR+rgwTQqM/WM6oY56ee+zpam5LaEOgVZSf+uoaCXtJc4iE4pL4RbTjWqK7Vv9whRizg0G9+uTHKwXyne4RKatBlqrS9sjAmV6zo7r6RnTkeF89ZsWv5B6hsWlkK900NIsfSgxIQPGx+I6UPuPmNlzYJHZFZf15+Hr7p+8aDQPrde2BP3TD+mpIXdx6b+2W127WCdpHxHBuya0oqfHbky8E2EQ1vh9SwpxRBp2w7olYlWVELX3A0/pzbDwE2OdtStifaqXbowWqPxjxG57LXZehVJmrAN9j+UKJVYpKdU7uySLS7+pDcrzeq/FlEQAtIHnAkZFlxAr57YM6yMs6t5u9XDFHe4zYqFMO8RYK1Im+DlnyjnavXI5N3jD89VvWvxCatV9WG/IVxa1Qsa5SBoEMAX3ZcS+Aksfsd6Do3LC/nHFZa1mp50/koF5WQ7paWPj4jL8o3vR3kX8n+Cts1rcvzxSXXU/jgyFBPHnBBk/o+yupYT4wZGGxmZHFxKauCnxQvG+B/36GV71WuksXGHo003Sv8/Q/rFvfn75GKVMnwOFgB5XKLF9m3imaYvLzqOp73tUjpsWdf4HPaZvm87mm7HhVREe5tyWMfrokds+XJGSVeLW/+SHs12upZTpOzt7Pl+xaaFnGh2EEMN1afdOcRHAbFzVJQM2jnYjC/UdnIMrtHxxWendqeds9EcqOK1Bz9RDeuqO5WbFJRw48tYFOyLIO3B24XwBKArJfmPNVF+cKQSKy7NMqVG9f8bmHTjNcL4ANIVkv34zgweXhSYJikuA/PTnHQCAs0oh2a8QM2dDcQmQH/IOAJRJIdmvEDNnQ3EJkB/yDgCUSSHZrxAzZ0NxCZAf8g4AlEkh2a8QM2dDcQmQH/IOAJRJIdmvEDNnQ3EJkB/yDgCUSSHZrxAzZ7NRcXkBAAAAACBmfnEpK1UAqOGPWgAok0KyXyFmzobiEiA/5B0AKJNCsl8hZs6G4hIgP+QdACiTQrJfIWbOhuISID/kHQAok0KyXyFmzobiEiA/5B0AKJNCsl8hZs6G4hIgP+QdACiTQrJfIWbO5vCKy5PV0dHqRPYmmDR4DuvlYrE4Wp2crI6Wa3lxHlvSeZ7YebMG2ZLY0wN5ZwSzDteWQmtLYgHKI0P2Ow3nMYOZZ5rNisuT1dEiJEc4TIqqwcGxhu0tbHBWR3PXa2QM3P78QgMDx69ujzQ7e/r7GZyljK8qgv4pY8SedapzJZyQyyc9cnoubYOdHa6QQflKIhELsEtc1RVmiGnH6zScR5XkqzcXL2+m+WkwfCQbF5fZHTFJ5uDgcEAd6RNuY1MZVKZh5LBJI6cOdgzOqgYsl25Q9fZoYMoYsWcdlXd2wo5X3OXhcgzaSMQC7JWmqqhSgj9TJ6vllPN1Gs5jbWagaBadswg5DPIXl/6PlfZS/eFXzbk74rtR81pM6PqDP3p61uguqlX9yLCjfnuslzCF1MNWnfb+wUzc4Qkt6ptYiXc6hBPD9Y+Dd9eeP98JXF7Sg2O/Bdo4FddL7ZZusm17OPJote5kr5eL5UpvXLeOEiuVLAajuPRv/YmoHDcm6qxDpHwrAyaMribemhCK1tT7MkqfbqQycIuHq72UEBiOzBqxqXUAwKSuKtRNpzubfVlInUfjzB4MroZutV8vqxfufZ8tqRwYjzjlqWfj4rI1vvVAdWvpgmC9XF6qR/igCO9Gza2oTv4+0YuqqyEY0r0P7kaWED9dSqtGNvWZUlUKqQf4EXXB55eODfOzXAylJhpmWvq0kaYFSos6/6T68ziwHtC89lOEK6RYW5kySBWXzd8MgSek562oSx+iBicjDBgjuqwdkPsyrI+KDcf2DpcMrd1FrD6VANCLkf0aBrKQPI/WmT0g2k//u1TU/ldpnkpZOgfGqVuOl848eDYuLqXNzSOWhFPCt4F/A/yTuSYQWyYK8TEoNQzuf1rVWIjXJFwo7BHBHmreP9HsEfr0CtT+MYry4MhGiippYxzolTP1t9yllYzVO8sY6VX7TfindrB2ozEl5dvw0qAQMVf3Vxj6GJq0bO1wmYNjgXpwloiVhgDAEHH2607UUBaSJ1T3HNgxbIvL9gbb/SzR1NxKWcn8oxNRPf6gbB9D9uKyoc3IkftSNwkhwe9Ed2GGEIc1Nx6fUHVwIR3r7urgRKtH6OPCNCkw9o/phDrqZW1pS1NzW0IdAq2k/tZR0UraS5xFJhSXwi2mG9UU27f6hSnEnBsM7tcnOVgvlOtw9Q8WuEs5I5YSE2Asxsfi9hmMzpq8qnsO7AB2xWX9efi6+ycvGs1D67UtQX84ps1a4sWpJXdx6b+2W127WGdrHxHBuya0oqfHbky8E2EQ1vh9SwpxRBp2w7olYlWVELX3A0/pzbDwE2OdtStifaqX8d0xEqj8Y8Rue00/MVTKjHWg77FcocQqJaV6Z5dkcek3tUF5Xu+1mJIIgDbwXMCo6BJi5dyWYX2ERd3brR4uFVpaT4dQsk++Eqs8Y5xKAOjFfRmxr8DSZ02fR+PMHhCuuKzVDBJubIvOPy2mN7ydavxpY+PiMnpy295F2jc+TFrcvzxSXXU/6AyFBPHnBIU//WzprqWE+MGRhsZmRxcSmrgp8ULxvgf9+olI9VrpLFxh6NNN0r/P0P6xi0u/fIxSps+BQkCPK5TYvk0807TFZefR1Pc92mrMjRqOOv+DHtO3TWfzPcPwqggPc27LGH30yK0eLiu0dhOxhiEA0IuruuQZHcxC6jwaZ/Zg8MVlpXennrPRZ44ud4zJgUEOV+47ZWxWXMKBo2+0sBOCvAMAUBCFZL+xZqovphUCxeVZptSo3j9j8w4AwNmikOzXb2bw4LLQmzDFJUB++vMOAMBZpZDsV4iZs6G4BMgPeQcAyqSQ7FeImbOhuATID3kHAMqkkOxXiJmzobgEyA95BwDKpJDsV4iZs6G4BMgPeQcAyqSQ7FeImbOhuATID3kHAMqkkOxXiJmz2ai4vAAAAAAAEDO/uJSVKgDU8EctAJRJIdmvEDNnQ3EJkB/yDgCUSSHZrxAzZ0NxCZAf8g4AlEkh2a8QM2dDcQmQH/IOAJRJIdmvEDNnQ3EJkB/yDgCUSSHZrxAzZ0NxCZAf8g4AlEkh2a8QM2dzeMXlyeroaHUiexNMGjyH9XKxWBytTk5WR8u1vDiPLek8T+y8WYNsSezpgbwzgrN+uACKJEP2Ow0nLoOZZ5rNisuT1dEiJEc4TIqqwcGxhu0tbHBWR3PXa2QM3P78QgMDx69ujzQ7e/r7GZyljK8qgv4pY8SedapzJZyQyyc9cnoubQMOFwAoXNUVZohpB+g0nDiV5Ks3Fy9vpvlpMHwkGxeX2R0xSebg4HBAHelDd6cNGFSmYeSwSSOnDnYMzqoGLJduUPX2aGDKGLFnHZV3dsKOV+RwAYCiqSqqlOBPzclqOeUEnYYTV5sZKJpF5yxCDoP8xaX/Y6W9VH/4VXPujvhu1LwWE7r+4I+enjW6i2pVPzLsqN8e6yVMIfWwVae9fzATd3hCi/omVuKdDuHEcP3j4N215893ApeX9ODYb4E2TsX1Urulm2zbHo48Wq072evlYrnSG9eto8RKJYvBKC79W38iKseNiTrrECnfyoAJo6uJtyaEojX1vozSpxupDCzjcAFAkrqqUDed6PAmspC6g/TlhH3jauhW+/WyehFmqqQtqRwYj5A59JSxcXHZGt96oErrXRCsl8tL9QgfFCrpH9flii9NxI2hIRjSvQ9uKpYQccMLpFUjm1uIUlUKqQf4EfU9yS8dG+ZnuRhKTTTMtPRpI00LlBZ1/kn153FgPaB57acIV0ixtjJlkCoum7Im8IT0vBV16UPU4GSEAWNEl7UDcl+G9VGx4SjpcAFAAiP7NQxkIXWQ+3PCvmk//e9yW/tfpXnQ0xmQyIFx6pbjpTMPno2LS2lz84gl4RQ76Yf4hwdNILZMFOJjUGoY3P+0qrEQr0m4UNgjgj3UvH+i2SP06RWo/RMJbPFHNlJUSRvjQK+cqb/lLq1krN5Zxkiv2m/CP7WDtRuNKSnfhpcGhYi5ur/C0MfQpKWowwUANnH2686SPkc9p8w8yCIn7Ju2uGxvsN3PEk3NrZuszoFROlLjD8r2MWQvLhvaVB65z8rjMtqineguzBDisObG4xOqDi6kY91dHZxo9Qh9XJgmBcb+MZ1QR72sLW1pam5LqEOgldTfOipaSXuJs8iE4lK4xXSjmmL7Vr8whZhzg8H9+iQH64XO9OECABPjY3F9jvpPmdlzYAVWV1zWn4evu3/yotE8tF7bEvTLNKVfnFpyF5f+a7vVtYt1nvYREbxrQit6euzGxDsRBmGN37ekEEekYTesWyJWVQlRez/wlN4MCz8x1lm7ItaneunGaIHKP0bsttf0E0OlzFgH+h7LFUqsUlKqd3ZJFpd+UxuU5/VeiymJAGgDzwWMii4hVs5tGdZHWNS9Le9wAYCF+zJiX4GlT5k+yP05Yd+44rJWM8g4sS1Bz0AObPNbO0qNP21sXFxGT27bu0j7xodJi/uXR6qr7ifIoZAg/pyg8MfKLd21lBA/ONLQ2OzoQkITNyVeKN73oF8/w6teK52FKwx9ukn69xnaP4n7n92rlelzoBDQ4woltm8TzzRtcdl5NPV9j7Yac6OGo87/oMf0bdPZfDM2vCrCw5zbMkYfPbLEwwUABq7qkneVwSykDnIyJxwAvris9O7UU0mptkfYks6BQQ5X7jtlbFZcwoHDTXFPBHkHAKAgCsl+Y81UX0wrBIrLs0ypUb1/xuYdAICzRSHZr9/M4MFloTdhikuA/PTnHQCAs0oh2a8QM2dDcQmQH/IOAJRJIdmvEDNnQ3EJkB/yDgCUSSHZrxAzZ0NxCZAf8g4AlEkh2a8QM2dDcQmQH/IOAJRJIdmvEDNnQ3EJkB/yDgCUSSHZrxAzZ7NRcXkBAAAAACBmfnEpK1UAqOGPWgAok0KyXyFmzobiEiA/5B0AKJNCsl8hZs6G4hIgP+QdACiTQrJfIWbOhuISID/kHQAok0KyXyFmzobiEiA/5B0AKJNCsl8hZs6G4hIgP+QdACiTQrJfIWbO5vCKy5PV0dHqRPYmmDTY4mR1tNhMAoBmKO+sl4vFci17QcDxBDh1FJL9hszcORuXQ3nZrLiscn9IDssmOWhwcKNhEMhVXLspPdN7LgEMceHCBXE2wuOxXo7OrTPiMDiVU6fazNBhJBxPgDPHPrPfDqmKp6gEGmvWZEb6YeSwXbFxcZndmEkyBwdXA5ZLN6h6ezQwBWBj/B+1gyGamfUyTONbS3d54HgCnDn2l/12SltchlXzlowd6caRw3ZF/uLSl/LtpephRMO5O4Lxbq6Y0PX3PX8J/1wwhYQjj1brbqnqb6ZV9eY41FyvGA3w+i/XvVoBdCTTqxGo8oCsuvdVZZiIw0COqB/VcwEV6nVsL5divnUMa02Wl4yjWk8KxsgVbVHBcm4kxxPgbLG/7LdTZHFZJ7AmW/qsKFWt3ndKd9Vov1sqif6ykeKCLilvr2lw4+LSWeWSfue69XJ5KXJlHGrNfS68F/o7X+wQebsMvrGREBJFc/W2HtC81qu4nlDzVnKsf4jUCsCTSK8yUGWA1QfKRaGrouSw4AjoAG3Tkuu0Q73rqiVd0oqFmvhTFi8ajvH0ihJ/3HM8Ac4ce8x+u0QUl01ajdKdqapzQ/tiyC3SjR1+ejdYD9trGty4uJQ2N7e2yFnqXuJfNzsRYD4mievvEUK8O7vBXi03RQixNDcq3ZRWAAF2elWB6qPdHOzSa/8wM3+4cE7I7KRVWfzi5V7F9Kx6Uam8vzQgShvC8QQ4M+w/++0E+Z3LRitlhVI1LioH3WLI8SvqVNnqEIzZVxrMXlw2tHcC6SblCBk3YX/41HeqEEfk7npr9ZRoeqS5lNyjFUBAMr1a0T4Y20YchsOS6bVKX7q2s4vLHsX0rP7ickiUYQjHE+CscBjZb+uoj8VrlBVa1bqs7B4q9ksQPSrF6VTZVzvtltzF5clqGZh1sTbUb37wrvFA+FmbHxO7LPRVjf9oLSnEYWnYbUCsidC8vt3KB9R9WgF47PRqBGoywMKDIOMwkCOz68nqyL1Nh7pfpfn4SSumNdGL6sNVMSzKT9ES0jpzPAFOBXvLfrtluLhMqVq9ib+Z1OOWsEOluDott106ve83DW5cXLqnr/UT2IvHzaOF+o23uCX8xr3/kWgoJHCNExT+nLSlu5YS4gen915o0n3u1glwE2P9+7QC6EikVytQgx79izefKeI4DN6K5KoXUKEeHdtueuIYtpekDjLTRYwRZb7leAKcfvaX/XbKiOIypWo8qNctzbQmsx2tTowUp8ohY8w+2Ky4BAALn14PEJ0QAQAycdDZLx/zzSwjA1NcAuRnft7ZAWWkNgDYCwed/fIx28y9/oZ7d1BcAuRndt4BADjVFJL9CjFzNhSXAPkh7wBAmRSS/QoxczYUlwD5Ie8AQJkUkv0KMXM2FJcA+SHvAECZFJL9CjFzNhSXAPkh7wBAmRSS/QoxczYUlwD5Ie8AQJkUkv0KMXM2GxWXFwAAAAAAYuYXl7JSBYAa/qgFgDIpJPsVYuZsKC4B8kPeAYAyKST7FWLmbCguAfJD3gGAMikk+xVi5mwoLgHyQ94BgDIpJPsVYuZsKC4B8kPeAYAyKST7FWLmbCguAfJD3gGAMikk+xVi5mwOr7g8WR0drU5kb4JJgy1OVkeLzSQAaMg7+VgvF4vlWvbmZ+NkAgB5st9pOIwZzMzLgTlts+KyKs1Cclg2yUGDgxsNg1tTdadyU3qm91wCGKI6VyKEckVUj5yeS9sgPv7tIdtch1jCejm6sqzOttBmCptrDgBB1RVmiGln6zQcxjbJb5R0xjHSGyOH7YqNi8vsxkySOTi4GrBcukHV26OBKQAbYxSXO2DHK4bL1Ul2a8l1GLH+ejldlx17D+CM0lQV8aeCJ6vllMN1Gg6jTPLr5cQKejQjvTFy2K7IX1z6Ur695J8nnLsjvhs1r8WErj/4k6Bnje6iWtWPPFqtu6WqpyCr6s2xuC+KFaMBXv/lulcrgA6Zd6KTH0WUDN162Kob0ZVIxiFSoeg7rj1/XoR3E8+12HhNHcaj9OlGKgObhcRyUmZF7ATLwGBWJySliVQl6LYlWE5IyACASdRVhVVq9R/A6MDqrDb9z8Uto5J8VV9cSqa+Rv/qfZDVRSo30uO5SqK/PMZpxph9sHFx6axyNVnnuvVyeSlyZZy+m5tQ+KlXcFuKHCI/GAu+g5UQIm54J82A5rVexfWEmreSY/1DpFYAHpV3XKyKiJKhW8ehD8TqTPUcogYnw12yw9sKWBnGw/qow+XwuTVeTsmUTjAMrA+1N6t61a+JYVyvBDGwubrPVAxwRjCyX0P/AQwObDIJHBLCzEpDI/Up/V069FZ3w+30qDNtTcJp9q1hH2xcXEqbm4o7cpZ9NwpuQgHtzam9QbruiUK8O7vBXi03RQixNDcq3ZRWAAFGejUjSoWuj/+eKakDEl4aFCLm6v4KQx9Dk5a4uAxn9cjUcmwJkzRRnVqCcoJ0EQDMIs5+3THTR6znACaSwN4KJQv5nctGVWWF0j8uKgfToyHHryhd5HQIxuwrp2UvLhvaQk26STlCRlvYHz71nSrEEbm73lo9JZoeaS4l92gFEDChuLTivy+8XacORf3CFGLODQb365McHCwkl+uRmXgrJfQXl9WxFWsozbWE2AnSzwAwC+NjcX3E+g+g2XOYxWVPckvoX5eV3UPFfgmiZ6TTUul9t+QuLv3XdqtrF2tDfUQE7xoPhM+9/ZjYZaGvanzUJoU4LA27DYg1EZpfroeFGsfSlFYAHiPvNIEnIkqHrk4WVhDaB8QNtMLbTHkqjIf1ERZ1b7uJSj1DpnSCZWAwq73co0kzJpBRfydnrATDRQAwl6aqiHKLTgv6APbe2UXKOASMJC9TU0L/Olt1owbTY9AxxmlqzL5y2sbFpXv6Wj+BvXjcPPmr33iLW8IfxPjfcIdCAtc4QeGvvVu6aykhfnB674Um3cfinQA3Mda/TyuADvmJSeL7Hm015kal8m8wxv3exQzFpjP83ncb3vFBMOe2jNFHj+z5e1rJ7HdC/w96bE3UIkFGT0hQTpA6A8AsmqrCOPe9B7Dq77uzH1hpOaq4TOkfD5JuUukxSOxjnGaM2QebFZcAYOHSKwBAURSS/eabqUvSswjFJUB+5ucdAIDTTCHZb7aZe/0N9+6guATIz+y8AwBwqikk+xVi5mwoLgHyQ94BgDIpJPsVYuZsKC4B8kPeAYAyKST7FWLmbCguAfJD3gGAMikk+xVi5mwoLgHyQ94BgDIpJPsVYuZsKC4B8kPeAYAyKST7FWLmbDYqLi8AAAAAAMTMLy5lpQoANfxRCwBlUkj2K8TM2VBcAuSHvAMAZVJI9ivEzNlQXALkh7wDAGVSSPYrxMzZUFwC5Ie8AwBlUkj2K8TM2VBcAuSHvAMAZVJI9ivEzNlQXALkh7wDAGVSSPYrxMzZbFRc0mg0Go1Go9FoWdpCFpwAAAAAAHOhuAQAAACAbFBcAgAAAEA2KC4BAAAAIBsUlwAAAACQDYpLAAAAAMgGxSUAAAAAZIPiEgAAAACyQXEJAAAAANmguAQAAACAbFBcPvrIB2+95ppbP/jII/JCVqau0jO+5xIAAADAfplQXFY1zaLlmls/WPU8ctcNbccNd53aWmewVgsNn22sW2VwuYaeYT2XQuqV6q2yRo4UAgAAADCJKcXlXTfccFdVi9Q15TUvv/8Dt15T1VnNpVQRc/gMllmDA8awh+KyGnbDDfVQeW20EAAAAIBJTCguHU199PL7335D9wyvLjej53nBQ83qQvzQsy2wbq1G3PD2D7zcvb6rqb0SI+8KL9ZXH330UTHcK5CUU9HUxH5kN6S93AkXA1xPtG43ODT5WbdVRjVTmun312be/8mqInfTDCHhU9KkRe0lYWOoXqPhNbd+sCn7nRqtz2M1tJyUVwEAAAD6mVVcNtXSJ9/ePK505aarb5qqJyzgHG0VWhcv7VPP8HVQpPqaLK4FlZx2fP1c1SnQJ0c8Z9W1YzPbvw2ruoq4jG6XikwOZXoFXEWoKrZOSFWeereESqpLtf8jGyMTXFdnbOjncErCV4ZXAQAAAAaZXFy6akVVXUFtp2ud+Kmbq7SMOswL9M81o0IwlFMVWLLak8PqAaEcWbe5Mks9GhQDkkvEFhlGJYrLHiEpJSOBbm5FXPJGtWP9KiHQ8FXCqwAAAACDTCsuw8oy6k8ULv5tWI+mqygx0bgay2n728+jh6rbxCpeJUu4fmtqMqO47BfSo4MerBEVYzUwIVBb1w5QXgUAAAAYZEJxGRZDUX93QfToT2DboiddRYUf/uq5ppwb2t+tt9c6BcbKMWu1zlBDf93TalJ/izEyuSvLhMnukiXEf9NA6hCU9cHgyEaH9H891Sh/GzUsX5leBQAAABhkQnFpPAzrfsESVpYNde3ScsNdbuCi+flyqrgUE3VJJOW0H+A2YyMdeuQYK9ZvhXA9IJSvBwuT3TttcjO3+bWNFOJcGuvQ1ohicGxjSuGmMH35v5dPOp0a0ldprwIAAAD0M6G4BAAAAADoh+ISAAAAALJBcQkAAAAA2aC4BAAAAIBsLD72sY/JPgAAAACA6Tz88MOL4+Nj2Q0AAAAAMJ2Tk5PF+9//ftkNAAAAADCd+++/f/G2t73tox/9qLwCAAAAADCFP/mTP7nrrrsW73znO++++255EQAAAABgCvfWLH7rt37rl3/5l++++26eXwIAAADADP7kT/7k3nvvfcc73vG7v/u7i/e9733vfe97L1269PM///O//du//ZGPfITfjwMAAADAIB/72MdOTk4+8IEP/OIv/uI999zzwQ9+8Pd+7/f+fwUwfp1K6TA7AAAAAElFTkSuQmCC" alt="Ventana del programa con las carreras de Artes" loading="lazy"><figcaption>Facultad de Artes: 29 carreras, algunas proyectadas.</figcaption></figure>
+</div>
+<p>Los datos son reales: salen del <i>Catálogo de Oferta Académica</i> oficial de la UASD (9 facultades, 51 escuelas y 140 carreras de nivel Técnico y Grado).</p>
+
+<h2 id="tecnologias">Las tecnologías que se usaron y qué es cada una</h2>
+<p>Una <b>tecnología</b> es una herramienta, un lenguaje o una librería. Una <b>técnica</b> (herencia, polimorfismo, encapsulamiento) es la forma de usarla bien. Aquí van las tecnologías; las técnicas están más abajo.</p>
+<div class="tabla"><table>
+<tr><th>Tecnología</th><th>Qué es</th><th>Para qué se usa aquí</th></tr>
+<tr><td><b>Java</b></td><td>Lenguaje de programación orientado a objetos. Se escribe una vez y corre en cualquier sistema operativo</td><td>Todo el código del programa, en <code>src</code></td></tr>
+<tr><td><b>JDK 21</b> (Eclipse Temurin)</td><td>El kit de desarrollo de Java: trae el compilador (<code>javac</code>), la máquina virtual (<code>java</code>) y las librerías estándar, entre ellas Swing y JDBC</td><td>Compilar y ejecutar. Es lo único que se instaló en la computadora</td></tr>
+<tr><td><b>Swing</b></td><td>La librería de Java para hacer ventanas. Viene dentro del JDK</td><td>La ventana: selector, botón y tabla (ver la sección de Swing)</td></tr>
+<tr><td><b>NetBeans</b></td><td>El programa (IDE) donde se escribe y ejecuta código Java. Tiene un diseñador para armar ventanas de Swing arrastrando piezas</td><td>Es lo que usan los videos de la clase para hacer formularios. El proyecto trae sus archivos de NetBeans, así que se abre con <i>File → Open Project</i>. Se probó en Apache NetBeans 31 con JDK 21</td></tr>
+<tr><td><b>SQL Server 2022</b></td><td>Un sistema de bases de datos relacionales de Microsoft. Guarda los datos en tablas</td><td>Guarda las 9 facultades, 51 escuelas y 140 carreras</td></tr>
+<tr><td><b>SQL</b> (en su variante T-SQL)</td><td>El lenguaje para pedir y definir datos en una base de datos relacional</td><td>Los scripts de <code>sql/</code> y la consulta de carreras por facultad</td></tr>
+<tr><td><b>JDBC</b></td><td>La forma estándar en que Java habla con una base de datos (paquete <code>java.sql</code>)</td><td>Las clases <code>FacultadDAOJdbc</code> y <code>CarreraDAOJdbc</code> y <code>ConexionBD</code></td></tr>
+<tr><td><b>Driver mssql-jdbc 12.8.1</b></td><td>Una librería de Microsoft que traduce JDBC al idioma de SQL Server</td><td>Sin ella, Java no sabría hablar con SQL Server. Viene en la carpeta <code>lib</code> del proyecto, en un archivo JAR</td></tr>
+<tr><td><b>JAR</b></td><td>Un archivo comprimido, parecido a un <code>.zip</code>, que contiene clases de Java ya compiladas. Es la forma de empaquetar una librería</td><td>El driver de SQL Server es un JAR: <code>lib\mssql-jdbc-12.8.1.jre11.jar</code>. Se agrega al proyecto como en el blog, con <i>Add JAR/Folder</i></td></tr>
+<tr><td><b>Archivos .bat</b></td><td>Archivos de texto con comandos de Windows que se ejecutan uno tras otro</td><td><code>compilar.bat</code> y <code>ejecutar.bat</code> resumen en un solo comando el compilar y el ejecutar</td></tr>
+<tr><td><b>SQL Server Express</b></td><td>La versión gratuita de SQL Server, que se instala en la computadora como un servicio de Windows</td><td>Guarda la base <code>CatalogoUASD</code></td></tr>
+<tr><td><b>Git</b> y <b>GitHub</b></td><td>Git guarda el historial del código; GitHub es el sitio donde se publica</td><td>Entregar el repositorio al profesor</td></tr>
+</table></div>
+<div class="nota"><b class="k">Escritorio o web</b>
+<p>No se usó Servlets ni JSP, que es el tema del manual del archivo comprimido: son para páginas web. Este programa es de escritorio porque el enunciado pide "un programa en Java" con un botón, y porque los ejemplos de la Unidad 7 son de Swing (<code>HolaMundoSwing</code>) y de conexión por JDBC. Es una interpretación del enunciado, que no dice si es web o de escritorio. Conviene confirmarla con el profesor.</p></div>
+
+<h3>SQL y T-SQL</h3>
+<p><b>SQL</b> (<i>Structured Query Language</i>, lenguaje de consulta estructurado) es el lenguaje para hablar con una base de datos relacional. Sirve para <b>definir</b> las tablas (<code>CREATE TABLE</code>) y para <b>pedir y guardar</b> datos (<code>SELECT</code>, <code>INSERT</code>). Es declarativo: dices qué quieres y la base decide cómo encontrarlo.</p>
+<p><b>T-SQL</b> (<i>Transact-SQL</i>) es el dialecto de SQL de Microsoft, el que entiende SQL Server. Casi todo el SQL es igual en todas las bases (MySQL, PostgreSQL, Oracle), pero cada fabricante agrega cosas propias, como los distintos acentos de un mismo idioma. Lo propio de T-SQL que usa el proyecto:</p>
+<div class="tabla"><table>
+<tr><th>En el proyecto</th><th>Qué hace</th></tr>
+<tr><td><code>IDENTITY(1,1)</code></td><td>Genera el número del <code>id</code> solo</td></tr>
+<tr><td><code>NVARCHAR</code></td><td>Texto que acepta tildes y eñes</td></tr>
+<tr><td><code>N'Técnico'</code></td><td>La <code>N</code> indica que ese texto es Unicode, es decir, con tildes</td></tr>
+<tr><td><code>DB_ID(...)</code> y <code>OBJECT_ID(...)</code></td><td>Preguntan si una base o una tabla ya existe</td></tr>
+<tr><td><code>GO</code></td><td>Separa bloques en un script. No es SQL real: lo entienden las herramientas de SQL Server, y por eso <code>InicializadorBD</code> corta el script en cada <code>GO</code></td></tr>
+</table></div>
+
+<h3>TCP y el puerto 1433</h3>
+<p><b>TCP</b> (<i>Transmission Control Protocol</i>) es la forma en que dos programas se hablan por red usando una dirección y un número de puerto. Es como una llamada telefónica: la dirección (<code>localhost</code>, que significa "esta misma computadora") es la casa a la que llamas, y el puerto (<code>1433</code>) es la extensión donde SQL Server contesta.</p>
+<p>El driver JDBC solo sabe llamar por TCP. Por eso el blog de la clase pide habilitar <b>TCP/IP</b> en el <i>SQL Server Configuration Manager</i> y fijar el puerto 1433. LocalDB, la versión liviana de SQL Server que a veces viene instalada, no abre ese puerto y no sirve para este programa.</p>
+
+<h3>SQL Server Express: cómo se prepara</h3>
+<p>SQL Server Express es el servidor de base de datos, un programa que queda corriendo en segundo plano (un <b>servicio</b> de Windows llamado <code>SQL Server (SQLEXPRESS)</code>). Para que Java pueda hablar con él hay que dejarlo así, como pide el blog de la clase:</p>
+<ol>
+<li>Al instalarlo, elegir <b>autenticación mixta</b> (Mixed Mode) y ponerle una clave al usuario <code>sa</code>. El programa usa <code>Catalogo_UASD_2026</code>, que ya está en <code>ConexionBD.java</code>.</li>
+<li>En el <i>SQL Server Configuration Manager</i>, habilitar el protocolo <b>TCP/IP</b>.</li>
+<li>En las propiedades de TCP/IP, en <b>IPAll</b>, dejar vacío <i>TCP Dynamic Ports</i> y poner <i>TCP Port</i> en <b>1433</b>.</li>
+<li>Reiniciar el servicio. Desde ese momento SQL Server atiende en <code>localhost:1433</code> y el programa Java se conecta ahí.</li>
+</ol>
+<div class="tabla"><table>
+<tr><th>Término</th><th>Qué es</th><th>En este proyecto</th></tr>
+<tr><td>Instancia</td><td>Una copia de SQL Server con nombre propio</td><td><code>SQLEXPRESS</code></td></tr>
+<tr><td>Autenticación mixta</td><td>Permite entrar con usuario y clave de SQL Server, además de la cuenta de Windows</td><td>Usuario <code>sa</code></td></tr>
+<tr><td>Puerto 1433</td><td>La "extensión" por donde SQL Server atiende; la conexión usa el protocolo TCP</td><td><code>localhost:1433</code></td></tr>
+</table></div>
+
+<h3>Cómo encajan entre sí</h3>
+<div class="flujo" role="img" aria-label="Tecnologías por capa">
+<div class="caja"><b>Swing</b><span>la ventana que ve el usuario</span></div><i>→</i>
+<div class="caja"><b>Java</b><span>la lógica y los objetos</span></div><i>→</i>
+<div class="caja"><b>JDBC + driver</b><span>el puente hacia la base</span></div><i>→</i>
+<div class="caja bd"><b>SQL Server</b><span>los datos, consultados con SQL</span></div>
+</div>
+<p>Alrededor de esa cadena hay tres piezas de apoyo: el <b>JDK</b> compila y ejecuta el programa, y los archivos <b>.bat</b> resumen eso en un solo comando.</p>
+
+<h3>Java en una idea</h3>
+<p>El código que escribes (<code>.java</code>) no lo entiende la computadora directamente. El compilador <code>javac</code> lo convierte en archivos <code>.class</code>, y la máquina virtual de Java los ejecuta. Esa máquina virtual existe para cada sistema operativo, y por eso el mismo programa corre en Windows, Mac o Linux.</p>
+<div class="flujo" role="img" aria-label="De .java a ejecución">
+<div class="caja"><b>CarreraGrado.java</b><span>lo que escribes</span></div><i>→ javac →</i>
+<div class="caja"><b>CarreraGrado.class</b><span>código compilado</span></div><i>→ java →</i>
+<div class="caja"><b>Programa corriendo</b><span>la máquina virtual lo ejecuta</span></div>
+</div>
+
+<h3>Base de datos relacional en una idea</h3>
+<p>Los datos se guardan en <b>tablas</b>, como hojas de cálculo: cada <b>fila</b> es un registro (una carrera) y cada <b>columna</b> es un dato (su nombre, su nivel). Las tablas se relacionan entre sí por números: la tabla <code>escuela</code> guarda el <code>id</code> de su facultad, así que no repite el nombre de la facultad en cada fila. Para leer los datos se escribe una consulta en SQL.</p>
+
+<h2 id="pasos">El paso a paso de todo lo que se hizo</h2>
+<p>Los 18 pasos están en el orden en que se hicieron. Cada uno dice qué se hizo, cómo y para qué. Para repetirlos tú mismo, con el código completo de cada archivo y el comando de cada paso, está el documento <code>TUTORIAL-PASO-A-PASO.html</code>, en la misma carpeta.</p>
+
+<span class="fase">FASE 1 · Entender el trabajo</span>
+<ol class="pasos">
+<li><b>Leer el enunciado y el material de la clase</b>
+<p>Se leyeron las dos capturas del trabajo (consulta del catálogo de carreras, con un botón que muestre las carreras según la escuela elegida) y todo el material de la Unidad 7: las presentaciones de herencia, encapsulamiento y polimorfismo, el ejemplo de Swing (<code>HolaMundoSwing</code>), el ejemplo de conexión a la base de datos, el manual de Servlets y JSP, y el blog sobre conectar SQL Server con Java. Después se revisaron las capturas de los videos y del blog: formularios de Swing hechos con el diseñador de NetBeans (en un proyecto con los paquetes <code>conexion</code> y <code>formularios</code>), un programa que se conecta a una base de datos desde Java, y los pasos del blog para SQL Server (driver JDBC, usuario y clave, TCP/IP en el puerto 1433).</p>
+<p class="por">Para qué: el proyecto tiene que parecerse a lo que enseñaron, no a ideas nuevas.</p></li>
+<li><b>Escribir los requerimientos</b>
+<p>Se redactó el documento <code>REQUERIMIENTOS.md</code> con lo que se pide, los entregables, siete requisitos funcionales (por ejemplo "el selector se carga desde la base de datos" y "si no se elige facultad, el programa avisa"), las restricciones y los criterios de aceptación.</p>
+<p class="por">Para qué: saber exactamente qué hay que construir antes de escribir código.</p></li>
+<li><b>Decidir las tecnologías</b>
+<p>Java con Swing (lo que se vio en clase), SQL Server como base de datos (el blog de la clase lo usa) y el driver como un archivo JAR agregado al proyecto, como explica el blog. Los datos serían los oficiales de la UASD.</p>
+<p class="por">Para qué: cada decisión sigue el material de la clase o hace que el proyecto se pueda descargar y ejecutar sin problemas.</p></li>
+</ol>
+
+<span class="fase">FASE 2 · Preparar el entorno y los datos</span>
+<ol class="pasos" start="4" style="counter-reset: p 3">
+<li><b>Instalar el JDK 21</b>
+<p>La computadora no tenía Java. Se instaló Eclipse Temurin 21, que trae el compilador y la máquina virtual de Java.</p>
+<div class="cmd">winget install --id EclipseAdoptium.Temurin.21.JDK</div>
+<p class="por">Para qué: sin el JDK no se puede compilar ni ejecutar nada. El proyecto se compila para Java 17, así que funciona con cualquier JDK 17 o superior.</p></li>
+<li><b>Conseguir los datos oficiales de la UASD</b>
+<p>Se buscó el catálogo oficial, se descargó el PDF de 61 páginas desde uasd.edu.do, se extrajo su texto y se organizó por facultad, escuela y carrera.</p>
+<p class="por">Para qué: tener datos reales y verificables en lugar de inventados.</p></li>
+<li><b>Diseñar la base de datos</b>
+<p>La UASD se organiza en tres niveles: una facultad tiene varias escuelas y una escuela administra varias carreras. Se crearon tres tablas, <code>facultad</code>, <code>escuela</code> y <code>carrera</code>, unidas por claves foráneas.</p>
+<p class="por">Para qué: no repetir texto en cada fila y poder consultar por facultad con un <code>JOIN</code>.</p></li>
+<li><b>Escribir los scripts SQL</b>
+<p><code>sql/01_esquema.sql</code> crea las tablas y <code>sql/02_datos.sql</code> las llena con 9 facultades, 51 escuelas y 140 carreras. Se comprobó que el número de filas del script coincide con el de la base.</p>
+<p class="por">Para qué: que la base se pueda crear siempre igual, en cualquier computadora.</p></li>
+</ol>
+
+<span class="fase">FASE 3 · Construir el programa</span>
+<ol class="pasos" start="8" style="counter-reset: p 7">
+<li><b>Agregar el driver como un JAR</b>
+<p>Se puso el driver de SQL Server (<code>mssql-jdbc-12.8.1.jre11.jar</code>, de 1,4 MB) en la carpeta <code>lib</code> del proyecto, como el blog lo explica con <i>Add JAR/Folder</i>. Los archivos <code>compilar.bat</code> y <code>ejecutar.bat</code> lo incluyen al compilar y al ejecutar.</p>
+<p class="por">Para qué: sin el driver, Java no sabe hablar con SQL Server. Como el JAR viene en el repositorio, quien lo descargue no tiene que buscarlo.</p></li>
+<li><b>Escribir el modelo</b>
+<p>Paquete <code>modelo</code>: <code>EntidadCatalogo</code> (abstracta), <code>Facultad</code>, <code>Carrera</code> (abstracta), <code>CarreraTecnica</code>, <code>CarreraGrado</code> y la interfaz de constantes <code>NivelCarrera</code>.</p>
+<p class="por">Para qué: representar facultades y carreras como objetos. Aquí está la herencia, la clase abstracta y el polimorfismo.</p></li>
+<li><b>Escribir el acceso a datos</b>
+<p>Paquete <code>dao</code>: dos interfaces (<code>FacultadDAO</code>, <code>CarreraDAO</code>) y sus implementaciones con JDBC (<code>FacultadDAOJdbc</code>, <code>CarreraDAOJdbc</code>).</p>
+<p class="por">Para qué: que las consultas SQL vivan en un solo lugar y la ventana no sepa nada de la base de datos.</p></li>
+<li><b>Escribir la conexión</b>
+<p>Paquete <code>conexion</code>, el mismo nombre que usa el proyecto del video: <code>ConexionBD</code> carga el driver y abre las conexiones con los datos del servidor, como en el blog, y <code>InicializadorBD</code> crea la base y ejecuta los scripts SQL la primera vez que se ejecuta el programa.</p>
+<p class="por">Para qué: que nadie tenga que importar nada a mano.</p></li>
+<li><b>Escribir el formulario y el Main</b>
+<p>Paquete <code>formularios</code>, como en el video: <code>Frm_Carreras</code>, un formulario de Swing hecho con el diseñador de NetBeans: son dos archivos, <code>Frm_Carreras.java</code> y <code>Frm_Carreras.form</code>, y NetBeans genera solo el método <code>initComponents()</code> con componentes con nombres como <code>btnConsultar</code> y <code>cmbFacultad</code>; el método <code>btnConsultarActionPerformed</code> se escribe a mano. <code>Main</code> prepara la base y abre el formulario. Aquí se usan clases internas, sobrecarga de métodos e <code>import</code> con comodín, como en el material de clase.</p>
+<p class="por">Para qué: lo que ve y toca el usuario.</p></li>
+</ol>
+
+<span class="fase">FASE 4 · Verificar, ajustar y entregar</span>
+<ol class="pasos" start="13" style="counter-reset: p 12">
+<li><b>Compilar</b>
+<p>Se compiló con <code>compilar.bat</code>, sin errores.</p>
+<div class="cmd">.\compilar.bat</div></li>
+<li><b>Probar con un SQL Server real (Express instalado)</b>
+<p>Con SQL Server 2022 Express instalado en el PC se ejecutó el programa con la base nueva: se creó la base, se cargaron los datos, y una segunda ejecución no duplicó nada. Las 9 facultades devolvieron 140 carreras (25 técnicas y 115 de grado), igual que la base.</p>
+<p class="por">Para qué: comprobar el programa con el mismo SQL Server que usará quien lo descargue.</p></li>
+<li><b>Ejecutar la ventana y tomar las capturas</b>
+<p>Se abrió la ventana con el comando oficial y se tomaron las capturas: pantalla inicial, aviso sin facultad, Ingeniería y Arquitectura, y Artes. Qué hace cada parte del comando y por qué se usa un comando se explica en la sección «Cómo se ejecuta el programa».</p>
+<div class="cmd">.\ejecutar.bat</div>
+<p class="por">Para qué: el PDF de entrega necesita capturas del programa corriendo.</p></li>
+<li><b>Ajustar el código a lo que muestran los videos y el blog</b>
+<p>Se quitaron todos los comentarios del código. La conexión sigue el blog y el ejemplo de clase: <code>Class.forName</code>, <code>DriverManager.getConnection</code> con la URL <code>jdbc:sqlserver://servidor:1433;databaseName=...</code>, y las consultas con <code>Statement</code> y <code>ResultSet</code>. Los paquetes se llaman <code>conexion</code> y <code>formularios</code>, como en el proyecto del video, y el formulario se escribió al estilo de NetBeans. Se completó el uso de la materia de las presentaciones: herencia en varios niveles, interfaz de constantes, sobrecarga, clase interna con nombre, <code>equals</code> y <code>final</code>. Los scripts SQL quedaron con un solo espacio entre palabras.</p>
+<p class="por">Para qué: que el código se vea como el de un estudiante aplicado y use todo lo que enseñaron.</p></li>
+<li><b>Escribir la documentación</b>
+<p><code>README.md</code> con instalación, ejecución y dependencias; <code>docs/codigo-fuente.pdf</code> con el código y las capturas; <code>docs/EXPLICACION.md</code>; la guía del proyecto y este documento.</p></li>
+<li><b>Pendiente: subir el repositorio a GitHub</b>
+<p>Falta subir el proyecto y probar un clon limpio en otra computadora.</p>
+<div class="cmd">git init
+git add .
+git commit -m "Catálogo de carreras UASD"
+git remote add origin &lt;URL-DE-TU-REPO&gt;
+git push -u origin main</div></li>
+</ol>
+
+<h2 id="organizacion">Cómo está organizado el proyecto</h2>
+<h3>Las carpetas</h3>
+<div class="tabla"><table>
+<tr><th>Carpeta o archivo</th><th>Qué contiene</th><th>Por qué está separado</th></tr>
+<tr><td><code>src/uasd/catalogo/</code></td><td>Todo el código Java, en 4 paquetes</td><td>Es la carpeta de código que usa NetBeans en sus proyectos</td></tr>
+<tr><td><code>sql/</code></td><td>Los dos scripts de la base de datos</td><td>Se pueden correr a mano o los ejecuta el programa</td></tr>
+<tr><td><code>docs/</code></td><td>Explicación, PDF y capturas</td><td>La documentación no se mezcla con el código</td></tr>
+<tr><td><code>lib/</code></td><td>El driver de SQL Server, un JAR</td><td>Las librerías externas van aparte del código propio</td></tr>
+<tr><td><code>compilar.bat</code>, <code>ejecutar.bat</code></td><td>Los comandos para compilar y ejecutar</td><td>Resumen de varios comandos en uno solo</td></tr>
+<tr><td><code>README.md</code></td><td>Instalación y ejecución</td><td>Es lo primero que ve quien abre el repositorio</td></tr>
+<tr><td><code>.gitignore</code></td><td>Qué no subir a GitHub (por ejemplo <code>build/</code>)</td><td>Lo generado al compilar no se versiona</td></tr>
+</table></div>
+
+<h3>Los cuatro paquetes y su responsabilidad</h3>
+<pre class="code"><code>uasd.catalogo
+├── Main                     arranque del programa
+├── modelo                   los datos como objetos
+│   ├── EntidadCatalogo      (abstracta) id y nombre
+│   ├── Facultad
+│   ├── Carrera              (abstracta) escuela y proyectada
+│   ├── CarreraTecnica
+│   ├── CarreraGrado
+│   └── NivelCarrera         (interfaz) constantes "Técnico" y "Grado"
+├── dao                      consultar la base de datos
+│   ├── FacultadDAO, CarreraDAO              (interfaces)
+│   └── FacultadDAOJdbc, CarreraDAOJdbc      (con JDBC)
+├── conexion                 conectar con la base de datos
+│   ├── ConexionBD           abre conexiones
+│   └── InicializadorBD      crea la base y los datos
+└── formularios
+    └── Frm_Carreras         el formulario (Swing)</code></pre>
+
+<h3>Arquitectura en capas</h3>
+<p>El programa está dividido en capas, y cada una solo habla con la de al lado. Esto no es el patrón MVC completo, pero se parece: <code>modelo</code> guarda los datos, <code>formularios</code> los muestra, y <code>dao</code> los trae de la base.</p>
+<div class="flujo" role="img" aria-label="Capas del programa">
+<div class="caja"><b>formularios</b><span>Frm_Carreras: lo que ve el usuario</span></div><i>→</i>
+<div class="caja"><b>dao</b><span>CarreraDAO y FacultadDAO: pide los datos</span></div><i>→</i>
+<div class="caja"><b>conexion</b><span>ConexionBD: abre la conexión</span></div><i>→</i>
+<div class="caja bd"><b>SQL Server</b><span>base CatalogoUASD</span></div>
+</div>
+<p>El paquete <code>modelo</code> lo usan todas las capas, porque Facultad y Carrera viajan de la base a la pantalla.</p>
+<div class="tabla"><table>
+<tr><th>Capa</th><th>Qué sabe hacer</th><th>Qué no sabe</th></tr>
+<tr><td><code>formularios</code></td><td>Mostrar la ventana y reaccionar a los clics</td><td>Cómo ni dónde se guardan los datos</td></tr>
+<tr><td><code>dao</code></td><td>Escribir y ejecutar las consultas SQL</td><td>Cómo se ve la pantalla</td></tr>
+<tr><td><code>modelo</code></td><td>Describir qué es una Facultad y una Carrera</td><td>Nada de base de datos ni de pantalla</td></tr>
+<tr><td><code>conexion</code></td><td>Abrir conexiones y preparar la base</td><td>Nada de pantalla</td></tr>
+</table></div>
+
+<h3>Principios que sigue la organización</h3>
+<div class="tabla"><table>
+<tr><th>Principio</th><th>Qué significa</th><th>Dónde se ve</th></tr>
+<tr><td>Separación de responsabilidades</td><td>Cada clase hace una sola cosa</td><td><code>ConexionBD</code> solo abre conexiones, <code>CarreraDAOJdbc</code> solo consulta carreras, <code>Frm_Carreras</code> solo maneja la pantalla</td></tr>
+<tr><td>Programar contra interfaces</td><td>Usar el contrato, no la clase concreta</td><td>La ventana declara <code>CarreraDAO</code>, no <code>CarreraDAOJdbc</code></td></tr>
+<tr><td>Un solo lugar para cada dato</td><td>Si algo cambia, se cambia en un solo sitio</td><td>Los datos de conexión están solo en <code>ConexionBD</code>; "Técnico" y "Grado" solo en <code>NivelCarrera</code></td></tr>
+<tr><td>Abierto a crecer</td><td>Agregar algo nuevo sin tocar lo que ya funciona</td><td>Para un tercer nivel de carrera bastaría una clase hija nueva de <code>Carrera</code></td></tr>
+</table></div>
+
+<h3>Convenciones de nombres</h3>
+<div class="tabla"><table>
+<tr><th>Qué</th><th>Cómo se escribe</th><th>Ejemplos del proyecto</th></tr>
+<tr><td>Clases e interfaces</td><td>Cada palabra con mayúscula inicial</td><td><code>Frm_Carreras</code>, <code>CarreraDAO</code></td></tr>
+<tr><td>Métodos y variables</td><td>Empieza en minúscula, cada palabra nueva con mayúscula</td><td><code>listarPorFacultad</code>, <code>etiquetaResultado</code></td></tr>
+<tr><td>Constantes</td><td>Todo en mayúsculas con guion bajo</td><td><code>SERVIDOR</code>, <code>CLAVE</code></td></tr>
+<tr><td>Paquetes</td><td>Todo en minúsculas</td><td><code>uasd.catalogo.modelo</code></td></tr>
+<tr><td>Interfaces DAO</td><td>Nombre de lo que consultan más <code>DAO</code></td><td><code>FacultadDAO</code>; su clase con JDBC termina en <code>Jdbc</code></td></tr>
+<tr><td>Formularios y componentes</td><td>Prefijo <code>Frm_</code> para el formulario, y un prefijo por tipo de componente, como en los videos</td><td><code>Frm_Carreras</code>, <code>btnConsultar</code>, <code>cmbFacultad</code>, <code>tblCarreras</code>, <code>lblResultado</code></td></tr>
+</table></div>
+
+<h2 id="ejecucion">Cómo se ejecuta el programa, y por qué con un comando</h2>
+<h3>Por qué hace falta un comando</h3>
+<p>Un programa de Java no es un archivo <code>.exe</code> que se abre con doble clic. Lo que se escribe (<code>.java</code>) se compila a archivos <code>.class</code>, y esos los ejecuta la <b>máquina virtual de Java</b> (JVM). Para arrancar, a la máquina virtual hay que decirle tres cosas:</p>
+<ol>
+<li><b>Qué programa ejecutar:</b> el nombre de la clase que tiene el método <code>main</code>.</li>
+<li><b>Dónde están tus clases compiladas</b> (la carpeta <code>build\classes</code>).</li>
+<li><b>Dónde están las librerías que usa</b>: el driver de SQL Server.</li>
+</ol>
+<p>Un comando es la forma de decir esas tres cosas por escrito. Con doble clic, Windows no sabría qué clase arrancar ni dónde está el driver.</p>
+<div class="analogia"><b>Analogía.</b> Es como encender un carro. La llave (el comando) le dice al motor (la máquina virtual) que arranque, y con qué. Un IDE como NetBeans tiene un botón verde "Run" que arranca con botón: por dentro ejecuta ese mismo comando.</div>
+
+<h3>El método main</h3>
+<p>Cuando ejecutas una clase, la máquina virtual busca en ella un método con exactamente esta forma y lo llama. Es el punto de entrada: por ahí empieza todo.</p>
+<div class="donde"><span>Main.java:11</span></div>
+<pre class="code"><code><span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> main(<span class="kw">String</span>[] args) {</code></pre>
+<div class="tabla"><table>
+<tr><th>Palabra</th><th>Qué significa</th></tr>
+<tr><td><code>public</code></td><td>La máquina virtual, que está afuera de la clase, tiene que poder verlo</td></tr>
+<tr><td><code>static</code></td><td>Se puede llamar sin crear antes un objeto. Es necesario porque al arrancar todavía no existe ningún objeto</td></tr>
+<tr><td><code>void</code></td><td>No devuelve nada</td></tr>
+<tr><td><code>main</code></td><td>El nombre fijo que la máquina virtual busca</td></tr>
+<tr><td><code>String[] args</code></td><td>La lista de datos que se escriben después del nombre de la clase en el comando. Este programa no los usa</td></tr>
+</table></div>
+<p>Si una clase no tiene este método, al ejecutarla Java avisa que no encuentra <code>main</code>.</p>
+
+<h3>Los comandos</h3>
+<p>Compilar y ejecutar son dos comandos de Java. Los archivos <code>compilar.bat</code> y <code>ejecutar.bat</code> los resumen. Un <code>.bat</code> es un archivo de texto con comandos de Windows que se ejecutan uno tras otro. Desde la carpeta del proyecto, esto compila y abre el programa:</p>
+<pre class="code"><code>.\ejecutar.bat</code></pre>
+<p>Estos son los dos archivos:</p>
+<p class="archivo">compilar.bat</p><pre class="code"><code>@echo off
+cd /d &quot;%~dp0&quot;
+if not exist build\classes mkdir build\classes
+javac -encoding UTF-8 -sourcepath src -d build\classes -cp lib\mssql-jdbc-12.8.1.jre11.jar src\uasd\catalogo\Main.java</code></pre>
+<p class="archivo">ejecutar.bat</p><pre class="code"><code>@echo off
+cd /d &quot;%~dp0&quot;
+call &quot;%~dp0compilar.bat&quot;
+if errorlevel 1 exit /b 1
+java -cp &quot;build\classes;lib\mssql-jdbc-12.8.1.jre11.jar&quot; uasd.catalogo.Main</code></pre>
+<div class="tabla"><table>
+<tr><th>Línea</th><th>Qué hace</th></tr>
+<tr><td><code>@echo off</code></td><td>No muestra cada comando en pantalla mientras se ejecuta</td></tr>
+<tr><td><code>cd /d "%~dp0"</code></td><td>Se mueve a la carpeta donde está el archivo. Así funciona desde cualquier carpeta, y el programa encuentra la carpeta <code>sql</code>, que lee con una ruta relativa</td></tr>
+<tr><td><code>if not exist build\classes mkdir build\classes</code></td><td>Crea la carpeta donde se guardarán las clases compiladas, si no existe</td></tr>
+<tr><td><code>javac</code></td><td>El compilador de Java: convierte los <code>.java</code> en <code>.class</code></td></tr>
+<tr><td><code>-encoding UTF-8</code></td><td>Los archivos están en UTF-8, para que las tildes no se rompan</td></tr>
+<tr><td><code>-sourcepath src</code></td><td>Dónde está el código. Con esto <code>javac</code> encuentra solo las demás clases que <code>Main</code> usa</td></tr>
+<tr><td><code>-d build\classes</code></td><td>Dónde dejar los <code>.class</code></td></tr>
+<tr><td><code>-cp lib\mssql-jdbc-12.8.1.jre11.jar</code></td><td>El <i>classpath</i>: donde buscar librerías, aquí el driver</td></tr>
+<tr><td><code>src\uasd\catalogo\Main.java</code></td><td>El archivo de arranque, que lleva a compilar todo lo demás</td></tr>
+<tr><td><code>call "%~dp0compilar.bat"</code></td><td>En <code>ejecutar.bat</code>: primero ejecuta <code>compilar.bat</code></td></tr>
+<tr><td><code>if errorlevel 1 exit /b 1</code></td><td>Si la compilación falló, se detiene y no intenta ejecutar</td></tr>
+<tr><td><code>java -cp "build\classes;lib\...jar" uasd.catalogo.Main</code></td><td>Arranca la máquina virtual de Java con las clases y el driver, y le dice que ejecute el <code>main</code> de <code>uasd.catalogo.Main</code></td></tr>
+</table></div>
+<p><b>El classpath (<code>-cp</code>)</b> es la lista de carpetas y archivos <code>.jar</code> donde Java busca clases. En Windows se separan con <code>;</code>. En <code>java -cp</code> aparecen dos: <code>build\classes</code> (tus clases) y el JAR del driver.</p>
+<div class="tabla"><table>
+<tr><th>Forma</th><th>Qué haces</th><th>Qué pasa por dentro</th></tr>
+<tr><td>Archivo .bat</td><td><code>.\ejecutar.bat</code></td><td>Compila y arranca <code>main</code></td></tr>
+<tr><td>Comandos a mano</td><td><code>javac ...</code> y después <code>java -cp ...</code></td><td>Lo mismo que hace el .bat</td></tr>
+<tr><td>NetBeans</td><td>Botón verde, con <code>Main</code> como clase principal y el JAR en <i>Libraries</i></td><td>Ejecuta el mismo comando de Java. Se probó en Apache NetBeans 31</td></tr>
+</table></div>
+
+<h3>Qué pasa desde que ejecutas hasta que ves la ventana</h3>
+<div class="flujo" role="img" aria-label="Del comando a la ventana">
+<div class="caja"><b>Comando</b><span>ejecutar.bat</span></div><i>→</i>
+<div class="caja"><b>Máquina virtual</b><span>busca main</span></div><i>→</i>
+<div class="caja"><b>Main.main</b><span>prepara la base</span></div><i>→</i>
+<div class="caja"><b>Frm_Carreras</b><span>crea la ventana</span></div><i>→</i>
+<div class="caja bd"><b>Ventana abierta</b><span>espera clics</span></div>
+</div>
+<div class="tabla"><table>
+<tr><th>Paso</th><th>Qué ocurre</th><th>Dónde</th></tr>
+<tr><td>1</td><td>La máquina virtual arranca, busca <code>main</code> en <code>uasd.catalogo.Main</code> y lo llama</td><td><code>Main.java:11</code></td></tr>
+<tr><td>2</td><td>Se pone el aspecto de ventana normal de Windows</td><td><code>Main.java:13</code></td></tr>
+<tr><td>3</td><td><code>InicializadorBD.preparar()</code>: se conecta al servidor y crea la base y las tablas si faltan. Aquí se carga el driver por primera vez</td><td><code>Main.java:19</code></td></tr>
+<tr><td>4</td><td>Si falla (por ejemplo, SQL Server apagado), se muestra un mensaje claro y el programa termina con <code>return</code></td><td><code>Main.java</code>, bloque <code>catch</code></td></tr>
+<tr><td>5</td><td><code>SwingUtilities.invokeLater</code> le pide a Swing que cree la ventana en su propio hilo</td><td><code>Main.java:30</code></td></tr>
+<tr><td>6</td><td><code>new Frm_Carreras()</code> ejecuta el constructor: <code>initComponents()</code> crea las piezas y <code>cargarFacultades()</code> pide las facultades al DAO, que usa <code>ConexionBD</code> y le consulta a SQL Server</td><td><code>Frm_Carreras.java:15</code> y <code>:150</code></td></tr>
+<tr><td>7</td><td><code>setVisible(true)</code>: aparece la ventana</td><td><code>Main.java:33</code></td></tr>
+<tr><td>8</td><td>El método <code>main</code> ya terminó, pero el programa sigue vivo: Swing mantiene un hilo propio esperando que el usuario haga algo</td><td>Dentro de Swing</td></tr>
+<tr><td>9</td><td>Al pulsar Consultar se ejecuta <code>btnConsultarActionPerformed</code>: pide las carreras al DAO y llena la tabla</td><td><code>Frm_Carreras.java:107</code></td></tr>
+<tr><td>10</td><td>Al cerrar la ventana, <code>System.exit(0)</code> termina el programa</td><td><code>Frm_Carreras.java:104</code></td></tr>
+</table></div>
+<div class="donde"><span>Main.java:11</span><span>Main.java:13</span><span>Main.java:19</span><span>Main.java:30</span><span>Main.java:33</span><span>Frm_Carreras.java:15</span><span>Frm_Carreras.java:150</span><span>Frm_Carreras.java:107</span><span>Frm_Carreras.java:104</span></div>
+
+<h2 id="conexion-bd">La conexión a la base de datos: ConexionBD e InicializadorBD</h2>
+<h3>ConexionBD: la única clase que abre conexiones</h3>
+<div class="tabla"><table>
+<tr><th>Constante</th><th>Qué es</th></tr>
+<tr><td><code>DRIVER</code></td><td>El nombre completo de la clase del driver de SQL Server</td></tr>
+<tr><td><code>SERVIDOR</code></td><td>La dirección del servidor</td></tr>
+<tr><td><code>BASE</code></td><td>El nombre de la base de datos: <code>CatalogoUASD</code></td></tr>
+<tr><td><code>USUARIO</code> y <code>CLAVE</code></td><td>Con quién se entra a SQL Server</td></tr>
+</table></div>
+<p>La dirección tiene varias partes. Es la misma forma que usa el blog de la clase:</p>
+<pre class="code"><code>jdbc:sqlserver://localhost:1433;encrypt=true;trustServerCertificate=true;databaseName=CatalogoUASD</code></pre>
+<div class="tabla"><table>
+<tr><th>Parte</th><th>Qué significa</th></tr>
+<tr><td><code>jdbc:sqlserver://</code></td><td>Qué driver usar: el de SQL Server</td></tr>
+<tr><td><code>localhost</code></td><td>El servidor está en esta misma computadora</td></tr>
+<tr><td><code>:1433</code></td><td>El puerto TCP donde SQL Server atiende</td></tr>
+<tr><td><code>encrypt=true;trustServerCertificate=true</code></td><td>Cifrar la conexión y aceptar el certificado local de pruebas. El driver moderno exige el cifrado</td></tr>
+<tr><td><code>databaseName=CatalogoUASD</code></td><td>Qué base abrir. Se agrega solo en <code>conectar()</code></td></tr>
+</table></div>
+<p>Hay dos métodos que abren conexión. <code>conectarServidor()</code> se conecta al servidor sin elegir base, y se usa solo para crear la base. <code>conectar()</code> se conecta a <code>CatalogoUASD</code>, y es la que usan los DAO.</p>
+
+<h3>cargarDriver y Class.forName</h3>
+<div class="donde"><span>ConexionBD.java:28</span><span>ConexionBD.java:30</span></div>
+<pre class="code"><code><span class="kw">private</span> <span class="kw">static</span> <span class="kw">void</span> cargarDriver() <span class="kw">throws</span> SQLException {
+    <span class="kw">try</span> {
+        Class.forName(DRIVER);
+    } <span class="kw">catch</span> (ClassNotFoundException e) {
+        <span class="kw">throw</span> <span class="kw">new</span> SQLException(<span class="str">&quot;No se encontró el driver de SQL Server&quot;</span>, e);
+    }
+}</code></pre>
+<p><b>Para qué sirve.</b> <code>Class.forName(...)</code> le dice a Java: "carga la clase del driver de SQL Server". Al cargarse, la clase se registra sola ante <code>DriverManager</code>, que es quien abre las conexiones. Es como anotar a un traductor en la recepción de un edificio.</p>
+<p>Después, <code>DriverManager.getConnection("jdbc:sqlserver://...")</code> mira cómo empieza la dirección y busca, entre los drivers registrados, el que sabe atender <code>jdbc:sqlserver:</code>. Lo encuentra y le pide que abra la conexión. Si el driver no está, falla con <code>No suitable driver found</code>.</p>
+<p><b>Para qué es el try/catch.</b> Si el archivo del driver no está en el proyecto, Java lanza <code>ClassNotFoundException</code>. El <code>catch</code> lo convierte en un <code>SQLException</code> con un mensaje claro, así el resto del programa maneja un solo tipo de error de base de datos.</p>
+<p><b>Cuándo se ejecuta.</b> Cada vez que se abre una conexión, porque <code>conectar()</code> y <code>conectarServidor()</code> lo llaman en su primera línea: al arrancar (cuando <code>InicializadorBD</code> revisa la base), al abrirse la ventana (cuando carga las facultades) y cada vez que pulsas Consultar. Java carga la clase solo la primera vez; las demás llamadas no hacen nada.</p>
+<p><b>Dónde se ejecuta.</b> En tu programa Java, dentro de <code>ConexionBD</code>. El driver sale del archivo <code>mssql-jdbc-12.8.1.jre11.jar</code>, que está en la carpeta <code>lib</code> del proyecto.</p>
+<p>Con un driver moderno, Java lo registra solo y este paso no es obligatorio. Se dejó porque es como lo muestran el ejemplo de clase y el blog.</p>
+
+<h3>InicializadorBD: dejar la base lista la primera vez</h3>
+<p><b>Para qué sirve.</b> Que quien descargue el proyecto no tenga que crear la base ni importar nada a mano. <b>Cuándo se ejecuta:</b> una vez por ejecución, en el <code>Main</code>, justo antes de abrir la ventana. Si la base ya existe, no hace nada. <b>Dónde se ejecuta:</b> el código corre en Java, pero las instrucciones que manda las ejecuta SQL Server.</p>
+<div class="donde"><span>InicializadorBD.java:24</span><span>InicializadorBD.java:44</span><span>InicializadorBD.java:67</span><span>InicializadorBD.java:80</span></div>
+<pre class="code"><code><span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> preparar() <span class="kw">throws</span> SQLException, IOException {
+    crearBaseSiNoExiste();
+    crearTablasSiNoExisten();
+}</code></pre>
+<ol>
+<li><code>preparar()</code> llama a dos métodos, uno detrás del otro.</li>
+<li><code>crearBaseSiNoExiste()</code> se conecta al <b>servidor</b>, sin elegir base, porque quizá <code>CatalogoUASD</code> aún no existe y no se puede entrar a una base que no existe. Pregunta si existe y, solo si no, ejecuta <code>CREATE DATABASE</code>.</li>
+<li><code>crearTablasSiNoExisten()</code> se conecta ya a la base y pregunta si existe la tabla <code>carrera</code>. Si no existe, ejecuta los dos scripts: <code>01_esquema.sql</code> (crea las tablas) y <code>02_datos.sql</code> (carga las 140 carreras).</li>
+<li><code>leerBloques()</code> lee cada script de la carpeta <code>sql</code> (por eso el programa debe ejecutarse desde la carpeta del proyecto, cosa que los <code>.bat</code> aseguran), lo corta en cada línea <code>GO</code> y manda cada pedazo por separado, porque <code>GO</code> es una orden de las herramientas de SQL Server que JDBC no entiende.</li>
+</ol>
+<pre class="code"><code>ResultSet resultado = sentencia.executeQuery(<span class="str">&quot;SELECT DB_ID(&#x27;&quot;</span> + base + <span class="str">&quot;&#x27;)&quot;</span>);
+resultado.next();
+resultado.getInt(1);
+<span class="kw">boolean</span> existe = !resultado.wasNull();</code></pre>
+<p><code>DB_ID</code> devuelve vacío (<code>NULL</code>) cuando la base no existe. JDBC devuelve 0 cuando el valor es <code>NULL</code>, así que <code>wasNull()</code> es la forma de saber si estaba vacío. Todo se envuelve en <code>try ... finally { conexion.close(); }</code> para cerrar la conexión siempre, aunque haya un error.</p>
+<p>Esta clase no viene del material de clase: se agregó para que el proyecto se pueda descargar y ejecutar sin pasos manuales.</p>
+
+<h2 id="swing">Swing: la ventana, y qué es todo eso</h2>
+<h3>Qué es Swing</h3>
+<p>Swing es la librería de Java para hacer ventanas. Viene incluida en el JDK, en el paquete <code>javax.swing</code>, así que no hay que instalar ni descargar nada. Con ella se arma una pantalla con código: se crea una ventana, se le ponen botones, listas y tablas, y se le dice qué hacer cuando el usuario toca algo.</p>
+<div class="analogia"><b>Analogía.</b> Swing es una caja de piezas de Lego para pantallas. Cada pieza (botón, etiqueta, tabla) ya existe. Tu trabajo es elegir las piezas, decidir dónde va cada una y decir qué pasa cuando alguien las toca.</div>
+<p>Es la librería que se vio en clase con el ejemplo <code>HolaMundoSwing</code>. Es antigua pero estable, y sigue incluida en Java.</p>
+
+<h3>Las piezas que usa el programa</h3>
+<div class="tabla"><table>
+<tr><th>Pieza de Swing</th><th>Qué es</th><th>Dónde se usa en el programa</th></tr>
+<tr><td><code>JFrame</code></td><td>La ventana principal, con su barra de título y botones de cerrar</td><td><code>Frm_Carreras</code> hereda de ella (<code>extends JFrame</code>)</td></tr>
+<tr><td><code>JPanel</code></td><td>Una caja para agrupar otras piezas</td><td>El panel azul del título y el panel que junta el selector y el botón</td></tr>
+<tr><td><code>JLabel</code></td><td>Un texto en pantalla</td><td>El título, la palabra "Facultad:" y el mensaje de abajo ("9 carreras en...")</td></tr>
+<tr><td><code>JComboBox</code></td><td>Una lista desplegable</td><td>El selector de facultades</td></tr>
+<tr><td><code>JButton</code></td><td>Un botón</td><td>"Consultar"</td></tr>
+<tr><td><code>JTable</code></td><td>Una tabla con filas y columnas</td><td>La tabla de carreras</td></tr>
+<tr><td><code>DefaultTableModel</code></td><td>El objeto que guarda los datos de la tabla</td><td>La clase interna <code>ModeloCarreras</code> hereda de él; las filas se agregan con <code>addRow</code></td></tr>
+<tr><td><code>JScrollPane</code></td><td>Le pone barras de desplazamiento a lo que contiene</td><td>Envuelve la tabla para que se pueda bajar con el ratón</td></tr>
+<tr><td><code>JOptionPane</code></td><td>Una ventanita de aviso o de error</td><td>"Primero elige una facultad."</td></tr>
+</table></div>
+<pre class="code"><code>private JButton btnConsultar;
+private JComboBox&lt;Facultad&gt; cmbFacultad;
+private JLabel lblResultado;
+private JTable tblCarreras;</code></pre>
+<p><code>JComboBox&lt;Facultad&gt;</code> significa "una lista desplegable que guarda objetos de tipo Facultad". Por eso, al elegir un elemento, el programa recibe una Facultad completa, con su <code>id</code>, y no solo un texto.</p>
+
+<h3>Cómo se arma un formulario en NetBeans</h3>
+<p>Los videos de la clase usan NetBeans para hacer los formularios: se arrastran piezas (etiquetas, cajas de texto, botones) desde una paleta y se les cambia el nombre. NetBeans escribe el código solo, y el resultado tiene siempre la misma forma:</p>
+<ul>
+<li>Una clase que hereda de <code>JFrame</code>, con nombre como <code>Frm_Productos</code>, dentro de un paquete llamado <code>formularios</code>.</li>
+<li>Un método <code>initComponents()</code> que crea las piezas, las acomoda y conecta los botones.</li>
+<li>Un método por cada botón, con nombre como <code>btnConsultarActionPerformed</code>, donde el programador escribe lo que debe pasar.</li>
+<li>Las piezas declaradas al final de la clase, con nombres que empiezan por el tipo: <code>btn</code> (botón), <code>cmb</code> (lista desplegable), <code>lbl</code> (etiqueta), <code>tbl</code> (tabla).</li>
+</ul>
+<p><code>Frm_Carreras</code> tiene esa misma estructura, porque se armó con el diseñador. Son dos archivos: <code>Frm_Carreras.java</code> (el código) y <code>Frm_Carreras.form</code> (el diseño, guardado en XML). Al abrirlo en NetBeans se ven las pestañas <b>Source</b> y <b>Design</b>. Lo que NetBeans genera, <code>initComponents()</code> y la lista de piezas del final, está entre marcas <code>GEN-BEGIN</code> y <code>GEN-END</code> y no se edita a mano: se cambia en <b>Design</b>.</p>
+
+<h3>Cómo se acomodan las piezas: los layouts</h3>
+<p>Swing no pone cada pieza en una coordenada exacta. Usa un <i>layout</i>, una regla de acomodo. Este programa usa dos.</p>
+<ul>
+<li><b><code>BorderLayout</code></b> divide la ventana en cinco zonas: norte, sur, este, oeste y centro. Se usan tres.</li>
+<li><b><code>FlowLayout</code></b> pone las piezas una al lado de la otra, como las palabras de un renglón. Se usa para "Facultad:", el selector y el botón.</li>
+</ul>
+<div class="maqueta" role="img" aria-label="Zonas de la ventana">
+<div class="zona norte"><b>BorderLayout.NORTH</b>Panel superior: el título azul y, debajo, el panel con "Facultad:", el selector y el botón (FlowLayout)</div>
+<div class="zona centro"><b>BorderLayout.CENTER</b>JScrollPane con la JTable de carreras. Ocupa todo el espacio que sobra</div>
+<div class="zona sur"><b>BorderLayout.SOUTH</b>JLabel con el mensaje: "9 carreras en la Facultad de Ingeniería y Arquitectura"</div>
+</div>
+<div class="donde"><span>Frm_Carreras.java:34</span></div>
+<pre class="code"><code>getContentPane().setLayout(new java.awt.BorderLayout());
+...
+getContentPane().add(pnlNorte, java.awt.BorderLayout.NORTH);
+...
+getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
+...
+getContentPane().add(lblResultado, java.awt.BorderLayout.SOUTH);</code></pre>
+<pre class="code"><code>pnlDatos.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 10, 10));
+...
+pnlDatos.add(lblFacultad);
+pnlDatos.add(cmbFacultad);
+pnlDatos.add(btnConsultar);</code></pre>
+
+<h3>La tabla y sus datos van separados</h3>
+<p>En Swing, <code>JTable</code> solo dibuja la tabla. Los datos los guarda otro objeto, el <code>DefaultTableModel</code>. Cuando el programa quiere mostrar otras carreras, no toca la tabla: vacía el modelo y le agrega filas nuevas, y la tabla se redibuja sola.</p>
+<pre class="code"><code>tblCarreras.setAutoCreateRowSorter(true);
+tblCarreras.setModel(modeloTabla);
+tblCarreras.setRowHeight(24);
+jScrollPane1.setViewportView(tblCarreras);</code></pre>
+<p><code>setAutoCreateRowSorter(true)</code> es lo que permite ordenar la tabla al hacer clic en el encabezado de una columna.</p>
+
+<h3>Los eventos: qué pasa cuando el usuario toca algo</h3>
+<p>Swing espera a que el usuario haga algo (un clic, cerrar la ventana) y entonces avisa a un <i>oyente</i> (<i>listener</i>), que es una clase que tiene el código de la reacción. Se le dice a Swing qué oyente atiende cada pieza.</p>
+<div class="flujo" role="img" aria-label="Flujo de un evento">
+<div class="caja"><b>Usuario</b><span>pulsa Consultar</span></div><i>→</i>
+<div class="caja"><b>JButton</b><span>avisa a su oyente</span></div><i>→</i>
+<div class="caja"><b>actionPerformed()</b><span>el oyente del botón</span></div><i>→</i>
+<div class="caja"><b>btnConsultarActionPerformed()</b><span>pide las carreras y llena la tabla</span></div>
+</div>
+<div class="donde"><span>Frm_Carreras.java:78</span><span>Frm_Carreras.java:107</span></div>
+<pre class="code"><code>btnConsultar.addActionListener(new java.awt.event.ActionListener() {
+    public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btnConsultarActionPerformed(evt);
+    }
+});</code></pre>
+<p>El oyente es una clase sin nombre que solo llama al método <code>btnConsultarActionPerformed</code>, donde está lo que debe pasar al pulsar el botón. Así lo genera NetBeans en los videos.</p>
+
+<h3>Qué pasa al construir la ventana</h3>
+<pre class="code"><code>public Frm_Carreras() {
+    initComponents();
+    configurarColumnas();
+    cargarFacultades();
+}</code></pre>
+<ol>
+<li><code>initComponents()</code> crea las piezas, las acomoda con los layouts y conecta el botón con su reacción.</li>
+<li><code>configurarColumnas()</code> fija el ancho de cada columna de la tabla.</li>
+<li><code>cargarFacultades()</code> le pide las facultades a la base de datos y llena el selector.</li>
+</ol>
+
+<h3>Los avisos</h3>
+<pre class="code"><code>JOptionPane.showMessageDialog(this, texto, titulo, tipo);</code></pre>
+<p><code>JOptionPane</code> muestra una ventanita con un mensaje. El parámetro <code>tipo</code> decide el icono: información (la "i" azul) o error.</p>
+
+<h3>Dos detalles que conviene saber</h3>
+<ul>
+<li><b>El aspecto.</b> Con <code>UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())</code> el programa se ve como una ventana normal de Windows, y no con el estilo antiguo de Java.</li>
+<li><b>El hilo de eventos.</b> Swing exige crear las ventanas en un hilo especial. Por eso el <code>Main</code> abre la ventana dentro de <code>SwingUtilities.invokeLater(...)</code>, que le pide a Swing ejecutarla en su momento.</li>
+</ul>
+<div class="donde"><span>Main.java:30</span></div>
+<pre class="code"><code>SwingUtilities.invokeLater(new Runnable() {
+    @Override
+    public void run() {
+        new Frm_Carreras().setVisible(true);
+    }
+});</code></pre>
+
+<h2 id="paradigmas">Los paradigmas de programación</h2>
+<p>Un paradigma es una forma de pensar y organizar un programa. Este proyecto mezcla tres.</p>
+<div class="tabla"><table>
+<tr><th>Paradigma</th><th>La idea</th><th>Dónde se ve</th></tr>
+<tr><td><b>Orientado a objetos</b></td><td>El programa se arma con objetos que tienen datos y acciones, y se relacionan entre sí</td><td>Todo el paquete <code>modelo</code>: una Facultad y una Carrera son objetos con su <code>id</code>, su <code>nombre</code> y métodos como <code>describir()</code></td></tr>
+<tr><td><b>Orientado a eventos</b></td><td>El programa espera a que pase algo (un clic) y reacciona</td><td>Swing: <code>btnConsultarActionPerformed</code> solo se ejecuta cuando alguien pulsa el botón</td></tr>
+<tr><td><b>Declarativo</b></td><td>Se dice qué se quiere, no cómo conseguirlo</td><td>SQL: <code>SELECT ... WHERE e.facultad_id = ?</code> pide las carreras de una facultad, y SQL Server decide cómo encontrarlas</td></tr>
+</table></div>
+<p>Java por dentro es <b>imperativo</b>: da las instrucciones paso a paso, como en el <code>while (resultado.next())</code> que recorre las filas una por una. SQL, en cambio, describe el resultado.</p>
+
+<h2 id="tecnicas">Las técnicas de programación orientada a objetos, con ejemplos</h2>
+<p>Cada tarjeta explica una técnica en palabras sencillas, con una analogía, el código real y el lugar exacto donde está. La programación orientada a objetos se apoya en cuatro ideas: abstracción, herencia, polimorfismo y encapsulamiento. Todas están aquí, más otras técnicas de las presentaciones.</p>
+
+<article class="concepto">
+<h3>La clase base: EntidadCatalogo</h3>
+<p class="que"><code>EntidadCatalogo</code> es la clase de la que heredan todas las demás. Guarda lo que tienen en común una facultad y una carrera, un <code>id</code> y un <code>nombre</code>, y fija reglas que todas sus hijas deben cumplir.</p>
+<div class="donde"><span>EntidadCatalogo.java:3</span><span>EntidadCatalogo.java:4</span><span>EntidadCatalogo.java:7</span><span>EntidadCatalogo.java:28</span><span>EntidadCatalogo.java:30</span><span>EntidadCatalogo.java:35</span><span>EntidadCatalogo.java:40</span></div>
+<div class="tabla"><table>
+<tr><th>Pieza</th><th>Qué hace</th></tr>
+<tr><td><code>abstract class</code></td><td>No se puede crear con <code>new</code>. Existen facultades y carreras, pero no una "entidad" a secas</td></tr>
+<tr><td><code>private int id</code> y <code>private String nombre</code></td><td>Los dos datos que todas tienen. Son privados: solo se tocan con los métodos de abajo</td></tr>
+<tr><td>Constructor <code>protected</code></td><td>Guarda <code>id</code> y <code>nombre</code>. Solo lo pueden llamar las clases hijas, con <code>super(...)</code></td></tr>
+<tr><td><code>getId()</code>, <code>getNombre()</code> y los <code>set...</code></td><td>Leer y cambiar esos datos de forma controlada</td></tr>
+<tr><td><code>public abstract String getTipo()</code></td><td>Una obligación para las hijas: cada una debe decir qué es, "Facultad" o "Carrera"</td></tr>
+<tr><td><code>public final String describir()</code></td><td>Arma un texto como "Facultad: Artes". Es <code>final</code>: ninguna hija puede cambiarlo</td></tr>
+<tr><td><code>toString()</code></td><td>Devuelve el nombre. Es lo que muestra el selector de la ventana</td></tr>
+<tr><td><code>equals()</code> y <code>hashCode()</code></td><td>Dos objetos son iguales si son de la misma clase y tienen el mismo <code>id</code></td></tr>
+</table></div>
+<p><b>Por qué existe.</b> Sin ella, <code>Facultad</code> y <code>Carrera</code> repetirían el mismo <code>id</code>, el mismo <code>nombre</code> y los mismos métodos. Con <code>extends EntidadCatalogo</code>, cada hija los recibe sin escribirlos.</p>
+<p><b>Cómo se usa.</b> Cuando el DAO crea una facultad con <code>new Facultad(id, nombre)</code>, <code>Facultad</code> pasa esos datos con <code>super(id, nombre)</code> y <code>EntidadCatalogo</code> los guarda. Después se piden con <code>elegida.getId()</code> (el número, para consultar las carreras) y <code>elegida.getNombre()</code> (el texto, para mostrarlo).</p>
+</article>
+
+<article class="concepto">
+<h3>1. Clase y objeto</h3>
+<p class="que">Una <b>clase</b> es un molde que dice qué datos y qué acciones tiene algo. Un <b>objeto</b> es una pieza creada con ese molde, con <code>new</code>.</p>
+<div class="analogia"><b>Analogía.</b> La clase es el molde de galletas. Los objetos son las galletas.</div>
+<div class="donde"><span>Facultad.java:3</span><span>CarreraDAOJdbc.java:41</span></div>
+<p>La clase <code>Facultad</code> es el molde. En el DAO se crea un objeto con <code>new</code> por cada fila que llega de la base de datos:</p>
+<pre class="code"><code>carrera = new CarreraTecnica(id, nombre, escuela, proyectada);</code></pre>
+</article>
+
+<article class="concepto">
+<h3>2. Abstracción y clase abstracta</h3>
+<p class="que">Abstraer es quedarse con lo importante y dejar lo demás. Una <b>clase abstracta</b> es una idea general que no existe sola: no se puede crear con <code>new</code>, y sirve de base para otras. Puede traer métodos <b>abstractos</b>, que no tienen cuerpo y obligan a las hijas a escribirlos.</p>
+<div class="analogia"><b>Analogía.</b> "Vehículo" es una idea general: nadie maneja un "vehículo" a secas, maneja un carro o una moto. Y todo vehículo debe saber "arrancar", pero cada uno arranca a su manera.</div>
+<div class="donde"><span>EntidadCatalogo.java:3</span><span>EntidadCatalogo.java:28</span><span>Carrera.java:3</span><span>Carrera.java:29</span></div>
+<pre class="code"><code>public abstract class EntidadCatalogo {
+    private int id;
+    private String nombre;
+
+    public abstract String getTipo();
+}</code></pre>
+<p><b>En el programa:</b> no existe una "entidad" a secas ni una "carrera" a secas. Existen facultades, y carreras técnicas o de grado. <code>EntidadCatalogo</code> junta lo que todas tienen (id y nombre) y obliga a cada una a decir su tipo con <code>getTipo()</code>. <code>Carrera</code> también es abstracta y obliga a decir su nivel con <code>getNivel()</code>.</p>
+</article>
+
+<article class="concepto">
+<h3>3. Herencia</h3>
+<p class="que">Una clase hija recibe todo lo de su clase padre sin repetir el código. Se escribe con <code>extends</code>. La herencia es <b>transitiva</b>: la hija recibe también lo de los abuelos. Con <code>super(...)</code> la hija llama al constructor del padre.</p>
+<div class="analogia"><b>Analogía.</b> Un hijo hereda rasgos de sus padres y de sus abuelos, sin que nadie se los "escriba" de nuevo.</div>
+<div class="donde"><span>Facultad.java:3</span><span>Carrera.java:3</span><span>CarreraTecnica.java:3</span><span>CarreraGrado.java:3</span><span>CarreraTecnica.java:6</span></div>
+<pre class="code"><code>EntidadCatalogo (abstracta)
+├── Facultad
+└── Carrera (abstracta)
+    ├── CarreraTecnica
+    └── CarreraGrado</code></pre>
+<pre class="code"><code>public class CarreraTecnica extends Carrera {
+
+    public CarreraTecnica(int id, String nombre, String escuela, boolean proyectada) {
+        super(id, nombre, escuela, proyectada);
+    }
+
+    @Override
+    public String getNivel() {
+        return NivelCarrera.TECNICO;
+    }
+}</code></pre>
+<p><b>En el programa:</b> <code>CarreraTecnica</code> tiene <code>id</code> y <code>nombre</code> sin escribirlos, porque los hereda de <code>EntidadCatalogo</code> pasando por <code>Carrera</code>. La ventana, por su parte, hereda de <code>JFrame</code> (<code>Frm_Carreras.java:10</code>) todo lo que sabe hacer una ventana de Swing.</p>
+<h4>Cómo leer esa clase, línea por línea</h4>
+<div class="tabla"><table>
+<tr><th>Línea</th><th>Qué dice</th></tr>
+<tr><td><code>public class CarreraTecnica extends Carrera {</code></td><td>Una clase pública llamada CarreraTecnica, hija de Carrera</td></tr>
+<tr><td><code>public CarreraTecnica(int id, String nombre, ...) {</code></td><td>El constructor: lo que se ejecuta al hacer <code>new CarreraTecnica(...)</code></td></tr>
+<tr><td><code>super(id, nombre, escuela, proyectada);</code></td><td>Le pasa los datos al constructor de la clase padre, que los guarda</td></tr>
+<tr><td><code>@Override</code></td><td>Aviso de que el método de abajo reemplaza uno del padre</td></tr>
+<tr><td><code>public String getNivel() {</code></td><td>El método que el padre dejó abstracto y que aquí se completa</td></tr>
+<tr><td><code>return NivelCarrera.TECNICO;</code></td><td>Devuelve el texto "Técnico"</td></tr>
+</table></div>
+</article>
+
+<article class="concepto">
+<h3>super(...) y @Override explicados</h3>
+<p class="que">Son dos cosas distintas que aparecen en las clases hijas.</p>
+<h4>super(...)</h4>
+<p><code>super</code> significa "mi clase padre". Con paréntesis, <code>super(...)</code> llama al <b>constructor del padre</b>. Cuando una hija crea un objeto, primero hay que construir la parte que viene del padre, y eso lo hace <code>super(...)</code>. Debe ser la primera línea del constructor, y los datos que le pasas deben coincidir con los que pide el padre.</p>
+<div class="donde"><span>CarreraTecnica.java:6</span><span>Carrera.java:8</span></div>
+<pre class="code"><code>super(id, nombre, escuela, proyectada);</code></pre>
+<p>Esa línea le pasa los datos al constructor de <code>Carrera</code>, que los guarda. A su vez, <code>Carrera</code> usa <code>super(id, nombre)</code> para pasarle el <code>id</code> y el <code>nombre</code> a <code>EntidadCatalogo</code>. Es una cadena: <code>CarreraTecnica</code> → <code>Carrera</code> → <code>EntidadCatalogo</code>.</p>
+<div class="analogia"><b>Analogía.</b> Un hijo hereda la casa de su padre, pero la casa hay que construirla primero. <code>super(...)</code> es "construye primero la parte del padre con estos datos".</div>
+<h4>@Override</h4>
+<p>Significa "este método reemplaza o completa uno que viene del padre". Es un aviso para Java y para quien lee el código. Sirve para dos cosas: avisa que el método viene de arriba, y protege de errores de escritura. Si escribes <code>getNiveel()</code> por error, Java dice "este método no existe en el padre" y no compila. Sin <code>@Override</code> lo tomaría como un método nuevo y el programa fallaría sin avisar.</p>
+<h4>abstract y @Override juntos en Carrera</h4>
+<div class="donde"><span>Carrera.java:29</span><span>Carrera.java:32</span><span>CarreraTecnica.java:10</span></div>
+<pre class="code"><code><span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">String</span> getNivel();
+
+<span class="ann">@Override</span>
+<span class="kw">public</span> <span class="kw">String</span> getTipo() {
+    <span class="kw">return</span> <span class="str">&quot;Carrera&quot;</span>;
+}</code></pre>
+<p>Estas dos piezas parecen ir juntas, pero <b>el <code>@Override</code> no se refiere a <code>getNivel()</code></b>: se refiere al método que viene justo debajo, <code>getTipo()</code>. Hacen cosas contrarias:</p>
+<div class="tabla"><table>
+<tr><th>Clase</th><th>Con <code>getTipo()</code></th><th>Con <code>getNivel()</code></th></tr>
+<tr><td><code>EntidadCatalogo</code> (abuela)</td><td>Lo declara en blanco (<code>abstract</code>)</td><td>No lo conoce</td></tr>
+<tr><td><code>Carrera</code> (madre)</td><td><b>Lo completa</b> (<code>@Override</code>): "Carrera"</td><td><b>Lo declara en blanco</b> (<code>abstract</code>)</td></tr>
+<tr><td><code>CarreraTecnica</code> (hija)</td><td>Lo hereda ya completo</td><td><b>Lo completa</b> (<code>@Override</code>): "Técnico"</td></tr>
+</table></div>
+<p><code>abstract</code> se usa cuando <b>declaras</b> un método sin cuerpo para que otros lo completen, como un formulario con un campo en blanco. <code>@Override</code> se usa cuando <b>completas o cambias</b> un método que viene de arriba. Por eso <code>getNivel()</code> no lleva <code>@Override</code> en <code>Carrera</code>, donde es nuevo, pero sí en <code>CarreraTecnica</code>, donde se completa.</p>
+</article>
+
+<article class="concepto">
+<h3>4. Polimorfismo</h3>
+<p class="que">"Muchas formas". La misma orden produce respuestas distintas según el objeto que la recibe. Java decide en el momento de ejecutar cuál versión usar, y eso se llama <b>ligadura dinámica</b>. Hay tres formas de polimorfismo en el proyecto.</p>
+<div class="analogia"><b>Analogía.</b> Le dices "come" a un perro, a un pájaro y a un pez. La orden es la misma, pero cada uno come a su manera.</div>
+<h4>a) Por herencia y redefinición</h4>
+<p>La lista es de tipo <code>Carrera</code>, pero guarda técnicas y de grado mezcladas. Cuando la ventana llama a <code>carrera.getNivel()</code>, no sabe de cuál clase es cada una, y cada una responde lo suyo.</p>
+<div class="donde"><span>CarreraDAOJdbc.java:40</span><span>CarreraDAOJdbc.java:41</span><span>CarreraDAOJdbc.java:43</span><span>Frm_Carreras.java:116</span><span>Frm_Carreras.java:127</span></div>
+<pre class="code"><code>Carrera carrera;
+if (nivel.equals(NivelCarrera.TECNICO)) {
+    carrera = new CarreraTecnica(id, nombre, escuela, proyectada);
+} else {
+    carrera = new CarreraGrado(id, nombre, escuela, proyectada);
+}
+carreras.add(carrera);</code></pre>
+<p>La variable es de tipo <code>Carrera</code>, pero guarda una <code>CarreraTecnica</code> o una <code>CarreraGrado</code>. Por eso la columna Nivel de la tabla dice "Técnico" o "Grado" según el objeto.</p>
+<h4>b) Por interfaz</h4>
+<p>La ventana declara sus variables con el tipo de la interfaz. No sabe que detrás hay JDBC y SQL Server.</p>
+<div class="donde"><span>Frm_Carreras.java:11</span><span>Frm_Carreras.java:12</span></div>
+<pre class="code"><code>private FacultadDAO facultadDAO = new FacultadDAOJdbc();
+private CarreraDAO carreraDAO = new CarreraDAOJdbc();</code></pre>
+<h4>c) Sobrecarga</h4>
+<p>Varios métodos con el mismo nombre y datos distintos. Java elige cuál ejecutar según lo que le pases.</p>
+<div class="donde"><span>Frm_Carreras.java:164</span><span>Frm_Carreras.java:168</span></div>
+<pre class="code"><code>private void mostrarMensaje(String texto) {
+    mostrarMensaje(texto, JOptionPane.INFORMATION_MESSAGE);
+}
+
+private void mostrarMensaje(String texto, int tipo) {
+    String titulo = "Aviso";
+    if (tipo == JOptionPane.ERROR_MESSAGE) {
+        titulo = "Error";
+    }
+    JOptionPane.showMessageDialog(this, texto, titulo, tipo);
+}</code></pre>
+<p>Para un aviso simple se llama con un dato: <code>mostrarMensaje("Primero elige una facultad.")</code>. Para un error, con dos.</p>
+<div class="analogia"><b>Analogía de la sobrecarga.</b> Pedir un café: "un café" o "un café con leche". Es la misma acción con distintos datos.</div>
+</article>
+
+<article class="concepto">
+<h3>5. Interfaces</h3>
+<p class="que">Una interfaz es un contrato: lista lo que una clase debe saber hacer, sin decir cómo. Una clase que la cumple la implementa con <code>implements</code>. Una clase puede implementar varias, y el nombre de la interfaz se puede usar como tipo de una variable.</p>
+<div class="analogia"><b>Analogía.</b> Un enchufe de pared. No importa si lo que conectas es una lámpara o un cargador: si cumple la forma del enchufe, funciona.</div>
+<div class="donde"><span>FacultadDAO.java:7</span><span>CarreraDAO.java:7</span><span>FacultadDAOJdbc.java:12</span><span>CarreraDAOJdbc.java:15</span></div>
+<pre class="code"><code>public interface CarreraDAO {
+    List&lt;Carrera&gt; listarPorFacultad(int facultadId) throws SQLException;
+}
+
+public class CarreraDAOJdbc implements CarreraDAO {
+    ...
+}</code></pre>
+<h4>Interfaz con constantes</h4>
+<p>En una interfaz todos los campos son <code>static</code> y <code>final</code>, es decir, valores fijos. La presentación lo muestra con una interfaz de constantes, y aquí se hizo igual:</p>
+<div class="donde"><span>NivelCarrera.java:3</span><span>CarreraTecnica.java:10</span><span>CarreraDAOJdbc.java:40</span></div>
+<pre class="code"><code>public interface NivelCarrera {
+    String TECNICO = "Técnico";
+    String GRADO = "Grado";
+}</code></pre>
+<p>El texto "Técnico" se escribe una sola vez y lo usan el DAO (para decidir qué clase crear) y las clases hijas (para responder <code>getNivel()</code>).</p>
+<h4>Clase abstracta o interfaz</h4>
+<div class="tabla"><table>
+<tr><th></th><th>Clase abstracta</th><th>Interfaz</th></tr>
+<tr><td>Puede traer código ya escrito</td><td>Sí</td><td>No, solo declara</td></tr>
+<tr><td>Puede tener atributos</td><td>Sí</td><td>Solo constantes</td></tr>
+<tr><td>Cuántas se pueden usar</td><td>Una sola, con <code>extends</code></td><td>Varias, con <code>implements</code></td></tr>
+<tr><td>En este proyecto</td><td><code>EntidadCatalogo</code> comparte id y nombre</td><td><code>CarreraDAO</code> define un contrato</td></tr>
+</table></div>
+</article>
+
+<article class="concepto">
+<h3>6. Encapsulamiento</h3>
+<p class="que">Proteger los datos de una clase. Los atributos son <code>private</code>: nadie de afuera los toca directo, solo a través de métodos (<i>getters</i> para leer y <i>setters</i> para cambiar). Dentro de la clase, <code>this</code> significa "este mismo objeto". También se ocultan los detalles: el SQL vive dentro del DAO y la ventana no sabe cómo se consulta.</p>
+<div class="analogia"><b>Analogía.</b> Un cajero automático. No metes la mano a la caja fuerte: usas el teclado, y el cajero decide qué puede pasar con el dinero.</div>
+<div class="donde"><span>EntidadCatalogo.java:4</span><span>EntidadCatalogo.java:8</span><span>Carrera.java:4</span><span>CarreraDAOJdbc.java:21</span></div>
+<pre class="code"><code>private int id;
+private String nombre;
+
+public String getNombre() {
+    return nombre;
+}
+
+public void setNombre(String nombre) {
+    this.nombre = nombre;
+}</code></pre>
+<p>Si el atributo fuera público, cualquiera podría dejarlo vacío o con un valor absurdo. Con <code>private</code> y un setter, la clase controla cómo cambia.</p>
+</article>
+
+<article class="concepto">
+<h3>7. Modificadores: final, protected, static</h3>
+<p class="que">Palabras que cambian cómo se puede usar algo.</p>
+<div class="tabla"><table>
+<tr><th>Modificador</th><th>Qué hace</th><th>Dónde está</th></tr>
+<tr><td><code>private</code></td><td>Solo la propia clase lo ve</td><td>Los atributos de todas las clases del modelo</td></tr>
+<tr><td><code>protected</code></td><td>Solo las clases hijas y el mismo paquete</td><td>El constructor de <code>EntidadCatalogo</code> y de <code>Carrera</code></td></tr>
+<tr><td><code>public</code></td><td>Todos lo ven</td><td>Los getters y los métodos del DAO</td></tr>
+<tr><td><code>final</code> en un método</td><td>Ninguna hija puede redefinirlo</td><td><code>describir()</code></td></tr>
+<tr><td><code>static</code></td><td>Pertenece a la clase, no a un objeto</td><td>Los métodos de <code>ConexionBD</code>, que se usan sin hacer <code>new</code></td></tr>
+</table></div>
+<div class="donde"><span>EntidadCatalogo.java:7</span><span>EntidadCatalogo.java:30</span></div>
+<pre class="code"><code>protected EntidadCatalogo(int id, String nombre) {
+    this.id = id;
+    this.nombre = nombre;
+}
+
+public final String describir() {
+    return getTipo() + ": " + nombre;
+}</code></pre>
+</article>
+
+<article class="concepto">
+<h3>8. La clase Object: toString, equals y getClass</h3>
+<p class="que">Todas las clases de Java heredan de <code>Object</code>, aunque no se escriba. <code>Object</code> trae métodos listos, como <code>toString()</code> (convertir el objeto en texto), <code>equals()</code> (decir si dos objetos son iguales) y <code>getClass()</code> (decir de qué clase es). Se pueden redefinir con <code>@Override</code>.</p>
+<div class="donde"><span>EntidadCatalogo.java:35</span><span>Carrera.java:37</span><span>EntidadCatalogo.java:40</span></div>
+<pre class="code"><code>@Override
+public String toString() {
+    if (proyectada) {
+        return getNombre() + " (proyectada)";
+    }
+    return getNombre();
+}</code></pre>
+<p>El selector de la ventana muestra lo que devuelve <code>toString()</code>. Sin redefinirlo, mostraría algo como <code>uasd.catalogo.modelo.Facultad@1b6d3586</code>.</p>
+<pre class="code"><code>@Override
+public boolean equals(Object otro) {
+    if (this == otro) {
+        return true;
+    }
+    if (otro == null || getClass() != otro.getClass()) {
+        return false;
+    }
+    EntidadCatalogo otraEntidad = (EntidadCatalogo) otro;
+    return id == otraEntidad.id;
+}</code></pre>
+<p>Aquí, dos objetos son iguales si son de la misma clase (se comprueba con <code>getClass()</code>) y tienen el mismo <code>id</code>. El selector de Swing usa <code>equals</code> internamente cuando eliges un elemento. Se acompaña de <code>hashCode</code>.</p>
+<p>De los métodos de <code>Object</code> que muestra la presentación no se usan <code>clone</code> ni <code>finalize</code>: no hay nada que clonar, y <code>finalize</code> está en desuso.</p>
+</article>
+
+<article class="concepto">
+<h3>9. Conversión de tipos (casting)</h3>
+<p class="que">Decirle a Java "este objeto genérico en realidad es de este tipo", poniendo el tipo entre paréntesis.</p>
+<div class="donde"><span>Frm_Carreras.java:108</span></div>
+<pre class="code"><code>Facultad elegida = (Facultad) cmbFacultad.getSelectedItem();</code></pre>
+<p>El selector devuelve un objeto genérico. El <code>(Facultad)</code> lo convierte al tipo que sabemos que contiene, para poder pedirle su <code>id</code> y su nombre.</p>
+</article>
+
+<article class="concepto">
+<h3>10. Clases internas</h3>
+<p class="que">Una clase definida dentro de otra. Puede tener nombre, o ser <b>anónima</b>: se crea y se usa en el mismo lugar, sin darle nombre. La presentación explica las dos formas, y el formulario usa las dos.</p>
+<div class="donde"><span>Frm_Carreras.java:21</span><span>Frm_Carreras.java:78</span><span>Frm_Carreras.java:49</span><span>Main.java:30</span></div>
+<h4>Con nombre: el modelo de la tabla</h4>
+<pre class="code"><code>private class ModeloCarreras extends DefaultTableModel {
+    public ModeloCarreras() {
+        super(new String[]{"Escuela", "Carrera", "Nivel", "Estado"}, 0);
+    }
+
+    @Override
+    public boolean isCellEditable(int fila, int columna) {
+        return false;
+    }
+}</code></pre>
+<p>Es una clase que vive dentro de <code>Frm_Carreras</code> y hereda de <code>DefaultTableModel</code>. Define las columnas de la tabla y redefine <code>isCellEditable</code> para que las celdas no se puedan editar.</p>
+<h4>Anónima: reaccionar al cierre de la ventana</h4>
+<pre class="code"><code>addWindowListener(new java.awt.event.WindowAdapter() {
+    public void windowClosing(java.awt.event.WindowEvent evt) {
+        formWindowClosing(evt);
+    }
+});</code></pre>
+<p>Hay tres clases anónimas en el programa: la de arriba, igual que en <code>HolaMundoSwing</code>, que cierra el programa al cerrar la ventana (la genera NetBeans cuando se elige el evento <i>windowClosing</i>, y <code>formWindowClosing</code> hace el <code>System.exit(0)</code>); el oyente del botón <code>Consultar</code>; y un <code>Runnable</code> en el <code>Main</code> que abre el formulario.</p>
+</article>
+
+<article class="concepto">
+<h3>11. Paquetes e importación</h3>
+<p class="que">Un paquete es una carpeta lógica para agrupar clases relacionadas. Evita choques de nombres y ordena el proyecto. Con <code>import</code> se traen clases de otros paquetes, una por una o todas a la vez con el comodín <code>*</code>.</p>
+<div class="donde"><span>Frm_Carreras.java:7</span><span>Frm_Carreras.java:8</span></div>
+<pre class="code"><code>package uasd.catalogo.formularios;
+
+import java.sql.SQLException;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import uasd.catalogo.dao.*;
+import uasd.catalogo.modelo.*;</code></pre>
+<p>La primera línea dice que la clase vive en el paquete <code>formularios</code>. Los <code>import</code> con <code>*</code> traen todas las clases del DAO y del modelo, igual que <code>import java.awt.*;</code> en el ejemplo de la clase. Las piezas de Swing no se importan: NetBeans las escribe con su nombre completo, como <code>javax.swing.JButton</code>.</p>
+</article>
+
+<article class="concepto">
+<h3>12. Conectividad a la base de datos con JDBC</h3>
+<p class="que">JDBC es la forma estándar en que Java habla con una base de datos. Los pasos son siempre los mismos: cargar el driver, abrir la conexión, mandar una consulta y recorrer los resultados.</p>
+<div class="analogia"><b>Analogía.</b> Es llamar por teléfono a un restaurante: marcas el número (la conexión), haces el pedido (la consulta) y recibes lo que pediste (los resultados).</div>
+<div class="donde"><span>ConexionBD.java:30</span><span>ConexionBD.java:25</span><span>FacultadDAOJdbc.java:19</span></div>
+<pre class="code"><code>Class.forName(DRIVER);
+return DriverManager.getConnection(SERVIDOR + ";databaseName=" + BASE, USUARIO, CLAVE);</code></pre>
+<pre class="code"><code>Connection conexion = ConexionBD.conectar();
+try {
+    Statement sentencia = conexion.createStatement();
+    ResultSet resultado = sentencia.executeQuery("SELECT id, nombre FROM facultad ORDER BY nombre");
+
+    while (resultado.next()) {
+        int id = resultado.getInt("id");
+        String nombre = resultado.getString("nombre");
+        facultades.add(new Facultad(id, nombre));
+    }
+    resultado.close();
+    sentencia.close();
+} finally {
+    conexion.close();
+}</code></pre>
+<div class="tabla"><table>
+<tr><th>Pieza</th><th>Qué es</th></tr>
+<tr><td><code>Class.forName(DRIVER)</code></td><td>Carga el driver, la pieza que traduce JDBC al idioma de SQL Server</td></tr>
+<tr><td><code>DriverManager.getConnection(...)</code></td><td>Abre la conexión con el servidor, el usuario y la clave</td></tr>
+<tr><td><code>Connection</code></td><td>La conexión abierta</td></tr>
+<tr><td><code>Statement</code></td><td>El objeto que manda la consulta</td></tr>
+<tr><td><code>ResultSet</code></td><td>Las filas que devolvió la consulta</td></tr>
+<tr><td><code>resultado.next()</code></td><td>Avanza a la siguiente fila; devuelve <code>false</code> cuando ya no hay más</td></tr>
+</table></div>
+</article>
+
+<article class="concepto">
+<h3>13. Constantes y valores fijos</h3>
+<p class="que">Un dato que no cambia se guarda en una constante (<code>static final</code>), con nombre en mayúsculas. Así se escribe una sola vez y se cambia en un solo lugar.</p>
+<div class="donde"><span>ConexionBD.java</span><span>CarreraDAOJdbc.java:21</span></div>
+<pre class="code"><code>private static final String DRIVER = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+private static final String BASE = "CatalogoUASD";
+private static final String USUARIO = "sa";
+private static final String CLAVE = "Catalogo_UASD_2026";</code></pre>
+<p>Si el servidor, el usuario o la clave cambian, solo se edita este bloque en <code>ConexionBD</code>.</p>
+</article>
+
+<h2 id="patrones">Los patrones de diseño que aparecen</h2>
+<p>Un patrón de diseño es una solución conocida a un problema que se repite. No se aplicaron a propósito para lucirse: salieron de organizar bien el código. Estos son los que se reconocen.</p>
+
+<article class="concepto">
+<h3>DAO (acceso a datos)</h3>
+<p class="que">Cada tabla tiene un objeto cuya única tarea es hablar con ella. El resto del programa le pide datos al DAO y no escribe SQL. Se compone de una interfaz (qué se puede hacer) y una clase que lo hace.</p>
+<div class="donde"><span>CarreraDAO.java:7</span><span>CarreraDAOJdbc.java:15</span><span>CarreraDAOJdbc.java:21</span></div>
+<pre class="code"><code>String sql = "SELECT c.id, c.nombre, c.nivel, c.proyectada, e.nombre AS escuela "
+        + "FROM carrera c "
+        + "JOIN escuela e ON e.id = c.escuela_id "
+        + "WHERE e.facultad_id = " + facultadId + " "
+        + "ORDER BY e.nombre, c.nivel DESC, c.nombre";</code></pre>
+<p>Para qué sirve: si cambiara la base de datos, solo se reescribe la clase con JDBC. La ventana no se toca.</p>
+</article>
+
+<article class="concepto">
+<h3>Método plantilla (Template Method)</h3>
+<p class="que">Un método de la clase padre define los pasos fijos y deja un hueco que cada hija completa a su manera.</p>
+<div class="donde"><span>EntidadCatalogo.java:28</span><span>EntidadCatalogo.java:30</span></div>
+<pre class="code"><code>public abstract String getTipo();
+
+public final String describir() {
+    return getTipo() + ": " + nombre;
+}</code></pre>
+<p><code>describir()</code> es la plantilla: siempre arma "tipo: nombre", y es <code>final</code> para que nadie la cambie. El hueco es <code>getTipo()</code>: una Facultad responde "Facultad" y una Carrera responde "Carrera".</p>
+</article>
+
+<article class="concepto">
+<h3>Observador (Observer): los oyentes de Swing</h3>
+<p class="que">Un objeto avisa a otros cuando le pasa algo. Quienes quieren enterarse se registran como oyentes.</p>
+<div class="donde"><span>Frm_Carreras.java:78</span><span>Frm_Carreras.java:49</span></div>
+<pre class="code"><code>btnConsultar.addActionListener(new ActionListener() {</code></pre>
+<p>El botón no sabe qué hacer cuando lo pulsan. Solo avisa a sus oyentes, y el oyente anónimo que se registró con <code>addActionListener</code> es quien se entera y llama a <code>btnConsultarActionPerformed</code>.</p>
+</article>
+
+<article class="concepto">
+<h3>Crear el objeto según el dato (fábrica sencilla)</h3>
+<p class="que">Un solo lugar decide qué clase crear según la información que llega. No es una fábrica completa, pero cumple la misma idea.</p>
+<div class="donde"><span>CarreraDAOJdbc.java:40</span><span>CarreraDAOJdbc.java:41</span><span>CarreraDAOJdbc.java:43</span></div>
+<p>El DAO lee el nivel de cada fila y decide si crea una <code>CarreraTecnica</code> o una <code>CarreraGrado</code>. El resto del programa recibe objetos <code>Carrera</code> y no se preocupa de cuál es cuál.</p>
+</article>
+
+<div class="nota"><b class="k">Sobre la interfaz de constantes</b>
+<p>Poner constantes dentro de una interfaz (<code>NivelCarrera</code>) es lo que enseña la presentación y funciona bien para este trabajo. En proyectos profesionales se prefiere un <code>enum</code> o una clase con constantes, porque la interfaz está pensada para contratos. Es bueno saberlo si el profesor pregunta.</p></div>
+
+<h2 id="practicas">Buenas prácticas con base de datos y robustez</h2>
+<div class="tabla"><table>
+<tr><th>Práctica</th><th>Qué es</th><th>Dónde está</th></tr>
+<tr><td><b>Datos de la consulta bajo control</b></td><td>El único dato que se pega en el texto de la consulta es el <code>id</code> de la facultad, un número entero que sale de la propia base. Un número no puede traer comandos. Si el dato lo escribiera el usuario como texto, habría que usar una consulta con parámetros (<code>PreparedStatement</code>) para evitar la inyección SQL</td><td><code>CarreraDAOJdbc.java:21</code></td></tr>
+<tr><td><b>Cerrar siempre la conexión</b></td><td>El bloque <code>finally</code> se ejecuta pase lo que pase, incluso si hay un error, y cierra la conexión. Sin eso quedarían conexiones abiertas en el servidor</td><td><code>FacultadDAOJdbc.java</code>, <code>CarreraDAOJdbc.java</code></td></tr>
+<tr><td><b>Inicialización repetible</b></td><td>El programa comprueba si la base y las tablas existen y solo crea lo que falta, así se puede ejecutar mil veces sin duplicar datos</td><td><code>InicializadorBD</code></td></tr>
+<tr><td><b>Scripts cortados por <code>GO</code></b></td><td><code>GO</code> es una orden de las herramientas de SQL Server que JDBC no entiende. El programa corta el script en cada línea <code>GO</code> y manda cada bloque por separado</td><td><code>InicializadorBD.leerBloques</code></td></tr>
+<tr><td><b>Validar antes de consultar</b></td><td>Si no hay facultad elegida, se avisa y no se consulta</td><td><code>Frm_Carreras.btnConsultarActionPerformed()</code></td></tr>
+<tr><td><b>Errores entendibles</b></td><td>El usuario ve "No se pudo consultar la base de datos. Revisa que SQL Server esté encendido". El detalle técnico va a la consola</td><td><code>Frm_Carreras</code>, <code>Main</code></td></tr>
+<tr><td><b>Restricciones en la base</b></td><td><code>PRIMARY KEY</code>, <code>FOREIGN KEY</code>, <code>UNIQUE</code> y <code>CHECK</code> impiden datos incorrectos, por ejemplo un nivel que no sea Técnico o Grado</td><td><code>sql/01_esquema.sql</code></td></tr>
+</table></div>
+<pre class="code"><code>CREATE TABLE escuela (
+    id INT IDENTITY(1,1) NOT NULL,
+    nombre NVARCHAR(150) NOT NULL,
+    facultad_id INT NOT NULL,
+    CONSTRAINT PK_escuela PRIMARY KEY (id),
+    CONSTRAINT UQ_escuela_nombre UNIQUE (nombre),
+    CONSTRAINT FK_escuela_facultad FOREIGN KEY (facultad_id) REFERENCES facultad (id)
+);</code></pre>
+<p>Qué dice cada línea: <code>IDENTITY</code> genera el número solo; <code>PRIMARY KEY</code> identifica cada fila; <code>UNIQUE</code> impide dos escuelas con el mismo nombre; <code>FOREIGN KEY</code> obliga a que <code>facultad_id</code> sea el <code>id</code> de una facultad que existe.</p>
+
+<div class="aviso"><b class="k">Qué no viene del material de clase</b>
+<p>El patrón DAO con interfaces y la creación automática de la base no aparecen en el material compartido. El driver como archivo JAR agregado al proyecto, la conexión con <code>Class.forName</code>, <code>DriverManager</code>, <code>Statement</code> y <code>ResultSet</code>, y la forma del formulario, sí salen de los videos y del blog. Si el profesor pregunta de dónde sale cada cosa, esa es la respuesta.</p></div>
+
+<h2 id="construccion">El driver (JAR)</h2>
+<h3>El JAR del driver</h3>
+<p>Un <b>JAR</b> es un archivo comprimido, parecido a un <code>.zip</code>, que contiene clases de Java ya compiladas. Es la forma de empaquetar una librería para usarla en otro programa. El driver de SQL Server es un JAR: <code>mssql-jdbc-12.8.1.jre11.jar</code>, de 1,4 MB. Dentro tiene las clases que saben hablar con SQL Server, entre ellas la que se carga con <code>Class.forName</code>.</p>
+<div class="analogia"><b>Analogía.</b> El JAR es un ingrediente de la receta: la harina. Tu código es la receta, y sin el ingrediente no sale el plato.</div>
+<h4>Cómo se consigue</h4>
+<p>El blog de la clase lo descarga desde la página de Microsoft. Es el mismo archivo, publicado también en un repositorio público de librerías de Java. Se puede bajar con un comando, que lo deja en la carpeta <code>lib</code>:</p>
+<pre class="code"><code>Invoke-WebRequest -Uri https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/12.8.1.jre11/mssql-jdbc-12.8.1.jre11.jar -OutFile lib\mssql-jdbc-12.8.1.jre11.jar</code></pre>
+<h4>Cómo se agrega al proyecto</h4>
+<div class="tabla"><table>
+<tr><th>Dónde</th><th>Cómo</th></tr>
+<tr><td>Línea de comandos</td><td>Se escribe en el <i>classpath</i>: <code>-cp lib\mssql-jdbc-12.8.1.jre11.jar</code>. Los archivos <code>.bat</code> ya lo hacen</td></tr>
+<tr><td>NetBeans, como en el blog</td><td>Clic derecho sobre <b>Libraries</b>, <b>Add JAR/Folder...</b>, y elegir el archivo <code>.jar</code></td></tr>
+</table></div>
+<p>En las dos formas el programa termina usando el mismo archivo. Solo cambia cómo se le avisa a Java dónde está.</p>
+
+<h2 id="correr">Cómo ejecutarlo</h2>
+<h3>Tener SQL Server encendido</h3>
+<p>Se usa SQL Server Express instalado, como en el blog de la clase: se abre el <i>SQL Server Configuration Manager</i>, se habilita el protocolo <b>TCP/IP</b> y se pone el puerto <b>1433</b> (el blog también pide deshabilitar los puertos dinámicos). Después se reinicia el servicio. El usuario y la clave que use tu servidor se escriben en las constantes de <code>ConexionBD.java</code>; con <code>sa</code> y <code>Catalogo_UASD_2026</code> no hay que cambiar nada.</p>
+<p>Para ver los datos se puede usar <b>SQL Server Management Studio</b> (servidor <code>localhost,1433</code>, autenticación de SQL Server, usuario <code>sa</code>): <i>Databases → CatalogoUASD → Tables</i>.</p>
+<h3>Abrir y ejecutar el programa</h3>
+<p>Con la línea de comandos, desde la carpeta del proyecto (se probó):</p>
+<pre class="code"><code>.\ejecutar.bat</code></pre>
+<p>En NetBeans, como en los videos y el blog (se probó en Apache NetBeans 31 con JDK 21): <i>File → Open Project</i>, se elige la carpeta del proyecto y se pulsa el botón verde. El proyecto ya trae sus archivos de NetBeans, con el driver agregado, <code>uasd.catalogo.Main</code> como clase principal y la versión de Java en 11, así que no hay que configurar nada. NetBeans ejecuta desde la carpeta del proyecto, que es lo que el programa necesita para encontrar la carpeta <code>sql</code>.</p>
+<p>Para crearlo desde cero, como en los videos: <i>File → New Project</i>, categoría <b>Java with Ant</b>, <b>Java Project with Existing Sources</b>; se elige la carpeta del proyecto (sin una carpeta <code>build</code> adentro) y se agrega <code>src</code> como carpeta de código; clic derecho sobre <b>Libraries</b>, <b>Add JAR/Folder...</b> y se elige <code>lib\mssql-jdbc-12.8.1.jre11.jar</code>; y en <b>Properties → Run → Main Class</b> se elige <code>uasd.catalogo.Main</code>.</p>
+<p>Si dice que no encuentra Java, escribe antes <code>$env:JAVA_HOME='C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot'</code>. Para ver la base de datos:</p>
+<pre class="code"><code>sqlcmd -S localhost,1433 -U sa -P Catalogo_UASD_2026 -C -d CatalogoUASD -Q "SELECT * FROM carrera"</code></pre>
+
+<h2 id="glosario">Glosario rápido</h2>
+<div class="tabla"><table>
+<tr><th>Término</th><th>Qué significa</th></tr>
+<tr><td>Clase</td><td>El molde que define datos y acciones</td></tr>
+<tr><td>Objeto</td><td>Una pieza creada con una clase, con <code>new</code></td></tr>
+<tr><td>Atributo</td><td>Un dato dentro de una clase, como <code>nombre</code></td></tr>
+<tr><td>Método</td><td>Una acción que sabe hacer una clase, como <code>getNivel()</code></td></tr>
+<tr><td>Constructor</td><td>El método especial que se ejecuta al crear un objeto</td></tr>
+<tr><td>Clase abstracta</td><td>Una clase general que no se puede crear con <code>new</code></td></tr>
+<tr><td>Herencia</td><td>Una clase hija recibe lo de su clase padre (<code>extends</code>)</td></tr>
+<tr><td>Polimorfismo</td><td>La misma orden da respuestas distintas según el objeto</td></tr>
+<tr><td>Interfaz</td><td>Un contrato de lo que una clase debe saber hacer (<code>implements</code>)</td></tr>
+<tr><td>Encapsulamiento</td><td>Proteger los datos con <code>private</code> y acceder con getters y setters</td></tr>
+<tr><td>Sobrecarga</td><td>Varios métodos con el mismo nombre y datos distintos</td></tr>
+<tr><td>Redefinir (<code>@Override</code>)</td><td>Reemplazar en la hija un método del padre</td></tr>
+<tr><td>Swing</td><td>La librería de Java para hacer ventanas</td></tr>
+<tr><td>Layout</td><td>La regla con que Swing acomoda las piezas en una ventana</td></tr>
+<tr><td>Listener (oyente)</td><td>La clase que reacciona cuando el usuario hace algo</td></tr>
+<tr><td>JDBC</td><td>La forma estándar en que Java habla con una base de datos</td></tr>
+<tr><td>Driver</td><td>La pieza que traduce JDBC al idioma de una base concreta</td></tr>
+<tr><td>DAO</td><td>Objeto cuya única tarea es hablar con una tabla</td></tr>
+<tr><td>TCP</td><td>Protocolo de red: una conexión por dirección y puerto</td></tr>
+<tr><td>Paquete</td><td>Una carpeta lógica que agrupa clases</td></tr>
+<tr><td>JAR</td><td>Archivo comprimido con clases de Java ya compiladas. Así se empaquetan las librerías, como el driver</td></tr>
+<tr><td>.bat</td><td>Archivo de texto con comandos de Windows que se ejecutan uno tras otro</td></tr>
+<tr><td>Classpath</td><td>La lista de carpetas y JAR donde Java busca clases (opción <code>-cp</code>)</td></tr>
+<tr><td>Dependencia</td><td>Una librería externa que el proyecto necesita</td></tr>
+<tr><td>Inyección SQL</td><td>Ataque que mete comandos dentro de un dato; se evita con consultas con parámetros</td></tr>
+</table></div>
+
+<footer>Documento del proyecto Catálogo de Carreras UASD. Fuente de los datos: Catálogo de Oferta Académica de la UASD, edición 2024, uasd.edu.do.</footer>
+</main>
+</div>
+
+</body>
+</html>

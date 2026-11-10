@@ -1,0 +1,1418 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tutorial paso a paso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Concepto: cuaderno técnico. Barra lateral con índice, texto en columna ancha, código en bloques propios.
+   Un azul añil (el de la bandera UASD) como único acento; ámbar solo para "dónde está en el código". */
+:root {
+  --bg: #f5f6fa;
+  --surface: #ffffff;
+  --fg: #1a1f2e;
+  --muted: #566078;
+  --line: #dde1ea;
+  --accent: #1f3a7a;
+  --accent-soft: #e7ecf8;
+  --mark: #9a4a05;
+  --mark-soft: #fbefdc;
+  --ok: #17663a;
+  --ok-soft: #e1f3e8;
+  --warn: #8a5a00;
+  --warn-soft: #fbf0d0;
+  --code-bg: #eef1f7;
+  --code-fg: #1d2540;
+  --c-com: #66708a;
+  --c-str: #1b6b46;
+  --c-kw: #7b2d8e;
+  --c-ann: #a14a00;
+  --font-body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d111e; --surface: #141a2c; --fg: #e6e9f2; --muted: #9ba5bd; --line: #252d46;
+    --accent: #93acee; --accent-soft: #1a2442; --mark: #f0b35a; --mark-soft: #2d2212;
+    --ok: #67d193; --ok-soft: #12291d; --warn: #f0c35a; --warn-soft: #2d2512;
+    --code-bg: #0a0e19; --code-fg: #d6dcf0; --c-com: #7f8aa8; --c-str: #7fd6a4; --c-kw: #c99bef; --c-ann: #f0b35a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d111e; --surface: #141a2c; --fg: #e6e9f2; --muted: #9ba5bd; --line: #252d46;
+  --accent: #93acee; --accent-soft: #1a2442; --mark: #f0b35a; --mark-soft: #2d2212;
+  --ok: #67d193; --ok-soft: #12291d; --warn: #f0c35a; --warn-soft: #2d2512;
+  --code-bg: #0a0e19; --code-fg: #d6dcf0; --c-com: #7f8aa8; --c-str: #7fd6a4; --c-kw: #c99bef; --c-ann: #f0b35a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.62;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 64px;
+}
+.layout { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 48px; }
+aside.indice { position: sticky; top: calc(16px + env(safe-area-inset-top, 0px)); align-self: start; max-height: calc(100vh - 32px); overflow-y: auto; font-size: 14px; }
+aside.indice .t { font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+aside.indice a, details.indice-m a { display: block; color: var(--muted); text-decoration: none; padding: 5px 0 5px 12px; border-left: 2px solid var(--line); }
+aside.indice a:hover, details.indice-m a:hover { color: var(--accent); border-left-color: var(--accent); }
+details.indice-m { display: none; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin-bottom: 20px; }
+details.indice-m summary { cursor: pointer; font-weight: 600; }
+main { min-width: 0; max-width: 820px; }
+
+.portada { padding: 8px 0 12px; }
+.portada .sup { font-family: var(--font-mono); font-size: 13px; color: var(--accent); margin: 0 0 8px; }
+h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.12; letter-spacing: -.02em; margin: 0 0 14px; text-wrap: balance; }
+.portada .lead { font-size: 18px; color: var(--muted); max-width: 62ch; margin: 0; }
+h2 { font-size: 27px; line-height: 1.2; letter-spacing: -.01em; margin: 56px 0 14px; padding-top: 22px; border-top: 1px solid var(--line); text-wrap: balance; scroll-margin-top: 16px; }
+h3 { font-size: 19px; margin: 30px 0 8px; text-wrap: balance; }
+h4 { font-size: 15px; margin: 18px 0 4px; }
+p { margin: 0 0 14px; max-width: 70ch; }
+ul, ol { margin: 0 0 16px; padding-left: 22px; max-width: 70ch; }
+li { margin-bottom: 5px; }
+a { color: var(--accent); }
+code { font-family: var(--font-mono); font-size: .88em; background: var(--code-bg); color: var(--code-fg); padding: 1px 6px; border-radius: 5px; overflow-wrap: anywhere; }
+strong { font-weight: 600; }
+
+.datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 22px 0 6px; }
+.datos div { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 12px 14px; }
+.datos b { display: block; font-size: 26px; line-height: 1.1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.datos span { font-size: 13px; color: var(--muted); }
+
+.tabla { overflow-x: auto; margin: 6px 0 20px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+th, td { text-align: left; padding: 9px 13px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: var(--code-bg); font-weight: 600; white-space: nowrap; }
+td code { white-space: nowrap; }
+
+pre.code { font-family: var(--font-mono); font-size: 13px; line-height: 1.55; background: var(--code-bg); color: var(--code-fg); padding: 14px 16px; border-radius: 10px; overflow-x: auto; margin: 10px 0 18px; border: 1px solid var(--line); tab-size: 4; }
+pre.code .com { color: var(--c-com); font-style: italic; }
+pre.code .str { color: var(--c-str); }
+pre.code .kw { color: var(--c-kw); font-weight: 500; }
+pre.code .ann { color: var(--c-ann); }
+.archivo { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin: 18px 0 -4px; }
+
+details.ver { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); margin: 12px 0 18px; padding: 0 16px; }
+details.ver > summary { cursor: pointer; padding: 11px 0; font-weight: 500; color: var(--accent); }
+details.ver[open] > summary { border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+details.ver pre.code { margin-top: 0; }
+
+.nota, .aviso, .ok { border-radius: 10px; padding: 12px 16px; margin: 16px 0; max-width: 70ch; font-size: 15px; }
+.nota { background: var(--accent-soft); }
+.aviso { background: var(--warn-soft); }
+.ok { background: var(--ok-soft); }
+.nota p:last-child, .aviso p:last-child, .ok p:last-child { margin-bottom: 0; }
+.nota b.k, .aviso b.k, .ok b.k { display: block; font-size: 12px; letter-spacing: .07em; text-transform: uppercase; margin-bottom: 3px; }
+.nota b.k { color: var(--accent); } .aviso b.k { color: var(--warn); } .ok b.k { color: var(--ok); }
+
+.concepto { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px 6px; margin: 18px 0; }
+.concepto h3 { margin: 0 0 4px; font-size: 20px; }
+.concepto .que { color: var(--muted); margin-bottom: 10px; }
+.donde { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 8px 0 12px; }
+.donde a, .donde span { font-family: var(--font-mono); font-size: 12px; background: var(--mark-soft); color: var(--mark); padding: 3px 9px; border-radius: 999px; text-decoration: none; }
+
+ol.pasos { list-style: none; padding: 0; counter-reset: p; max-width: 74ch; }
+ol.pasos li { counter-increment: p; position: relative; padding: 0 0 16px 46px; margin: 0; border-left: 0; }
+ol.pasos li::before { content: counter(p); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: 14px; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+ol.pasos li::after { content: ""; position: absolute; left: 14px; top: 34px; bottom: 4px; width: 2px; background: var(--line); }
+ol.pasos li:last-child::after { display: none; }
+ol.pasos li b { display: block; }
+
+.capturas { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+.capturas figure { margin: 0; }
+.capturas img { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; display: block; }
+.capturas figcaption { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+.flujo { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin: 14px 0 20px; }
+.flujo .caja { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; min-width: 130px; flex: 1 1 130px; }
+.flujo .caja b { display: block; font-size: 14px; color: var(--accent); }
+.flujo .caja span { font-size: 12.5px; color: var(--muted); line-height: 1.35; display: block; }
+.flujo .caja.bd { background: var(--accent-soft); border-color: var(--accent); }
+.flujo i { font-style: normal; align-self: center; color: var(--muted); font-size: 18px; }
+.flujo i.tcp { font-family: var(--font-mono); font-size: 11.5px; line-height: 1.3; color: var(--mark); text-align: center; }
+.enlace-flujo { font-size: 13px; color: var(--muted); margin: -12px 0 8px 14px; }
+pre.code code { background: none; padding: 0; font-size: inherit; color: inherit; border-radius: 0; overflow-wrap: normal; }
+.er { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 14px 0 20px; }
+.er .ent { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 150px; flex: 1 1 150px; overflow: hidden; align-self: flex-start; }
+.er .ent h5 { margin: 0; padding: 7px 12px; background: var(--accent); color: var(--surface); font-family: var(--font-mono); font-size: 13px; font-weight: 500; }
+.er .ent ul { list-style: none; margin: 0; padding: 4px 0; max-width: none; }
+.er .ent li { display: flex; justify-content: space-between; gap: 10px; margin: 0; padding: 4px 12px; font-size: 13.5px; }
+.er .ent li em { font-style: normal; font-size: 11px; font-weight: 600; color: var(--mark); background: var(--mark-soft); padding: 1px 7px; border-radius: 999px; align-self: center; }
+.er .rel { font-size: 12.5px; color: var(--muted); text-align: center; line-height: 1.4; flex: 0 1 96px; }
+
+details.pregunta { border-bottom: 1px solid var(--line); padding: 0; margin: 0; max-width: 74ch; }
+details.pregunta summary { cursor: pointer; padding: 12px 0; font-weight: 500; }
+details.pregunta p { color: var(--muted); }
+
+.chk { list-style: none; padding-left: 0; }
+.chk li { padding-left: 30px; position: relative; }
+.chk li::before { position: absolute; left: 0; top: 0; font-weight: 600; }
+.chk li.si::before { content: "✓"; color: var(--ok); }
+.chk li.no::before { content: "○"; color: var(--warn); }
+
+footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+
+@media (max-width: 920px) {
+  .layout { display: block; }
+  aside.indice { display: none; }
+  details.indice-m { display: block; }
+  h2 { font-size: 24px; margin-top: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+
+</head>
+<body>
+<style>
+h3.paso { border-top: 1px solid var(--line); padding-top: 20px; margin-top: 36px; font-size: 20px; }
+h3.paso .n { display: inline-block; background: var(--accent); color: var(--surface); border-radius: 999px; padding: 1px 12px; margin-right: 10px; font-size: 14px; font-family: var(--font-mono); font-weight: 500; vertical-align: 2px; }
+.donde-va { font-family: var(--font-mono); font-size: 13px; color: var(--mark); background: var(--mark-soft); display: inline-block; padding: 3px 10px; border-radius: 999px; margin: 4px 0 2px; }
+.mini { font-size: 14.5px; color: var(--muted); }
+.menu { font-family: var(--font-mono); font-size: 13.5px; background: var(--accent-soft); color: var(--accent); padding: 2px 9px; border-radius: 6px; white-space: nowrap; }
+</style>
+<div class="layout">
+<aside class="indice" aria-label="Índice">
+  <p class="t">Contenido</p>
+  <a href="#mapa">Los pasos de un vistazo</a><a href="#fase1">Fase 1 · Preparar la computadora</a><a href="#fase2">Fase 2 · El proyecto en NetBeans</a><a href="#fase3">Fase 3 · La base de datos</a><a href="#fase4">Fase 4 · El driver de SQL Server (el JAR)</a><a href="#fase5">Fase 5 · El modelo: la clase padre y sus hijas</a><a href="#fase6">Fase 6 · Conectar Java con SQL Server</a><a href="#fase7">Fase 7 · El formulario y el Main</a><a href="#fase8">Fase 8 · Ejecutar y probar</a><a href="#fase9">Fase 9 · Entregar</a><a href="#terminal">Si no tienes NetBeans: la terminal</a>
+</aside>
+
+<main>
+<details class="indice-m"><summary>Contenido del tutorial</summary>
+  <a href="#mapa">Los pasos de un vistazo</a><a href="#fase1">Fase 1 · Preparar la computadora</a><a href="#fase2">Fase 2 · El proyecto en NetBeans</a><a href="#fase3">Fase 3 · La base de datos</a><a href="#fase4">Fase 4 · El driver de SQL Server (el JAR)</a><a href="#fase5">Fase 5 · El modelo: la clase padre y sus hijas</a><a href="#fase6">Fase 6 · Conectar Java con SQL Server</a><a href="#fase7">Fase 7 · El formulario y el Main</a><a href="#fase8">Fase 8 · Ejecutar y probar</a><a href="#fase9">Fase 9 · Entregar</a><a href="#terminal">Si no tienes NetBeans: la terminal</a>
+</details>
+
+<header class="portada">
+  <p class="sup">Catálogo de Carreras UASD · tutorial en NetBeans</p>
+  <h1>Construir el programa de principio a fin, en NetBeans</h1>
+  <p class="lead">Los pasos tal como se hacen dentro de NetBeans: instalarlo, crear el proyecto, crear los paquetes y las clases desde los menús, agregar el driver con <i>Add JAR/Folder</i> y ejecutar con el botón verde. Cada paso dice qué hacer, el código que va en cada archivo y cómo comprobar que quedó bien.</p>
+  <div class="datos">
+    <div><b>32</b><span>pasos en 9 fases</span></div>
+    <div><b>14</b><span>archivos Java</span></div>
+    <div><b>2</b><span>scripts SQL</span></div>
+    <div><b>1</b><span>botón verde para ejecutar</span></div>
+  </div>
+</header>
+
+<div class="nota"><b class="k">Qué está verificado y qué no</b>
+<p>Se verificó en Apache NetBeans 31 con JDK 21: crear el proyecto con el asistente, ver los paquetes en <i>Source Packages</i>, agregar el JAR en <i>Libraries</i>, marcar la clase principal, y ejecutar con el botón verde (el programa abrió y consultó la base). Los menús de crear paquetes, clases e interfaces, y el de cambiar la versión de Java, son los estándar de NetBeans, pero no los verifiqué en la versión 31: si el nombre de un menú no coincide, busca el equivalente. Los comandos de PowerShell, SQL Server Express y los scripts sí se probaron en este equipo.</p></div>
+<p class="mini">Hay otra versión de este tutorial que usa solo la terminal, sin NetBeans: <code>TUTORIAL-PASO-A-PASO-TERMINAL.html</code>, en la misma carpeta.</p>
+
+<h2 id="mapa">Los pasos de un vistazo</h2>
+<div class="tabla"><table>
+<tr><th>Fase</th><th>Pasos</th><th>Qué se logra</th></tr>
+<tr><td>1. Preparar la computadora</td><td>1 al 3</td><td>JDK, NetBeans y SQL Server listos</td></tr>
+<tr><td>2. El proyecto en NetBeans</td><td>4 al 7</td><td>Proyecto creado, en Java 11, con sus carpetas y paquetes</td></tr>
+<tr><td>3. La base de datos</td><td>8 al 11</td><td>Base creada, tablas y 140 carreras cargadas</td></tr>
+<tr><td>4. El driver de SQL Server (el JAR)</td><td>12 y 13</td><td>El JAR en <code>lib</code> y agregado a <i>Libraries</i></td></tr>
+<tr><td>5. El modelo</td><td>14 al 19</td><td>La clase padre y sus hijas</td></tr>
+<tr><td>6. Conectar Java con SQL Server</td><td>20 al 24</td><td>La conexión, las consultas (DAO) y la preparación de la base</td></tr>
+<tr><td>7. El formulario y el Main</td><td>25 y 26</td><td>La ventana y el punto de arranque</td></tr>
+<tr><td>8. Ejecutar y probar</td><td>27 al 29</td><td>El programa corriendo con el botón verde</td></tr>
+<tr><td>9. Entregar</td><td>30 al 32</td><td>Capturas, PDF, README y repositorio en GitHub</td></tr>
+</table></div>
+
+<h2 id="fase1">Fase 1 · Preparar la computadora</h2>
+
+<h3 class="paso"><span class="n">Paso 1</span>Instalar el JDK (Java)</h3>
+<p>NetBeans necesita un JDK para funcionar, y el programa también. Hace falta el 21 o uno superior para NetBeans 31; el proyecto se configurará después para Java 11.</p>
+<pre class="code"><code>winget install --id EclipseAdoptium.Temurin.21.JDK</code></pre>
+<p class="mini">Si no tienes <code>winget</code>, descarga Eclipse Temurin 21 desde adoptium.net. Después cierra la terminal y abre una nueva.</p>
+<div class="ok"><b class="k">Comprobar</b>
+<p>Escribe <code>java -version</code>. Debe decir <code>openjdk version "21..."</code>.</p></div>
+
+<h3 class="paso"><span class="n">Paso 2</span>Descargar NetBeans</h3>
+<p>NetBeans es el programa donde se escribe y ejecuta el código Java. La versión más reciente es la <b>31</b> (agosto de 2026). Apache ya no publica versiones LTS, así que la más reciente es la recomendada. Se descarga el archivo oficial, que no necesita instalación: se extrae y se abre.</p>
+<pre class="code"><code>mkdir C:\Users\TU-USUARIO\NetBeans
+cd C:\Users\TU-USUARIO\NetBeans
+Invoke-WebRequest -Uri https://dlcdn.apache.org/netbeans/netbeans/31/netbeans-31-bin.zip -OutFile netbeans-31-bin.zip
+Invoke-WebRequest -Uri https://downloads.apache.org/netbeans/netbeans/31/netbeans-31-bin.zip.sha512 -OutFile netbeans-31-bin.zip.sha512</code></pre>
+<p class="mini">Pesa unos 497 MB y tardó unos 6 minutos. Cambia <code>TU-USUARIO</code> por tu usuario de Windows.</p>
+<p>Verifica que el archivo no esté dañado, comparando su huella SHA-512 con la que publica Apache, y extráelo:</p>
+<pre class="code"><code>(Get-FileHash netbeans-31-bin.zip -Algorithm SHA512).Hash.ToLower() -eq ((Get-Content netbeans-31-bin.zip.sha512 -Raw).Trim() -split &#x27;\s+&#x27;)[0].ToLower()
+Expand-Archive netbeans-31-bin.zip -DestinationPath .</code></pre>
+<div class="ok"><b class="k">Comprobar</b>
+<p>La primera línea debe imprimir <code>True</code>. Después de extraer existe <code>netbeans\bin\netbeans64.exe</code>.</p></div>
+
+<h3 class="paso"><span class="n">Paso 3</span>Tener SQL Server encendido</h3>
+<p>El programa se conecta a SQL Server por TCP, en el puerto 1433. Se instala SQL Server Express, como en el blog de la clase.</p>
+<ol>
+<li><b>Descarga el instalador</b> de SQL Server Express (gratis) desde <code>microsoft.com/sql-server/sql-server-downloads</code>. Si tu Windows está en español, descarga el instalador <b>en español</b>: uno en inglés se detiene con el error <i>"This SQL Server setup media does not support the language of the OS"</i>.</li>
+<li>Ejecútalo y elige <b>Custom</b>. Cuando termine de descargar se abre el <i>SQL Server Installation Center</i>. Elige <b>New SQL Server standalone installation</b>.</li>
+<li>En la pantalla <i>Azure Extension for SQL Server</i>, <b>quita la casilla</b>. No hace falta.</li>
+<li>En <i>Feature Selection</i> deja solo <b>Database Engine Services</b>. En <i>Instance Configuration</i> deja la instancia con nombre <b>SQLEXPRESS</b>.</li>
+<li>En <i>Database Engine Configuration</i> elige <b>Mixed Mode</b> (autenticación de SQL Server y de Windows). Escribe la clave de <code>sa</code>: <code>Catalogo_UASD_2026</code>, en los dos campos. Pulsa <b>Add Current User</b> para que tu usuario de Windows también sea administrador.</li>
+<li>Pulsa <b>Next</b> hasta <b>Install</b>. Al final debe decir <i>Your SQL Server 2022 installation completed successfully</i>.</li>
+</ol>
+<h4>Activar TCP/IP en el puerto 1433</h4>
+<p>Por defecto SQL Server no acepta conexiones por TCP, y el driver de Java solo sabe conectarse así. Se activa con el <i>SQL Server Configuration Manager</i>:</p>
+<ol>
+<li>Pulsa <b>Windows + R</b>, escribe <code>SQLServerManager16.msc</code> y acepta el permiso de administrador.</li>
+<li>A la izquierda, abre <b>SQL Server Network Configuration</b> y haz clic en <b>Protocols for SQLEXPRESS</b>.</li>
+<li>Doble clic en <b>TCP/IP</b>. En la pestaña <b>Protocol</b>, pon <b>Enabled = Yes</b>.</li>
+<li>En la pestaña <b>IP Addresses</b>, baja hasta <b>IPAll</b>. En <i>TCP Dynamic Ports</i> <b>borra</b> lo que haya y déjalo vacío. En <i>TCP Port</i> escribe <code>1433</code>. Pulsa <b>OK</b>.</li>
+<li>Entra en <b>SQL Server Services</b>, clic derecho sobre <b>SQL Server (SQLEXPRESS)</b> y <b>Restart</b>.</li>
+</ol>
+<p class="mini">Si otro programa ocupa el puerto 1433, SQL Server no puede usarlo y el reinicio no basta: cierra ese programa y reinicia el servicio otra vez. La clave y el servidor están escritos en <code>ConexionBD.java</code> (paso 20); con estos pasos no hay que cambiarlos.</p>
+<div class="ok"><b class="k">Comprobar</b>
+<p>Desde tu PC, con <code>sqlcmd</code>:</p>
+<pre class="code"><code>sqlcmd -S localhost,1433 -U sa -P Catalogo_UASD_2026 -C -Q &quot;SELECT @@VERSION&quot;</code></pre>
+<p>Debe imprimir una línea que empieza con <code>Microsoft SQL Server</code>.</p></div>
+<h4>Ver los datos con SQL Server Management Studio (SSMS)</h4>
+<p>SSMS es solo la ventana para ver y consultar la base; el servidor es SQL Server Express. Para conectarte: <b>Server name</b> <code>localhost,1433</code>, <b>Authentication</b> <i>SQL Server Authentication</i>, <b>Login</b> <code>sa</code> y la clave <code>Catalogo_UASD_2026</code>. Si sale un error de certificado, en <i>Options &gt;&gt; Connection Properties</i> marca <b>Trust server certificate</b>. La base <code>CatalogoUASD</code> aparece después de ejecutar el programa por primera vez: <i>Databases → CatalogoUASD → Tables</i>, clic derecho sobre <code>dbo.carrera</code> y <b>Select Top 1000 Rows</b>.</p>
+
+<h2 id="fase2">Fase 2 · El proyecto en NetBeans</h2>
+
+<h3 class="paso"><span class="n">Paso 4</span>Abrir NetBeans</h3>
+<p>Haz doble clic en <code>netbeans\bin\netbeans64.exe</code>. Si te pide un JDK o no arranca, ábrelo desde PowerShell indicándole el que instalaste:</p>
+<pre class="code"><code>&amp; &quot;C:\Users\TU-USUARIO\NetBeans\netbeans\bin\netbeans64.exe&quot; --jdkhome &quot;C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot&quot;</code></pre>
+<div class="ok"><b class="k">Comprobar</b>
+<p>Se abre la ventana <i>Apache NetBeans IDE 31</i>, con la barra de menús <i>File, Edit, View, Navigate, Source, Refactor, Run, Debug, Profile, Team, Tools, Window, Help</i>.</p></div>
+
+<h3 class="paso"><span class="n">Paso 5</span>Crear el proyecto</h3>
+<ol>
+<li><span class="menu">File → New Project</span> (o <code>Ctrl + Shift + N</code>).</li>
+<li>En <i>Categories</i> elige <b>Java with Ant</b>. Cuidado: elige exactamente esa categoría.</li>
+<li>A la derecha elige <b>Java Application</b> y pulsa <b>Next</b>.</li>
+<li><i>Project Name</i>: <code>catalogo-carreras-uasd</code>. <i>Project Location</i>: la carpeta donde quieras guardarlo, por ejemplo el Escritorio.</li>
+<li>En <i>Create Main Class</i> escribe <code>uasd.catalogo.Main</code>. Así NetBeans crea el paquete <code>uasd.catalogo</code> con una clase <code>Main</code> y la marca como la clase principal.</li>
+<li>Pulsa <b>Finish</b>.</li>
+</ol>
+<p class="mini">En los videos de la clase el proyecto se crea igual, con el asistente de NetBeans. Esta ruta (<i>Java Application</i>) es la estándar; la que sí se verificó en la versión 31 es la de <i>Java Project with Existing Sources</i>, que se usa cuando el código ya existe.</p>
+<div class="ok"><b class="k">Comprobar</b>
+<p>En la ventana <b>Projects</b> (a la izquierda) aparece <code>catalogo-carreras-uasd</code>, con <b>Source Packages</b> (que contiene <code>uasd.catalogo</code>) y <b>Libraries</b> (que dice <i>JDK 21 (Default)</i>).</p></div>
+
+<h3 class="paso"><span class="n">Paso 6</span>Poner el proyecto en Java 11</h3>
+<p>NetBeans configura el proyecto con la versión de tu JDK, que es la 21. Si un compañero tiene el JDK 17 o el 11, el proyecto no compilaría. Se baja a la 11, que es lo mínimo que acepta el driver, y así sirve en cualquier computadora.</p>
+<ol>
+<li>Clic derecho sobre el proyecto, <span class="menu">Properties</span>.</li>
+<li>Categoría <b>Sources</b>, y en <i>Source/Binary Format</i> elige <b>11</b>.</li>
+<li>Pulsa <b>OK</b>.</li>
+</ol>
+<div class="ok"><b class="k">Comprobar</b>
+<p>En la pestaña <b>Files</b>, abre <code>nbproject\project.properties</code>: deben decir <code>javac.source=11</code> y <code>javac.target=11</code>.</p></div>
+
+<h3 class="paso"><span class="n">Paso 7</span>Crear las carpetas y los paquetes</h3>
+<p>Primero, dos carpetas en la raíz del proyecto, una para los scripts SQL y otra para el driver. Con PowerShell, desde la carpeta del proyecto:</p>
+<pre class="code"><code>mkdir sql, lib, docs, docs\capturas</code></pre>
+<p>Después, los cuatro paquetes de Java. En <b>Source Packages</b>, clic derecho → <span class="menu">New → Java Package</span>, y crea uno por uno:</p>
+<pre class="code"><code>uasd.catalogo.modelo
+uasd.catalogo.dao
+uasd.catalogo.conexion
+uasd.catalogo.formularios</code></pre>
+<p class="mini">Cada punto del nombre de un paquete es una carpeta: <code>uasd.catalogo.modelo</code> es <code>src\uasd\catalogo\modelo</code>.</p>
+<div class="ok"><b class="k">Comprobar</b>
+<p>En <b>Source Packages</b> deben verse cinco paquetes: <code>uasd.catalogo</code>, <code>uasd.catalogo.conexion</code>, <code>uasd.catalogo.dao</code>, <code>uasd.catalogo.formularios</code> y <code>uasd.catalogo.modelo</code>.</p></div>
+
+<h2 id="fase3">Fase 3 · La base de datos</h2>
+
+<h3 class="paso"><span class="n">Paso 8</span>Crear la base de datos</h3>
+<p>Una base de datos es el contenedor de las tablas. Esta se llamará <code>CatalogoUASD</code>. Desde la carpeta del proyecto:</p>
+<pre class="code"><code>sqlcmd -S localhost,1433 -U sa -P Catalogo_UASD_2026 -C -Q &quot;CREATE DATABASE CatalogoUASD&quot;</code></pre>
+<p class="mini">Este paso y los dos siguientes se pueden hacer a mano, como aquí, para entender qué se crea. El programa final también los hace solo la primera vez que se ejecuta (<code>InicializadorBD</code>, paso 23), y si encuentra todo ya creado no repite nada.</p>
+<div class="ok"><b class="k">Comprobar</b>
+<p><code>sqlcmd -S localhost,1433 -U sa -P Catalogo_UASD_2026 -C -Q "SELECT name FROM sys.databases"</code> debe listar <code>CatalogoUASD</code>.</p></div>
+
+<h3 class="paso"><span class="n">Paso 9</span>Crear las tablas</h3>
+<p>La UASD se organiza en tres niveles: una <b>facultad</b> tiene varias <b>escuelas</b>, y una escuela administra varias <b>carreras</b>. Son tres tablas, unidas por claves foráneas.</p>
+<p>Crea el archivo <code>sql\01_esquema.sql</code> en la carpeta <code>sql</code> (con el Bloc de notas, o en la pestaña <b>Files</b> de NetBeans) y pega este código:</p>
+<p class="archivo">sql/01_esquema.sql</p><pre class="code"><code><span class="kw">CREATE</span> <span class="kw">TABLE</span> facultad (
+    id <span class="kw">INT</span> <span class="kw">IDENTITY</span>(1,1) <span class="kw">NOT</span> <span class="kw">NULL</span>,
+    nombre <span class="kw">NVARCHAR</span>(100) <span class="kw">NOT</span> <span class="kw">NULL</span>,
+    <span class="kw">CONSTRAINT</span> PK_facultad <span class="kw">PRIMARY</span> <span class="kw">KEY</span> (id),
+    <span class="kw">CONSTRAINT</span> UQ_facultad_nombre <span class="kw">UNIQUE</span> (nombre)
+);
+<span class="kw">GO</span>
+
+<span class="kw">CREATE</span> <span class="kw">TABLE</span> escuela (
+    id <span class="kw">INT</span> <span class="kw">IDENTITY</span>(1,1) <span class="kw">NOT</span> <span class="kw">NULL</span>,
+    nombre <span class="kw">NVARCHAR</span>(150) <span class="kw">NOT</span> <span class="kw">NULL</span>,
+    facultad_id <span class="kw">INT</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,
+    <span class="kw">CONSTRAINT</span> PK_escuela <span class="kw">PRIMARY</span> <span class="kw">KEY</span> (id),
+    <span class="kw">CONSTRAINT</span> UQ_escuela_nombre <span class="kw">UNIQUE</span> (nombre),
+    <span class="kw">CONSTRAINT</span> FK_escuela_facultad <span class="kw">FOREIGN</span> <span class="kw">KEY</span> (facultad_id) <span class="kw">REFERENCES</span> facultad (id)
+);
+<span class="kw">GO</span>
+
+<span class="kw">CREATE</span> <span class="kw">TABLE</span> carrera (
+    id <span class="kw">INT</span> <span class="kw">IDENTITY</span>(1,1) <span class="kw">NOT</span> <span class="kw">NULL</span>,
+    nombre <span class="kw">NVARCHAR</span>(200) <span class="kw">NOT</span> <span class="kw">NULL</span>,
+    nivel <span class="kw">NVARCHAR</span>(10) <span class="kw">NOT</span> <span class="kw">NULL</span>,
+    proyectada <span class="kw">BIT</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> 0,
+    escuela_id <span class="kw">INT</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,
+    <span class="kw">CONSTRAINT</span> PK_carrera <span class="kw">PRIMARY</span> <span class="kw">KEY</span> (id),
+    <span class="kw">CONSTRAINT</span> CK_carrera_nivel <span class="kw">CHECK</span> (nivel <span class="kw">IN</span> (<span class="str">N&#x27;Técnico&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>)),
+    <span class="kw">CONSTRAINT</span> FK_carrera_escuela <span class="kw">FOREIGN</span> <span class="kw">KEY</span> (escuela_id) <span class="kw">REFERENCES</span> escuela (id)
+);
+<span class="kw">GO</span></code></pre>
+<div class="tabla"><table>
+<tr><th>Pieza</th><th>Qué hace</th></tr>
+<tr><td><code>IDENTITY(1,1)</code></td><td>Genera el <code>id</code> solo, empezando en 1</td></tr>
+<tr><td><code>PRIMARY KEY</code></td><td>Identifica cada fila de forma única</td></tr>
+<tr><td><code>UNIQUE</code></td><td>Impide repetir un nombre</td></tr>
+<tr><td><code>FOREIGN KEY ... REFERENCES</code></td><td>Obliga a que <code>facultad_id</code> sea el <code>id</code> de una facultad que existe</td></tr>
+<tr><td><code>CHECK</code></td><td>Impide que el nivel sea algo distinto de Técnico o Grado</td></tr>
+<tr><td><code>GO</code></td><td>Separa bloques. No es SQL: lo entienden las herramientas de SQL Server</td></tr>
+</table></div>
+<pre class="code"><code>sqlcmd -S localhost,1433 -U sa -P Catalogo_UASD_2026 -C -d CatalogoUASD -f 65001 -i sql\01_esquema.sql</code></pre>
+<p class="mini"><code>-d</code> elige la base, <code>-i</code> el archivo, y <code>-f 65001</code> le dice que el archivo está en UTF-8, para que las tildes se guarden bien. Si guardas el archivo desde NetBeans, ya sale en UTF-8.</p>
+<div class="ok"><b class="k">Comprobar</b>
+<p><code>sqlcmd -S localhost,1433 -U sa -P Catalogo_UASD_2026 -C -d CatalogoUASD -Q "SELECT name FROM sys.tables"</code> debe listar <code>facultad</code>, <code>escuela</code> y <code>carrera</code>.</p></div>
+
+<h3 class="paso"><span class="n">Paso 10</span>Cargar los datos de la UASD</h3>
+<p>Los datos salen del <i>Catálogo de Oferta Académica</i> oficial de la UASD (edición 2024): 9 facultades, 51 escuelas y 140 carreras de nivel Técnico y Grado. Las licenciaturas que el catálogo marca como proyectadas se guardan con <code>proyectada = 1</code>.</p>
+<p>Crea <code>sql\02_datos.sql</code> con este código. Es largo (225 líneas): ábrelo con el botón de abajo.</p>
+<details class="ver"><summary>Ver sql/02_datos.sql completo</summary>
+<p class="archivo">sql/02_datos.sql</p><pre class="code"><code><span class="kw">INSERT</span> <span class="kw">INTO</span> facultad (nombre) <span class="kw">VALUES</span>
+ (<span class="str">N&#x27;Humanidades&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias Económicas y Sociales&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias Jurídicas y Políticas&#x27;</span>),
+ (<span class="str">N&#x27;Ingeniería y Arquitectura&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias de la Salud&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias Agronómicas y Veterinarias&#x27;</span>),
+ (<span class="str">N&#x27;Artes&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias de la Educación&#x27;</span>);
+<span class="kw">GO</span>
+
+<span class="kw">INSERT</span> <span class="kw">INTO</span> escuela (nombre, facultad_id)
+<span class="kw">SELECT</span> v.escuela, f.id
+<span class="kw">FROM</span> (<span class="kw">VALUES</span>
+ (<span class="str">N&#x27;Humanidades&#x27;</span>, <span class="str">N&#x27;Escuela de Letras&#x27;</span>),
+ (<span class="str">N&#x27;Humanidades&#x27;</span>, <span class="str">N&#x27;Escuela de Filosofía&#x27;</span>),
+ (<span class="str">N&#x27;Humanidades&#x27;</span>, <span class="str">N&#x27;Escuela de Idiomas&#x27;</span>),
+ (<span class="str">N&#x27;Humanidades&#x27;</span>, <span class="str">N&#x27;Escuela de Comunicaciones&#x27;</span>),
+ (<span class="str">N&#x27;Humanidades&#x27;</span>, <span class="str">N&#x27;Escuela de Historia y Antropología&#x27;</span>),
+ (<span class="str">N&#x27;Humanidades&#x27;</span>, <span class="str">N&#x27;Escuela de Psicología&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias&#x27;</span>, <span class="str">N&#x27;Escuela de Matemática&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias&#x27;</span>, <span class="str">N&#x27;Escuela de Química&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias&#x27;</span>, <span class="str">N&#x27;Escuela de Biología&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias&#x27;</span>, <span class="str">N&#x27;Escuela de Física&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias&#x27;</span>, <span class="str">N&#x27;Escuela de Informática&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias&#x27;</span>, <span class="str">N&#x27;Escuela de Ciencias Geográficas&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias&#x27;</span>, <span class="str">N&#x27;Escuela de Microbiología y Parasitología&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias Económicas y Sociales&#x27;</span>, <span class="str">N&#x27;Escuela de Administración&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias Económicas y Sociales&#x27;</span>, <span class="str">N&#x27;Escuela de Economía&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias Económicas y Sociales&#x27;</span>, <span class="str">N&#x27;Escuela de Mercadotecnia&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias Económicas y Sociales&#x27;</span>, <span class="str">N&#x27;Escuela de Estadística&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias Económicas y Sociales&#x27;</span>, <span class="str">N&#x27;Escuela de Sociología&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias Económicas y Sociales&#x27;</span>, <span class="str">N&#x27;Escuela de Contabilidad&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias Económicas y Sociales&#x27;</span>, <span class="str">N&#x27;Escuela de Turismo y Hotelería&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias Jurídicas y Políticas&#x27;</span>, <span class="str">N&#x27;Escuela de Derecho&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias Jurídicas y Políticas&#x27;</span>, <span class="str">N&#x27;Escuela de Ciencias Políticas&#x27;</span>),
+ (<span class="str">N&#x27;Ingeniería y Arquitectura&#x27;</span>, <span class="str">N&#x27;Escuela de Agrimensura&#x27;</span>),
+ (<span class="str">N&#x27;Ingeniería y Arquitectura&#x27;</span>, <span class="str">N&#x27;Escuela de Arquitectura&#x27;</span>),
+ (<span class="str">N&#x27;Ingeniería y Arquitectura&#x27;</span>, <span class="str">N&#x27;Escuela de Ingeniería Civil&#x27;</span>),
+ (<span class="str">N&#x27;Ingeniería y Arquitectura&#x27;</span>, <span class="str">N&#x27;Escuela de Ingeniería Electromecánica&#x27;</span>),
+ (<span class="str">N&#x27;Ingeniería y Arquitectura&#x27;</span>, <span class="str">N&#x27;Escuela de Ingeniería Química&#x27;</span>),
+ (<span class="str">N&#x27;Ingeniería y Arquitectura&#x27;</span>, <span class="str">N&#x27;Escuela de Ingeniería Industrial&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias de la Salud&#x27;</span>, <span class="str">N&#x27;Escuela de Bioanálisis&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias de la Salud&#x27;</span>, <span class="str">N&#x27;Escuela de Enfermería&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias de la Salud&#x27;</span>, <span class="str">N&#x27;Escuela de Farmacia&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias de la Salud&#x27;</span>, <span class="str">N&#x27;Escuela de Medicina&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias de la Salud&#x27;</span>, <span class="str">N&#x27;Escuela de Odontología&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias de la Salud&#x27;</span>, <span class="str">N&#x27;Escuela de Salud Pública&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias de la Salud&#x27;</span>, <span class="str">N&#x27;Escuela de Ciencias Fisiológicas&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias Agronómicas y Veterinarias&#x27;</span>, <span class="str">N&#x27;Escuela de Ingeniería Agronómica&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias Agronómicas y Veterinarias&#x27;</span>, <span class="str">N&#x27;Escuela de Medicina Veterinaria&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias Agronómicas y Veterinarias&#x27;</span>, <span class="str">N&#x27;Escuela de Zootecnia&#x27;</span>),
+ (<span class="str">N&#x27;Artes&#x27;</span>, <span class="str">N&#x27;Escuela de Artes Plásticas&#x27;</span>),
+ (<span class="str">N&#x27;Artes&#x27;</span>, <span class="str">N&#x27;Escuela de Cine, TV y Fotografía&#x27;</span>),
+ (<span class="str">N&#x27;Artes&#x27;</span>, <span class="str">N&#x27;Escuela de Crítica e Historia del Arte&#x27;</span>),
+ (<span class="str">N&#x27;Artes&#x27;</span>, <span class="str">N&#x27;Escuela de Música&#x27;</span>),
+ (<span class="str">N&#x27;Artes&#x27;</span>, <span class="str">N&#x27;Escuela de Publicidad&#x27;</span>),
+ (<span class="str">N&#x27;Artes&#x27;</span>, <span class="str">N&#x27;Escuela de Teatro y Danza&#x27;</span>),
+ (<span class="str">N&#x27;Artes&#x27;</span>, <span class="str">N&#x27;Escuela de Diseño Industrial y de Moda&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias de la Educación&#x27;</span>, <span class="str">N&#x27;Escuela de Bibliotecología, Tecnología e Innovaciones Educativas&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias de la Educación&#x27;</span>, <span class="str">N&#x27;Escuela de Formación Docente para la Educación Infantil y Básica (FIB)&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias de la Educación&#x27;</span>, <span class="str">N&#x27;Escuela de Formación Docente para la Educación Media (FEM)&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias de la Educación&#x27;</span>, <span class="str">N&#x27;Escuela de Orientación Educativa y Psicopedagogía&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias de la Educación&#x27;</span>, <span class="str">N&#x27;Escuela de Formación Docente en Educación Física y Ciencias del Deporte&#x27;</span>),
+ (<span class="str">N&#x27;Ciencias de la Educación&#x27;</span>, <span class="str">N&#x27;Escuela de Teoría y Gestión Educativa&#x27;</span>)
+) <span class="kw">AS</span> v (facultad, escuela)
+<span class="kw">JOIN</span> facultad f <span class="kw">ON</span> f.nombre = v.facultad;
+<span class="kw">GO</span>
+
+<span class="kw">INSERT</span> <span class="kw">INTO</span> carrera (nombre, nivel, proyectada, escuela_id)
+<span class="kw">SELECT</span> v.carrera, v.nivel, v.proyectada, e.id
+<span class="kw">FROM</span> (<span class="kw">VALUES</span>
+
+ (<span class="str">N&#x27;Escuela de Letras&#x27;</span>, <span class="str">N&#x27;Licenciatura en Letras&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Letras&#x27;</span>, <span class="str">N&#x27;Licenciatura en Lengua Española y Literatura orientada a la Educación&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Filosofía&#x27;</span>, <span class="str">N&#x27;Licenciatura en Filosofía&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Idiomas&#x27;</span>, <span class="str">N&#x27;Licenciatura en Lengua y Literatura Francesa&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Idiomas&#x27;</span>, <span class="str">N&#x27;Licenciatura en Lengua y Literatura Inglesa&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Comunicaciones&#x27;</span>, <span class="str">N&#x27;Licenciatura en Comunicación mención Relaciones Públicas&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Comunicaciones&#x27;</span>, <span class="str">N&#x27;Licenciatura en Periodismo&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Historia y Antropología&#x27;</span>, <span class="str">N&#x27;Licenciatura en Historia&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Historia y Antropología&#x27;</span>, <span class="str">N&#x27;Licenciatura en Antropología&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Psicología&#x27;</span>, <span class="str">N&#x27;Licenciatura en Psicología Educativa&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Psicología&#x27;</span>, <span class="str">N&#x27;Licenciatura en Psicología Social&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Psicología&#x27;</span>, <span class="str">N&#x27;Licenciatura en Psicología Organizacional&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Psicología&#x27;</span>, <span class="str">N&#x27;Licenciatura en Psicología Clínica&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Psicología&#x27;</span>, <span class="str">N&#x27;Licenciatura en Psicología del Desarrollo&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+
+ (<span class="str">N&#x27;Escuela de Matemática&#x27;</span>, <span class="str">N&#x27;Licenciatura en Matemática&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Química&#x27;</span>, <span class="str">N&#x27;Licenciatura en Ciencia y Tecnología de Alimentos&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Química&#x27;</span>, <span class="str">N&#x27;Licenciatura en Química&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Biología&#x27;</span>, <span class="str">N&#x27;Licenciatura en Biología&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Física&#x27;</span>, <span class="str">N&#x27;Licenciatura en Física&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Física&#x27;</span>, <span class="str">N&#x27;Licenciatura en Ciencias de la Atmósfera&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Física&#x27;</span>, <span class="str">N&#x27;Licenciatura en Ciencias Geológicas&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Informática&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Desarrollo de Software&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Informática&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Desarrollo de Aplicaciones Móviles&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Informática&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Infraestructura de TIC&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Informática&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Desarrollo de Apps, Animación y Videojuegos&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Informática&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Administración de Redes&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Informática&#x27;</span>, <span class="str">N&#x27;Licenciatura en Informática&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Informática&#x27;</span>, <span class="str">N&#x27;Ingeniería en Ciencias de Datos&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Informática&#x27;</span>, <span class="str">N&#x27;Ingeniería de Software&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Informática&#x27;</span>, <span class="str">N&#x27;Ingeniería en Inteligencia Artificial y Robótica&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Informática&#x27;</span>, <span class="str">N&#x27;Ingeniería de Sistemas y Computación&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Informática&#x27;</span>, <span class="str">N&#x27;Ingeniería en Sistemas y Ciberseguridad&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Ciencias Geográficas&#x27;</span>, <span class="str">N&#x27;Licenciatura en Geografía Mención Recursos Naturales y Ecoturístico&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Microbiología y Parasitología&#x27;</span>, <span class="str">N&#x27;Licenciatura en Microbiología y Parasitología&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+
+ (<span class="str">N&#x27;Escuela de Administración&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Administración Pública&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Administración&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Servicios y Gestión Municipal&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Administración&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Administración de Mipymes&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Administración&#x27;</span>, <span class="str">N&#x27;Licenciatura en Administración de Empresas&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Economía&#x27;</span>, <span class="str">N&#x27;Licenciatura en Economía&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Economía&#x27;</span>, <span class="str">N&#x27;Licenciatura en Comercio Exterior y Aduanas&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Mercadotecnia&#x27;</span>, <span class="str">N&#x27;Licenciatura en Mercadotecnia&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Estadística&#x27;</span>, <span class="str">N&#x27;Licenciatura en Estadística y Ciencias de Datos&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Sociología&#x27;</span>, <span class="str">N&#x27;Licenciatura en Trabajo Social&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Sociología&#x27;</span>, <span class="str">N&#x27;Licenciatura en Sociología&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Contabilidad&#x27;</span>, <span class="str">N&#x27;Licenciatura en Contabilidad&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Turismo y Hotelería&#x27;</span>, <span class="str">N&#x27;Licenciatura en Turismo y Hostelería&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Turismo y Hotelería&#x27;</span>, <span class="str">N&#x27;Técnico en Gestión en Alojamientos Turísticos&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+
+ (<span class="str">N&#x27;Escuela de Derecho&#x27;</span>, <span class="str">N&#x27;Licenciatura en Derecho&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Ciencias Políticas&#x27;</span>, <span class="str">N&#x27;Licenciatura en Ciencias Políticas&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+
+ (<span class="str">N&#x27;Escuela de Agrimensura&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Agrimensura&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Agrimensura&#x27;</span>, <span class="str">N&#x27;Licenciatura en Agrimensura&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Arquitectura&#x27;</span>, <span class="str">N&#x27;Arquitectura&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Ingeniería Civil&#x27;</span>, <span class="str">N&#x27;Ingeniería Civil&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Ingeniería Electromecánica&#x27;</span>, <span class="str">N&#x27;Ingeniería en Telecomunicación y Sistemas Electrónicos&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Ingeniería Electromecánica&#x27;</span>, <span class="str">N&#x27;Ingeniería Eléctrica en Potencia y Controles&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Ingeniería Electromecánica&#x27;</span>, <span class="str">N&#x27;Ingeniería Mecánica&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Ingeniería Química&#x27;</span>, <span class="str">N&#x27;Ingeniería Química&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Ingeniería Industrial&#x27;</span>, <span class="str">N&#x27;Ingeniería Industrial&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+
+ (<span class="str">N&#x27;Escuela de Bioanálisis&#x27;</span>, <span class="str">N&#x27;Técnico Radiólogo&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Bioanálisis&#x27;</span>, <span class="str">N&#x27;Licenciatura en Bioanálisis&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Bioanálisis&#x27;</span>, <span class="str">N&#x27;Licenciatura en Imagenología&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Bioanálisis&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Radioterapia y Dosimetría&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Enfermería&#x27;</span>, <span class="str">N&#x27;Licenciatura en Enfermería&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Farmacia&#x27;</span>, <span class="str">N&#x27;Licenciatura en Farmacia&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Farmacia&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Farmacia&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Medicina&#x27;</span>, <span class="str">N&#x27;Doctor en Medicina&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Medicina&#x27;</span>, <span class="str">N&#x27;Pre-Médica/Medicina&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Odontología&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Higiene Dental&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Odontología&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Laboratorio Dental&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Odontología&#x27;</span>, <span class="str">N&#x27;Doctor en Odontología&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Salud Pública&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Atención Pre-hospitalaria&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Ciencias Fisiológicas&#x27;</span>, <span class="str">N&#x27;Licenciatura en Fisioterapia&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Ciencias Fisiológicas&#x27;</span>, <span class="str">N&#x27;Licenciatura en Terapia Ocupacional&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Ciencias Fisiológicas&#x27;</span>, <span class="str">N&#x27;Licenciatura en Logopedia&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+
+ (<span class="str">N&#x27;Escuela de Ingeniería Agronómica&#x27;</span>, <span class="str">N&#x27;Ingeniero Agrónomo Mención: Suelo y Riego&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Ingeniería Agronómica&#x27;</span>, <span class="str">N&#x27;Ingeniero Agrónomo Mención: Producción de Cultivos&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Ingeniería Agronómica&#x27;</span>, <span class="str">N&#x27;Ingeniero Agrónomo Mención: Desarrollo Agrícola y Rural&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Medicina Veterinaria&#x27;</span>, <span class="str">N&#x27;Licenciado en Medicina Veterinaria&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Zootecnia&#x27;</span>, <span class="str">N&#x27;Ingeniero en Zootecnia&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Zootecnia&#x27;</span>, <span class="str">N&#x27;Ingeniero en Lácteo Alimentaria&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Zootecnia&#x27;</span>, <span class="str">N&#x27;Tecnólogo en Procesos Lácteo Alimentario&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Zootecnia&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Gestión Ganadera&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Zootecnia&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Gestión Acuícola&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+
+ (<span class="str">N&#x27;Escuela de Artes Plásticas&#x27;</span>, <span class="str">N&#x27;Licenciatura en Artes Visuales&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 1),
+ (<span class="str">N&#x27;Escuela de Artes Plásticas&#x27;</span>, <span class="str">N&#x27;Licenciatura en Escultura&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 1),
+ (<span class="str">N&#x27;Escuela de Artes Plásticas&#x27;</span>, <span class="str">N&#x27;Licenciatura en Plástica y Animación de Cómic&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 1),
+ (<span class="str">N&#x27;Escuela de Cine, TV y Fotografía&#x27;</span>, <span class="str">N&#x27;Licenciatura en Cinematografía y Audiovisuales Mención Cine&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Cine, TV y Fotografía&#x27;</span>, <span class="str">N&#x27;Licenciatura en Cinematografía y Audiovisuales Mención Televisión&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Cine, TV y Fotografía&#x27;</span>, <span class="str">N&#x27;Técnico en Fotografía y Medios Audiovisuales&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Cine, TV y Fotografía&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Cinematografía&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 1),
+ (<span class="str">N&#x27;Escuela de Cine, TV y Fotografía&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Televisión&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 1),
+ (<span class="str">N&#x27;Escuela de Crítica e Historia del Arte&#x27;</span>, <span class="str">N&#x27;Licenciatura en Historia y Crítica del Arte&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Crítica e Historia del Arte&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación Artística&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 1),
+ (<span class="str">N&#x27;Escuela de Música&#x27;</span>, <span class="str">N&#x27;Licenciatura en Teoría y Educación Musical&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Música&#x27;</span>, <span class="str">N&#x27;Licenciatura en Dirección Coral&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 1),
+ (<span class="str">N&#x27;Escuela de Música&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Música&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 1),
+ (<span class="str">N&#x27;Escuela de Publicidad&#x27;</span>, <span class="str">N&#x27;Licenciatura en Publicidad Mención Diseño&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Publicidad&#x27;</span>, <span class="str">N&#x27;Licenciatura en Publicidad Mención Ilustración&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Publicidad&#x27;</span>, <span class="str">N&#x27;Licenciatura en Publicidad Mención Creatividad y Gerencia&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Publicidad&#x27;</span>, <span class="str">N&#x27;Licenciatura en Diseño Gráfico y Editorial&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 1),
+ (<span class="str">N&#x27;Escuela de Publicidad&#x27;</span>, <span class="str">N&#x27;Licenciatura en Dirección y Creatividad Publicitaria&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 1),
+ (<span class="str">N&#x27;Escuela de Publicidad&#x27;</span>, <span class="str">N&#x27;Licenciatura en Diseño Digital y Multimedia&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 1),
+ (<span class="str">N&#x27;Escuela de Teatro y Danza&#x27;</span>, <span class="str">N&#x27;Licenciatura en Teatro&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Teatro y Danza&#x27;</span>, <span class="str">N&#x27;Licenciatura en Teatro Mención Actuación&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Teatro y Danza&#x27;</span>, <span class="str">N&#x27;Licenciatura en Teatro Mención Dirección&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Teatro y Danza&#x27;</span>, <span class="str">N&#x27;Licenciatura en Teatro Mención Dramaturgia&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Teatro y Danza&#x27;</span>, <span class="str">N&#x27;Licenciatura en Actuación&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 1),
+ (<span class="str">N&#x27;Escuela de Teatro y Danza&#x27;</span>, <span class="str">N&#x27;Licenciatura en Dramaturgia y Dirección&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 1),
+ (<span class="str">N&#x27;Escuela de Teatro y Danza&#x27;</span>, <span class="str">N&#x27;Licenciatura en Danza Contemporánea&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 1),
+ (<span class="str">N&#x27;Escuela de Diseño Industrial y de Moda&#x27;</span>, <span class="str">N&#x27;Licenciatura en Diseño de Modas&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Diseño Industrial y de Moda&#x27;</span>, <span class="str">N&#x27;Licenciatura en Diseño Industrial&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Diseño Industrial y de Moda&#x27;</span>, <span class="str">N&#x27;Licenciatura en Diseño Artesanal y de Ambientes&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+
+ (<span class="str">N&#x27;Escuela de Bibliotecología, Tecnología e Innovaciones Educativas&#x27;</span>, <span class="str">N&#x27;Licenciatura en Bibliotecología y Ciencias de la Información&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Bibliotecología, Tecnología e Innovaciones Educativas&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación mención Bibliotecología&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Bibliotecología, Tecnología e Innovaciones Educativas&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación mención Informática Educativa&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente para la Educación Infantil y Básica (FIB)&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación Básica&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente para la Educación Infantil y Básica (FIB)&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación Infantil&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente para la Educación Infantil y Básica (FIB)&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación Inicial&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente para la Educación Infantil y Básica (FIB)&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación mención Primer Ciclo de Educación Primaria&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente para la Educación Infantil y Básica (FIB)&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación mención Segundo Ciclo de Educación Primaria&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente para la Educación Infantil y Básica (FIB)&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación mención Arte Escolar&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente para la Educación Media (FEM)&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación mención Letras&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente para la Educación Media (FEM)&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación Media mención Biología y Química&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente para la Educación Media (FEM)&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación Media mención Ciencias Sociales&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente para la Educación Media (FEM)&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación Media mención Física y Matemáticas&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente para la Educación Media (FEM)&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación Media mención Francés&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente para la Educación Media (FEM)&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación Media mención Inglés&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Orientación Educativa y Psicopedagogía&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación Especial e Inclusiva&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Orientación Educativa y Psicopedagogía&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación mención Orientación Académica&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Orientación Educativa y Psicopedagogía&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación mención Orientación Socio-Comunitaria&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Orientación Educativa y Psicopedagogía&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación mención Orientación para el Desarrollo de Recursos Humanos&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Orientación Educativa y Psicopedagogía&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación mención Orientación Educativa y Psicopedagógica&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente en Educación Física y Ciencias del Deporte&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Educación Física&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente en Educación Física y Ciencias del Deporte&#x27;</span>, <span class="str">N&#x27;Técnico Superior en Entrenamiento Deportivo&#x27;</span>, <span class="str">N&#x27;Técnico&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente en Educación Física y Ciencias del Deporte&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación Física&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente en Educación Física y Ciencias del Deporte&#x27;</span>, <span class="str">N&#x27;Licenciatura en Actividad Física, Salud y Fitness&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Formación Docente en Educación Física y Ciencias del Deporte&#x27;</span>, <span class="str">N&#x27;Licenciatura en Cultura Física y Deportes&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Teoría y Gestión Educativa&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación mención Gestión Educativa&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Teoría y Gestión Educativa&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación para Personas Jóvenes y Adultas&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0),
+ (<span class="str">N&#x27;Escuela de Teoría y Gestión Educativa&#x27;</span>, <span class="str">N&#x27;Licenciatura en Educación mención Formación Humana y Ciudadanía&#x27;</span>, <span class="str">N&#x27;Grado&#x27;</span>, 0)
+) <span class="kw">AS</span> v (escuela, carrera, nivel, proyectada)
+<span class="kw">JOIN</span> escuela e <span class="kw">ON</span> e.nombre = v.escuela;
+<span class="kw">GO</span></code></pre>
+</details>
+<pre class="code"><code>sqlcmd -S localhost,1433 -U sa -P Catalogo_UASD_2026 -C -d CatalogoUASD -f 65001 -i sql\02_datos.sql</code></pre>
+<div class="ok"><b class="k">Comprobar</b>
+<p>La terminal debe mostrar <code>(9 rows affected)</code>, <code>(51 rows affected)</code> y <code>(140 rows affected)</code>.</p></div>
+
+<h3 class="paso"><span class="n">Paso 11</span>Comprobar los datos con una consulta</h3>
+<p>Esta consulta junta las tres tablas, igual que hará el programa.</p>
+<pre class="code"><code>sqlcmd -S localhost,1433 -U sa -P Catalogo_UASD_2026 -C -d CatalogoUASD -Q &quot;SELECT f.nombre AS facultad, COUNT(*) AS carreras FROM carrera c JOIN escuela e ON e.id = c.escuela_id JOIN facultad f ON f.id = e.facultad_id GROUP BY f.nombre ORDER BY f.nombre&quot;</code></pre>
+<div class="ok"><b class="k">Comprobar</b>
+<p>Deben salir 9 filas: Artes 29, Ciencias 20, Ciencias Agronómicas y Veterinarias 9, Ciencias de la Educación 28, Ciencias de la Salud 16, Ciencias Económicas y Sociales 13, Ciencias Jurídicas y Políticas 2, Humanidades 14, Ingeniería y Arquitectura 9. Suman 140.</p></div>
+
+<h2 id="fase4">Fase 4 · El driver de SQL Server (el JAR)</h2>
+
+<h3 class="paso"><span class="n">Paso 12</span>Descargar el driver a la carpeta lib</h3>
+<p>Para que Java hable con SQL Server hace falta el <b>driver</b>. Las librerías de Java se distribuyen en archivos <b>JAR</b>: un archivo comprimido, parecido a un <code>.zip</code>, con clases ya compiladas. El del driver se llama <code>mssql-jdbc-12.8.1.jre11.jar</code> y pesa 1,4 MB.</p>
+<p>El blog de la clase lo descarga desde la página de Microsoft. Es el mismo archivo, publicado también en un repositorio público, y se puede bajar con un comando que lo deja en la carpeta <code>lib</code> del proyecto. Desde la carpeta del proyecto:</p>
+<pre class="code"><code>Invoke-WebRequest -Uri https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/12.8.1.jre11/mssql-jdbc-12.8.1.jre11.jar -OutFile lib\mssql-jdbc-12.8.1.jre11.jar</code></pre>
+<p class="mini">Es importante que el archivo quede <b>dentro</b> de la carpeta del proyecto. Así NetBeans guarda una ruta relativa y el proyecto funciona en otras computadoras.</p>
+<div class="ok"><b class="k">Comprobar</b>
+<p><code>dir lib</code> debe mostrar <code>mssql-jdbc-12.8.1.jre11.jar</code>, de 1.476.685 bytes.</p></div>
+
+<h3 class="paso"><span class="n">Paso 13</span>Agregar el JAR al proyecto en NetBeans</h3>
+<p>Es el paso del blog, y el más importante para que el programa se conecte. Si se omite, el programa falla con "No se encontró el driver de SQL Server".</p>
+<ol>
+<li>En la ventana <b>Projects</b>, busca el nodo <b>Libraries</b>, debajo de <i>Source Packages</i>.</li>
+<li>Clic derecho sobre <b>Libraries</b>.</li>
+<li>Elige <span class="menu">Add JAR/Folder...</span></li>
+<li>Entra en la carpeta <code>lib</code> del proyecto, selecciona <code>mssql-jdbc-12.8.1.jre11.jar</code> y pulsa <b>Open</b>.</li>
+</ol>
+<div class="ok"><b class="k">Comprobar</b>
+<p>Debajo de <b>Libraries</b> aparece <code>mssql-jdbc-12.8.1.jre11.jar</code>, junto a <i>JDK 21 (Default)</i>. Y en <code>nbproject\project.properties</code> la línea <code>javac.classpath</code> lo menciona, con la ruta <code>lib/mssql-jdbc-12.8.1.jre11.jar</code>.</p></div>
+
+<h3 class="paso"><span class="n">Paso 13b</span>Opcional: ver la base de datos desde NetBeans</h3>
+<p>NetBeans trae su propia herramienta de bases de datos, en la pestaña <b>Services</b> (a la izquierda, junto a <i>Projects</i> y <i>Files</i>). Sirve para lo mismo que SQL Server Management Studio, pero sin salir del IDE: ver las tablas y sus filas. No es obligatoria para que el programa funcione. Necesita el mismo JAR del driver, porque es el que sabe hablar con SQL Server.</p>
+<ol>
+<li>Abre la pestaña <b>Services</b>. Haz clic derecho sobre <b>Databases</b> y elige <b>New Connection...</b>. Se abre el <i>New Connection Wizard</i>.</li>
+<li>En <i>Driver</i> elige <b>Microsoft SQL Server</b>. Debajo aparece <i>&lt;Missing Driver Files&gt;</i> y el aviso <i>Driver File is missing</i>: es normal, falta indicarle dónde está el JAR.</li>
+<li>Pulsa <b>Add...</b>. En la ventana <i>Select Driver</i> busca la carpeta del proyecto, entra en <code>lib</code>, elige <code>mssql-jdbc-12.8.1.jre11.jar</code> y pulsa <b>Abrir</b>. Después pulsa <b>Next</b>.</li>
+<li>Llena los datos de la conexión:
+<div class="tabla"><table>
+<tr><th>Campo</th><th>Valor</th></tr>
+<tr><td>Host</td><td><code>localhost</code></td></tr>
+<tr><td>Port</td><td><code>1433</code></td></tr>
+<tr><td>Database</td><td><code>CatalogoUASD</code></td></tr>
+<tr><td>User Name</td><td><code>sa</code></td></tr>
+<tr><td>Password</td><td><code>Catalogo_UASD_2026</code> (marca <i>Remember password</i> si quieres)</td></tr>
+</table></div></li>
+<li>Pulsa <b>Test Connection</b>. Debe decir <i>Connection succeeded</i>. Si da error de certificado, pulsa <b>Customize</b> (o edita la <i>JDBC URL</i>) y déjala así: <code>jdbc:sqlserver://localhost:1433;databaseName=CatalogoUASD;encrypt=true;trustServerCertificate=true</code>. Son las mismas opciones que usa <code>ConexionBD.java</code>.</li>
+<li>Si aparece <i>Choose Database Schema</i>, elige <b>dbo</b>: es el esquema donde están las tablas. Pulsa <b>Next</b> hasta <b>Finish</b>. En <i>Databases</i> aparece la conexión nueva. Ábrela: <i>dbo → Tables</i>. Clic derecho sobre <b>carrera</b> y <b>View Data</b> muestra las 140 carreras.</li>
+</ol>
+<div class="aviso"><b class="k">Si sale "Unable to find a suitable driver"</b>
+<p>NetBeans eligió el driver <b>"Microsoft SQL Server 2000 (Microsoft driver)"</b>, que es el viejo (clase <code>com.microsoft.jdbc.sqlserver</code>, URL <code>jdbc:microsoft:sqlserver://</code>) y no existe en nuestro JAR. Hay que usar el nuevo: <code>com.microsoft.sqlserver.jdbc.SQLServerDriver</code>, con URL <code>jdbc:sqlserver://</code>.</p>
+<ol>
+<li>En <i>Driver Name</i> elige la entrada de Microsoft SQL Server que <b>no</b> diga "2000".</li>
+<li>Si solo está la de 2000: en <i>Services → Databases → Drivers</i>, clic derecho, <b>New Driver...</b>. En <i>Driver File(s)</i> pulsa <b>Add</b> y elige <code>lib\mssql-jdbc-12.8.1.jre11.jar</code>. En <i>Driver Class</i> pulsa <b>Find</b> y elige <code>com.microsoft.sqlserver.jdbc.SQLServerDriver</code>. Ponle un nombre y pulsa <b>OK</b>; luego repite <b>New Connection</b> con ese driver.</li>
+<li>Escribe en <i>JDBC URL</i>: <code>jdbc:sqlserver://localhost:1433;databaseName=CatalogoUASD;encrypt=true;trustServerCertificate=true</code></li>
+</ol></div>
+<div class="ok"><b class="k">Comprobar</b>
+<p>En <i>Tables</i> deben verse <code>facultad</code>, <code>escuela</code> y <code>carrera</code>, y <b>View Data</b> sobre <code>facultad</code> debe mostrar 9 filas. Si la base no existe todavía, ejecuta el programa una vez (paso 27): él la crea.</p></div>
+<p class="mini">En esta lista de <i>Services</i> también aparecen <i>Maven Repositories</i> y <i>Docker</i>, que son herramientas de NetBeans que este proyecto no usa: se ignoran. Los pasos de este asistente (a partir de <i>Next</i>) no se probaron en NetBeans 31: si el nombre de una opción no coincide, busca la equivalente.</p>
+
+<h2 id="fase5">Fase 5 · El modelo: la clase padre y sus hijas</h2>
+<p>El modelo son las clases que representan los datos: una Facultad y una Carrera. Aquí se aplican la herencia, la clase abstracta y el polimorfismo. La estructura es esta:</p>
+<pre class="code"><code>EntidadCatalogo (abstracta)
+├── Facultad
+└── Carrera (abstracta)
+    ├── CarreraTecnica
+    └── CarreraGrado</code></pre>
+<h4>Cómo crear cada clase en NetBeans</h4>
+<ol>
+<li>En <b>Source Packages</b>, clic derecho sobre el paquete (en esta fase, <code>uasd.catalogo.modelo</code>).</li>
+<li><span class="menu">New → Java Class</span> (o <span class="menu">New → Java Interface</span> si es una interfaz, como <code>NivelCarrera</code>).</li>
+<li>Escribe el nombre de la clase, sin <code>.java</code>, y pulsa <b>Finish</b>.</li>
+<li>Se abre el archivo con un esqueleto. Selecciona todo con <code>Ctrl + A</code> y pega el código del paso, completo, incluida la primera línea <code>package ...;</code>.</li>
+<li>Guarda con <code>Ctrl + S</code>.</li>
+</ol>
+<p class="mini">El esqueleto de NetBeans trae un comentario de licencia arriba. Al seleccionar todo y pegar, desaparece, y queda solo el código del tutorial.</p>
+
+<h3 class="paso"><span class="n">Paso 14</span>La clase padre: EntidadCatalogo</h3>
+<p>Es la clase de la que heredan todas las demás. Guarda lo que tienen en común una facultad y una carrera: un <code>id</code> y un <code>nombre</code>. Crea la clase <code>EntidadCatalogo</code> en el paquete <code>uasd.catalogo.modelo</code>:</p>
+<p class="archivo">src/uasd/catalogo/modelo/EntidadCatalogo.java</p><pre class="code"><code><span class="kw">package</span> uasd.catalogo.modelo;
+
+<span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">class</span> EntidadCatalogo {
+    <span class="kw">private</span> <span class="kw">int</span> id;
+    <span class="kw">private</span> <span class="kw">String</span> nombre;
+
+    <span class="kw">protected</span> EntidadCatalogo(<span class="kw">int</span> id, <span class="kw">String</span> nombre) {
+        <span class="kw">this</span>.id = id;
+        <span class="kw">this</span>.nombre = nombre;
+    }
+
+    <span class="kw">public</span> <span class="kw">int</span> getId() {
+        <span class="kw">return</span> id;
+    }
+
+    <span class="kw">public</span> <span class="kw">void</span> setId(<span class="kw">int</span> id) {
+        <span class="kw">this</span>.id = id;
+    }
+
+    <span class="kw">public</span> <span class="kw">String</span> getNombre() {
+        <span class="kw">return</span> nombre;
+    }
+
+    <span class="kw">public</span> <span class="kw">void</span> setNombre(<span class="kw">String</span> nombre) {
+        <span class="kw">this</span>.nombre = nombre;
+    }
+
+    <span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">String</span> getTipo();
+
+    <span class="kw">public</span> <span class="kw">final</span> <span class="kw">String</span> describir() {
+        <span class="kw">return</span> getTipo() + <span class="str">&quot;: &quot;</span> + nombre;
+    }
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> <span class="kw">String</span> toString() {
+        <span class="kw">return</span> nombre;
+    }
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> <span class="kw">boolean</span> equals(Object otro) {
+        <span class="kw">if</span> (<span class="kw">this</span> == otro) {
+            <span class="kw">return</span> <span class="kw">true</span>;
+        }
+        <span class="kw">if</span> (otro == <span class="kw">null</span> || getClass() != otro.getClass()) {
+            <span class="kw">return</span> <span class="kw">false</span>;
+        }
+        EntidadCatalogo otraEntidad = (EntidadCatalogo) otro;
+        <span class="kw">return</span> id == otraEntidad.id;
+    }
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> <span class="kw">int</span> hashCode() {
+        <span class="kw">return</span> Integer.hashCode(id);
+    }
+}</code></pre>
+<ul>
+<li><code>abstract class</code>: no se puede crear con <code>new</code>. Existen facultades y carreras, pero no una "entidad" a secas.</li>
+<li><code>private</code> con getters y setters: encapsulamiento. Los datos solo se tocan por los métodos.</li>
+<li><code>protected</code> en el constructor: solo lo pueden llamar las clases hijas.</li>
+<li><code>public abstract String getTipo()</code>: una obligación para las hijas. Cada una debe decir qué es.</li>
+<li><code>public final String describir()</code>: arma "tipo: nombre". Es <code>final</code>, así que ninguna hija puede cambiarlo.</li>
+<li><code>toString</code>, <code>equals</code> y <code>hashCode</code>: métodos de <code>Object</code> que se redefinen con <code>@Override</code>.</li>
+</ul>
+
+<h3 class="paso"><span class="n">Paso 15</span>Facultad</h3>
+<p>Crea la clase <code>Facultad</code>. Hereda de <code>EntidadCatalogo</code> con <code>extends</code>. Con <code>super(...)</code> le pasa el <code>id</code> y el <code>nombre</code> a la clase padre, y completa el método abstracto <code>getTipo()</code>.</p>
+<p class="archivo">src/uasd/catalogo/modelo/Facultad.java</p><pre class="code"><code><span class="kw">package</span> uasd.catalogo.modelo;
+
+<span class="kw">public</span> <span class="kw">class</span> Facultad <span class="kw">extends</span> EntidadCatalogo {
+
+    <span class="kw">public</span> Facultad(<span class="kw">int</span> id, <span class="kw">String</span> nombre) {
+        <span class="kw">super</span>(id, nombre);
+    }
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> <span class="kw">String</span> getTipo() {
+        <span class="kw">return</span> <span class="str">&quot;Facultad&quot;</span>;
+    }
+}</code></pre>
+
+<h3 class="paso"><span class="n">Paso 16</span>NivelCarrera: una interfaz con constantes</h3>
+<p>Crea una <b>Java Interface</b> llamada <code>NivelCarrera</code>. Guarda los dos textos posibles del nivel, para escribirlos una sola vez. En una interfaz, todos los campos son <code>static</code> y <code>final</code>, es decir, valores fijos.</p>
+<p class="archivo">src/uasd/catalogo/modelo/NivelCarrera.java</p><pre class="code"><code><span class="kw">package</span> uasd.catalogo.modelo;
+
+<span class="kw">public</span> <span class="kw">interface</span> NivelCarrera {
+    <span class="kw">String</span> TECNICO = <span class="str">&quot;Técnico&quot;</span>;
+    <span class="kw">String</span> GRADO = <span class="str">&quot;Grado&quot;</span>;
+}</code></pre>
+
+<h3 class="paso"><span class="n">Paso 17</span>Carrera: la clase abstracta intermedia</h3>
+<p>Crea la clase <code>Carrera</code>. Hereda de <code>EntidadCatalogo</code> y agrega la escuela y si está proyectada. Declara un método abstracto, <code>getNivel()</code>, para que cada tipo de carrera diga el suyo, y completa <code>getTipo()</code>.</p>
+<p class="archivo">src/uasd/catalogo/modelo/Carrera.java</p><pre class="code"><code><span class="kw">package</span> uasd.catalogo.modelo;
+
+<span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">class</span> Carrera <span class="kw">extends</span> EntidadCatalogo {
+    <span class="kw">private</span> <span class="kw">String</span> escuela;
+    <span class="kw">private</span> <span class="kw">boolean</span> proyectada;
+
+    <span class="kw">protected</span> Carrera(<span class="kw">int</span> id, <span class="kw">String</span> nombre, <span class="kw">String</span> escuela, <span class="kw">boolean</span> proyectada) {
+        <span class="kw">super</span>(id, nombre);
+        <span class="kw">this</span>.escuela = escuela;
+        <span class="kw">this</span>.proyectada = proyectada;
+    }
+
+    <span class="kw">public</span> <span class="kw">String</span> getEscuela() {
+        <span class="kw">return</span> escuela;
+    }
+
+    <span class="kw">public</span> <span class="kw">void</span> setEscuela(<span class="kw">String</span> escuela) {
+        <span class="kw">this</span>.escuela = escuela;
+    }
+
+    <span class="kw">public</span> <span class="kw">boolean</span> isProyectada() {
+        <span class="kw">return</span> proyectada;
+    }
+
+    <span class="kw">public</span> <span class="kw">void</span> setProyectada(<span class="kw">boolean</span> proyectada) {
+        <span class="kw">this</span>.proyectada = proyectada;
+    }
+
+    <span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">String</span> getNivel();
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> <span class="kw">String</span> getTipo() {
+        <span class="kw">return</span> <span class="str">&quot;Carrera&quot;</span>;
+    }
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> <span class="kw">String</span> toString() {
+        <span class="kw">if</span> (proyectada) {
+            <span class="kw">return</span> getNombre() + <span class="str">&quot; (proyectada)&quot;</span>;
+        }
+        <span class="kw">return</span> getNombre();
+    }
+}</code></pre>
+<p><code>getNivel()</code> es <code>abstract</code> porque es nuevo aquí y lo completarán las hijas. <code>getTipo()</code> lleva <code>@Override</code> porque ya venía del padre y aquí se completa.</p>
+
+<h3 class="paso"><span class="n">Paso 18</span>CarreraTecnica y CarreraGrado</h3>
+<p>Crea dos clases, una por archivo. Son las hijas de <code>Carrera</code>, y cada una completa <code>getNivel()</code> con su texto.</p>
+<p class="archivo">src/uasd/catalogo/modelo/CarreraTecnica.java</p><pre class="code"><code><span class="kw">package</span> uasd.catalogo.modelo;
+
+<span class="kw">public</span> <span class="kw">class</span> CarreraTecnica <span class="kw">extends</span> Carrera {
+
+    <span class="kw">public</span> CarreraTecnica(<span class="kw">int</span> id, <span class="kw">String</span> nombre, <span class="kw">String</span> escuela, <span class="kw">boolean</span> proyectada) {
+        <span class="kw">super</span>(id, nombre, escuela, proyectada);
+    }
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> <span class="kw">String</span> getNivel() {
+        <span class="kw">return</span> NivelCarrera.TECNICO;
+    }
+}</code></pre>
+<p class="archivo">src/uasd/catalogo/modelo/CarreraGrado.java</p><pre class="code"><code><span class="kw">package</span> uasd.catalogo.modelo;
+
+<span class="kw">public</span> <span class="kw">class</span> CarreraGrado <span class="kw">extends</span> Carrera {
+
+    <span class="kw">public</span> CarreraGrado(<span class="kw">int</span> id, <span class="kw">String</span> nombre, <span class="kw">String</span> escuela, <span class="kw">boolean</span> proyectada) {
+        <span class="kw">super</span>(id, nombre, escuela, proyectada);
+    }
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> <span class="kw">String</span> getNivel() {
+        <span class="kw">return</span> NivelCarrera.GRADO;
+    }
+}</code></pre>
+<p>Aquí está el polimorfismo: más adelante habrá una lista de <code>Carrera</code> con técnicas y de grado mezcladas, y al llamar <code>getNivel()</code> cada una responderá lo suyo.</p>
+
+<h3 class="paso"><span class="n">Paso 19</span>Compilar el modelo</h3>
+<p>Compilar es convertir los <code>.java</code> en archivos <code>.class</code>, que son los que ejecuta la máquina virtual de Java. En NetBeans se hace con el botón del martillo, <b>Build Project</b> (o <code>F11</code>), y NetBeans muestra el resultado en la ventana <b>Output</b>.</p>
+<div class="ok"><b class="k">Comprobar</b>
+<p>En <b>Output</b> debe decir <code>BUILD SUCCESSFUL</code>. NetBeans también subraya en rojo los errores mientras escribes: si una línea sale en rojo, revisa que el paquete de la primera línea coincida con la carpeta donde está la clase. Debe haber una carpeta <code>build\classes\uasd\catalogo\modelo</code> con 6 archivos <code>.class</code>.</p></div>
+
+<h2 id="fase6">Fase 6 · Conectar Java con SQL Server</h2>
+
+<h3 class="paso"><span class="n">Paso 20</span>ConexionBD: la clase que abre la conexión</h3>
+<p>Crea la clase <code>ConexionBD</code> en el paquete <code>uasd.catalogo.conexion</code>. Es la única clase que sabe cómo conectarse a SQL Server. Los datos de conexión son constantes al inicio: si tu servidor, usuario o clave son otros, <b>solo se cambian aquí</b>.</p>
+<p class="archivo">src/uasd/catalogo/conexion/ConexionBD.java</p><pre class="code"><code><span class="kw">package</span> uasd.catalogo.conexion;
+
+<span class="kw">import</span> java.sql.Connection;
+<span class="kw">import</span> java.sql.DriverManager;
+<span class="kw">import</span> java.sql.SQLException;
+
+<span class="kw">public</span> <span class="kw">class</span> ConexionBD {
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="kw">String</span> DRIVER = <span class="str">&quot;com.microsoft.sqlserver.jdbc.SQLServerDriver&quot;</span>;
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="kw">String</span> SERVIDOR = <span class="str">&quot;jdbc:sqlserver://localhost:1433;encrypt=true;trustServerCertificate=true&quot;</span>;
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="kw">String</span> BASE = <span class="str">&quot;CatalogoUASD&quot;</span>;
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="kw">String</span> USUARIO = <span class="str">&quot;sa&quot;</span>;
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="kw">String</span> CLAVE = <span class="str">&quot;Catalogo_UASD_2026&quot;</span>;
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">String</span> getBase() {
+        <span class="kw">return</span> BASE;
+    }
+
+    <span class="kw">public</span> <span class="kw">static</span> Connection conectarServidor() <span class="kw">throws</span> SQLException {
+        cargarDriver();
+        <span class="kw">return</span> DriverManager.getConnection(SERVIDOR, USUARIO, CLAVE);
+    }
+
+    <span class="kw">public</span> <span class="kw">static</span> Connection conectar() <span class="kw">throws</span> SQLException {
+        cargarDriver();
+        <span class="kw">return</span> DriverManager.getConnection(SERVIDOR + <span class="str">&quot;;databaseName=&quot;</span> + BASE, USUARIO, CLAVE);
+    }
+
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">void</span> cargarDriver() <span class="kw">throws</span> SQLException {
+        <span class="kw">try</span> {
+            Class.forName(DRIVER);
+        } <span class="kw">catch</span> (ClassNotFoundException e) {
+            <span class="kw">throw</span> <span class="kw">new</span> SQLException(<span class="str">&quot;No se encontró el driver de SQL Server&quot;</span>, e);
+        }
+    }
+}</code></pre>
+<div class="tabla"><table>
+<tr><th>Pieza</th><th>Qué hace</th></tr>
+<tr><td><code>DRIVER</code></td><td>El nombre de la clase del driver de SQL Server</td></tr>
+<tr><td><code>SERVIDOR</code></td><td>La dirección: <code>jdbc:sqlserver://localhost:1433</code> es el protocolo, el equipo y el puerto. <code>encrypt=true;trustServerCertificate=true</code> cifra la conexión y acepta el certificado local de pruebas</td></tr>
+<tr><td><code>BASE</code></td><td>El nombre de la base de datos. De aquí lo toma todo el programa: <code>InicializadorBD</code> y <code>conectar()</code> lo piden con <code>getBase()</code></td></tr>
+<tr><td><code>USUARIO</code>, <code>CLAVE</code></td><td>Con quién se entra a SQL Server</td></tr>
+<tr><td><code>cargarDriver()</code></td><td><code>Class.forName(DRIVER)</code> carga el driver y lo registra ante <code>DriverManager</code>. Es el mismo paso del ejemplo de clase</td></tr>
+<tr><td><code>conectarServidor()</code></td><td>Se conecta al servidor sin elegir base. Se usa solo para crear la base, porque no se puede entrar a una base que todavía no existe</td></tr>
+<tr><td><code>conectar()</code></td><td>Se conecta a <code>CatalogoUASD</code>, agregando <code>;databaseName=...</code>. La usan las consultas</td></tr>
+</table></div>
+<p><b>Cómo se conecta, en cuatro pasos:</b> (1) se carga el driver; (2) <code>DriverManager.getConnection(dirección, usuario, clave)</code> llama por TCP a <code>localhost:1433</code>; (3) SQL Server Express, que escucha en ese puerto, recibe la llamada; (4) SQL Server revisa el usuario y la clave, y devuelve una conexión abierta.</p>
+<p class="mini">Si usaste la opción B del paso 3, cambia aquí <code>USUARIO</code> y <code>CLAVE</code> por los de tu servidor. Si tu instancia tiene nombre, por ejemplo <code>SQLEXPRESS</code>, cambia <code>SERVIDOR</code> a <code>jdbc:sqlserver://localhost\\SQLEXPRESS;encrypt=true;trustServerCertificate=true</code>.</p>
+
+<h3 class="paso"><span class="n">Paso 21</span>Las interfaces DAO</h3>
+<p>DAO significa <i>Data Access Object</i>: una clase cuya única tarea es hablar con la base de datos, para que el resto del programa no escriba SQL. Primero va la interfaz, que es el contrato: qué se puede pedir, sin decir cómo. Crea dos <b>Java Interface</b> en el paquete <code>uasd.catalogo.dao</code>:</p>
+<p class="archivo">src/uasd/catalogo/dao/FacultadDAO.java</p><pre class="code"><code><span class="kw">package</span> uasd.catalogo.dao;
+
+<span class="kw">import</span> java.sql.SQLException;
+<span class="kw">import</span> java.util.List;
+<span class="kw">import</span> uasd.catalogo.modelo.Facultad;
+
+<span class="kw">public</span> <span class="kw">interface</span> FacultadDAO {
+    List&lt;Facultad&gt; listarTodas() <span class="kw">throws</span> SQLException;
+}</code></pre>
+<p class="archivo">src/uasd/catalogo/dao/CarreraDAO.java</p><pre class="code"><code><span class="kw">package</span> uasd.catalogo.dao;
+
+<span class="kw">import</span> java.sql.SQLException;
+<span class="kw">import</span> java.util.List;
+<span class="kw">import</span> uasd.catalogo.modelo.Carrera;
+
+<span class="kw">public</span> <span class="kw">interface</span> CarreraDAO {
+    List&lt;Carrera&gt; listarPorFacultad(<span class="kw">int</span> facultadId) <span class="kw">throws</span> SQLException;
+}</code></pre>
+
+<h3 class="paso"><span class="n">Paso 22</span>Las clases DAO que consultan con JDBC</h3>
+<p>Crea dos <b>Java Class</b> en el mismo paquete. Cumplen el contrato con <code>implements</code>. Aquí está el código de JDBC: abrir la conexión, mandar la consulta con un <code>Statement</code>, recorrer el <code>ResultSet</code> con <code>next()</code> y cerrar en el <code>finally</code>.</p>
+<p class="archivo">src/uasd/catalogo/dao/FacultadDAOJdbc.java</p><pre class="code"><code><span class="kw">package</span> uasd.catalogo.dao;
+
+<span class="kw">import</span> java.sql.Connection;
+<span class="kw">import</span> java.sql.ResultSet;
+<span class="kw">import</span> java.sql.SQLException;
+<span class="kw">import</span> java.sql.Statement;
+<span class="kw">import</span> java.util.ArrayList;
+<span class="kw">import</span> java.util.List;
+<span class="kw">import</span> uasd.catalogo.conexion.ConexionBD;
+<span class="kw">import</span> uasd.catalogo.modelo.Facultad;
+
+<span class="kw">public</span> <span class="kw">class</span> FacultadDAOJdbc <span class="kw">implements</span> FacultadDAO {
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> List&lt;Facultad&gt; listarTodas() <span class="kw">throws</span> SQLException {
+        List&lt;Facultad&gt; facultades = <span class="kw">new</span> ArrayList&lt;&gt;();
+        Connection conexion = ConexionBD.conectar();
+        <span class="kw">try</span> {
+            Statement sentencia = conexion.createStatement();
+            ResultSet resultado = sentencia.executeQuery(<span class="str">&quot;SELECT id, nombre FROM facultad ORDER BY nombre&quot;</span>);
+
+            <span class="kw">while</span> (resultado.next()) {
+                <span class="kw">int</span> id = resultado.getInt(<span class="str">&quot;id&quot;</span>);
+                <span class="kw">String</span> nombre = resultado.getString(<span class="str">&quot;nombre&quot;</span>);
+                facultades.add(<span class="kw">new</span> Facultad(id, nombre));
+            }
+            resultado.close();
+            sentencia.close();
+        } finally {
+            conexion.close();
+        }
+        <span class="kw">return</span> facultades;
+    }
+}</code></pre>
+<p class="archivo">src/uasd/catalogo/dao/CarreraDAOJdbc.java</p><pre class="code"><code><span class="kw">package</span> uasd.catalogo.dao;
+
+<span class="kw">import</span> java.sql.Connection;
+<span class="kw">import</span> java.sql.ResultSet;
+<span class="kw">import</span> java.sql.SQLException;
+<span class="kw">import</span> java.sql.Statement;
+<span class="kw">import</span> java.util.ArrayList;
+<span class="kw">import</span> java.util.List;
+<span class="kw">import</span> uasd.catalogo.conexion.ConexionBD;
+<span class="kw">import</span> uasd.catalogo.modelo.Carrera;
+<span class="kw">import</span> uasd.catalogo.modelo.CarreraGrado;
+<span class="kw">import</span> uasd.catalogo.modelo.CarreraTecnica;
+<span class="kw">import</span> uasd.catalogo.modelo.NivelCarrera;
+
+<span class="kw">public</span> <span class="kw">class</span> CarreraDAOJdbc <span class="kw">implements</span> CarreraDAO {
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> List&lt;Carrera&gt; listarPorFacultad(<span class="kw">int</span> facultadId) <span class="kw">throws</span> SQLException {
+        List&lt;Carrera&gt; carreras = <span class="kw">new</span> ArrayList&lt;&gt;();
+
+        <span class="kw">String</span> sql = <span class="str">&quot;SELECT c.id, c.nombre, c.nivel, c.proyectada, e.nombre AS escuela &quot;</span>
+                + <span class="str">&quot;FROM carrera c &quot;</span>
+                + <span class="str">&quot;JOIN escuela e ON e.id = c.escuela_id &quot;</span>
+                + <span class="str">&quot;WHERE e.facultad_id = &quot;</span> + facultadId + <span class="str">&quot; &quot;</span>
+                + <span class="str">&quot;ORDER BY e.nombre, c.nivel DESC, c.nombre&quot;</span>;
+
+        Connection conexion = ConexionBD.conectar();
+        <span class="kw">try</span> {
+            Statement sentencia = conexion.createStatement();
+            ResultSet resultado = sentencia.executeQuery(sql);
+
+            <span class="kw">while</span> (resultado.next()) {
+                <span class="kw">int</span> id = resultado.getInt(<span class="str">&quot;id&quot;</span>);
+                <span class="kw">String</span> nombre = resultado.getString(<span class="str">&quot;nombre&quot;</span>);
+                <span class="kw">String</span> escuela = resultado.getString(<span class="str">&quot;escuela&quot;</span>);
+                <span class="kw">boolean</span> proyectada = resultado.getBoolean(<span class="str">&quot;proyectada&quot;</span>);
+                <span class="kw">String</span> nivel = resultado.getString(<span class="str">&quot;nivel&quot;</span>);
+
+                Carrera carrera;
+                <span class="kw">if</span> (nivel.equals(NivelCarrera.TECNICO)) {
+                    carrera = <span class="kw">new</span> CarreraTecnica(id, nombre, escuela, proyectada);
+                } <span class="kw">else</span> {
+                    carrera = <span class="kw">new</span> CarreraGrado(id, nombre, escuela, proyectada);
+                }
+                carreras.add(carrera);
+            }
+            resultado.close();
+            sentencia.close();
+        } finally {
+            conexion.close();
+        }
+        <span class="kw">return</span> carreras;
+    }
+}</code></pre>
+<p>En <code>CarreraDAOJdbc</code> la consulta une la carrera con su escuela (<code>JOIN</code>) y se queda con las de la facultad pedida. Al leer cada fila decide qué clase crear: si el nivel es "Técnico" crea una <code>CarreraTecnica</code>, y si no, una <code>CarreraGrado</code>. Las dos se guardan en la misma lista de tipo <code>Carrera</code>.</p>
+
+<h3 class="paso"><span class="n">Paso 23</span>InicializadorBD: dejar la base lista al arrancar</h3>
+<p>Crea la clase <code>InicializadorBD</code> en el paquete <code>uasd.catalogo.conexion</code>. Al ejecutarse el programa por primera vez, esta clase crea la base y las tablas si no existen, y carga los datos con los dos scripts. Así, quien descargue el proyecto no tiene que importar nada a mano. Si todo ya existe, no hace nada.</p>
+<p class="archivo">src/uasd/catalogo/conexion/InicializadorBD.java</p><pre class="code"><code><span class="kw">package</span> uasd.catalogo.conexion;
+
+<span class="kw">import</span> java.io.BufferedReader;
+<span class="kw">import</span> java.io.IOException;
+<span class="kw">import</span> java.io.File;
+<span class="kw">import</span> java.io.FileInputStream;
+<span class="kw">import</span> java.io.InputStreamReader;
+<span class="kw">import</span> java.nio.charset.StandardCharsets;
+<span class="kw">import</span> java.sql.Connection;
+<span class="kw">import</span> java.sql.ResultSet;
+<span class="kw">import</span> java.sql.SQLException;
+<span class="kw">import</span> java.sql.Statement;
+<span class="kw">import</span> java.util.ArrayList;
+<span class="kw">import</span> java.util.List;
+
+<span class="kw">public</span> <span class="kw">class</span> InicializadorBD {
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="kw">String</span>[] SCRIPTS = {<span class="str">&quot;01_esquema.sql&quot;</span>, <span class="str">&quot;02_datos.sql&quot;</span>};
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> preparar() <span class="kw">throws</span> SQLException, IOException {
+        crearBaseSiNoExiste();
+        crearTablasSiNoExisten();
+    }
+
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">void</span> crearBaseSiNoExiste() <span class="kw">throws</span> SQLException {
+        <span class="kw">String</span> base = ConexionBD.getBase();
+        Connection conexion = ConexionBD.conectarServidor();
+        <span class="kw">try</span> {
+            Statement sentencia = conexion.createStatement();
+            ResultSet resultado = sentencia.executeQuery(<span class="str">&quot;SELECT DB_ID(&#x27;&quot;</span> + base + <span class="str">&quot;&#x27;)&quot;</span>);
+            resultado.next();
+            resultado.getInt(1);
+            <span class="kw">boolean</span> existe = !resultado.wasNull();
+            resultado.close();
+
+            <span class="kw">if</span> (!existe) {
+                sentencia.executeUpdate(<span class="str">&quot;CREATE DATABASE &quot;</span> + base);
+            }
+            sentencia.close();
+        } finally {
+            conexion.close();
+        }
+    }
+
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">void</span> crearTablasSiNoExisten() <span class="kw">throws</span> SQLException, IOException {
+        Connection conexion = ConexionBD.conectar();
+        <span class="kw">try</span> {
+            Statement sentencia = conexion.createStatement();
+            ResultSet resultado = sentencia.executeQuery(<span class="str">&quot;SELECT OBJECT_ID(&#x27;dbo.carrera&#x27;, &#x27;U&#x27;)&quot;</span>);
+            resultado.next();
+            resultado.getInt(1);
+            <span class="kw">boolean</span> existe = !resultado.wasNull();
+            resultado.close();
+
+            <span class="kw">if</span> (!existe) {
+                <span class="kw">for</span> (<span class="kw">String</span> script : SCRIPTS) {
+                    <span class="kw">for</span> (<span class="kw">String</span> bloque : leerBloques(script)) {
+                        sentencia.execute(bloque);
+                    }
+                }
+            }
+            sentencia.close();
+        } finally {
+            conexion.close();
+        }
+    }
+
+    <span class="kw">private</span> <span class="kw">static</span> List&lt;<span class="kw">String</span>&gt; leerBloques(<span class="kw">String</span> nombreArchivo) <span class="kw">throws</span> IOException {
+        List&lt;<span class="kw">String</span>&gt; bloques = <span class="kw">new</span> ArrayList&lt;&gt;();
+        StringBuilder actual = <span class="kw">new</span> StringBuilder();
+
+        File archivo = <span class="kw">new</span> File(<span class="str">&quot;sql&quot;</span>, nombreArchivo);
+        <span class="kw">if</span> (!archivo.exists()) {
+            <span class="kw">throw</span> <span class="kw">new</span> IOException(<span class="str">&quot;No se encontró &quot;</span> + archivo.getPath() + <span class="str">&quot;. Ejecuta el programa desde la carpeta del proyecto.&quot;</span>);
+        }
+
+        BufferedReader lector = <span class="kw">new</span> BufferedReader(<span class="kw">new</span> InputStreamReader(<span class="kw">new</span> FileInputStream(archivo), StandardCharsets.UTF_8));
+        <span class="kw">try</span> {
+            <span class="kw">String</span> linea;
+            <span class="kw">while</span> ((linea = lector.readLine()) != <span class="kw">null</span>) {
+                <span class="kw">if</span> (linea.trim().equalsIgnoreCase(<span class="str">&quot;GO&quot;</span>)) {
+                    <span class="kw">if</span> (!actual.toString().isBlank()) {
+                        bloques.add(actual.toString());
+                    }
+                    actual = <span class="kw">new</span> StringBuilder();
+                } <span class="kw">else</span> {
+                    actual.append(linea).append(<span class="str">&quot;\n&quot;</span>);
+                }
+            }
+        } finally {
+            lector.close();
+        }
+        <span class="kw">if</span> (!actual.toString().isBlank()) {
+            bloques.add(actual.toString());
+        }
+        <span class="kw">return</span> bloques;
+    }
+}</code></pre>
+<ul>
+<li><code>crearBaseSiNoExiste()</code> se conecta al <b>servidor</b> (sin base, porque quizá aún no existe) y pregunta con <code>DB_ID</code>. Si da vacío, ejecuta <code>CREATE DATABASE</code>.</li>
+<li><code>crearTablasSiNoExisten()</code> pregunta con <code>OBJECT_ID</code> si existe la tabla <code>carrera</code>. Si no, ejecuta los dos scripts.</li>
+<li><code>leerBloques()</code> lee cada script de la carpeta <code>sql</code> y lo corta en cada línea <code>GO</code>, porque JDBC no entiende <code>GO</code>. Como busca la carpeta <code>sql</code> con una ruta relativa, el programa debe ejecutarse desde la carpeta del proyecto; NetBeans lo hace así.</li>
+</ul>
+
+<h3 class="paso"><span class="n">Paso 24</span>Compilar la conexión y los DAO</h3>
+<p>Pulsa <b>Build Project</b> (el martillo, o <code>F11</code>).</p>
+<div class="ok"><b class="k">Comprobar</b>
+<p><b>Output</b> dice <code>BUILD SUCCESSFUL</code>. Si hay un error <code>cannot find symbol</code>, falta una clase del modelo o está en el paquete equivocado. Si hay un error en una línea que usa <code>Connection</code> o <code>Statement</code>, revisa los <code>import</code>.</p></div>
+
+<h2 id="fase7">Fase 7 · El formulario y el Main</h2>
+
+<h3 class="paso"><span class="n">Paso 25</span>Frm_Carreras: la ventana, con el diseñador de NetBeans</h3>
+<p>Aquí se usa el <b>diseñador visual</b> de NetBeans (<i>GUI Builder</i>), como en los videos de la clase. Se arma la ventana arrastrando piezas, y NetBeans escribe solo el método <code>initComponents()</code>. El formulario son <b>dos archivos</b>: <code>Frm_Carreras.java</code> (el código) y <code>Frm_Carreras.form</code> (el diseño, que NetBeans guarda en XML).</p>
+<h4>Crear el formulario</h4>
+<ol>
+<li>Clic derecho sobre el paquete <code>uasd.catalogo.formularios</code> y <b>New → JFrame Form...</b>. Si no aparece, elige <b>Other...</b> y busca <i>Swing GUI Forms → JFrame Form</i>.</li>
+<li>En <i>Class Name</i> escribe <code>Frm_Carreras</code> y pulsa <b>Finish</b>. Se abre con las pestañas <b>Source</b> y <b>Design</b> arriba. Entra en <b>Design</b>.</li>
+<li>Clic derecho sobre el marco de la ventana, <b>Set Layout → Border Layout</b>.</li>
+<li>Arrastra las piezas desde la <b>Palette</b> (a la derecha) hasta su lugar, como indica la tabla. A cada una cámbiale el nombre con clic derecho → <b>Change Variable Name...</b>, y sus propiedades en el panel <b>Properties</b>.</li>
+</ol>
+<div class="tabla"><table>
+<tr><th>Nombre</th><th>Pieza de la Palette</th><th>Dónde va</th><th>Propiedades que se cambian</th></tr>
+<tr><td><i>la ventana</i></td><td>JFrame</td><td>—</td><td><code>title</code> = <code>Catálogo de Carreras - UASD</code>; <code>preferredSize</code> = <code>[900, 560]</code></td></tr>
+<tr><td><code>pnlNorte</code></td><td>Panel</td><td>Norte (North) de la ventana</td><td>Layout: <b>Border Layout</b></td></tr>
+<tr><td><code>pnlTitulo</code></td><td>Panel</td><td>Norte de <code>pnlNorte</code></td><td><code>background</code> = <code>[31, 58, 122]</code>; Layout: <b>Border Layout</b></td></tr>
+<tr><td><code>lblTitulo</code></td><td>Label</td><td>Centro de <code>pnlTitulo</code></td><td><code>text</code> = <code>Catálogo de Carreras - Universidad Autónoma de Santo Domingo</code>; <code>font</code> = Tahoma, Negrita, 18; <code>foreground</code> = blanco; <code>border</code> = <i>Empty Border</i> 14, 16, 14, 16</td></tr>
+<tr><td><code>pnlDatos</code></td><td>Panel</td><td>Sur (South) de <code>pnlNorte</code></td><td>Layout: <b>Flow Layout</b>, con <i>Alignment</i> = Left, <i>Horizontal Gap</i> = 10 y <i>Vertical Gap</i> = 10</td></tr>
+<tr><td><code>lblFacultad</code></td><td>Label</td><td>Dentro de <code>pnlDatos</code></td><td><code>text</code> = <code>Facultad:</code></td></tr>
+<tr><td><code>cmbFacultad</code></td><td>Combo Box</td><td>Dentro de <code>pnlDatos</code></td><td><code>preferredSize</code> = <code>[380, 28]</code>; en la pestaña <i>Code</i>, <i>Type Parameters</i> = <code>&lt;Facultad&gt;</code></td></tr>
+<tr><td><code>btnConsultar</code></td><td>Button</td><td>Dentro de <code>pnlDatos</code></td><td><code>text</code> = <code>Consultar</code>; <code>preferredSize</code> = <code>[120, 28]</code></td></tr>
+<tr><td><code>jScrollPane1</code></td><td>Scroll Pane</td><td>Centro de la ventana</td><td>—</td></tr>
+<tr><td><code>tblCarreras</code></td><td>Table</td><td>Dentro de <code>jScrollPane1</code></td><td><code>model</code> → <i>Custom Code</i> = <code>modeloTabla</code>; <code>autoCreateRowSorter</code> marcado; <code>rowHeight</code> = <code>24</code></td></tr>
+<tr><td><code>lblResultado</code></td><td>Label</td><td>Sur de la ventana</td><td><code>text</code> = <code>Elige una facultad y pulsa Consultar.</code>; <code>border</code> = <i>Empty Border</i> 8, 14, 8, 14</td></tr>
+</table></div>
+<h4>Conectar los eventos</h4>
+<ol>
+<li><b>El botón.</b> Haz doble clic sobre <b>Consultar</b>. NetBeans te lleva a <b>Source</b> y crea el método <code>btnConsultarActionPerformed</code>. Ahí se escribe lo que hace el botón.</li>
+<li><b>Cerrar la ventana.</b> Clic derecho sobre la ventana, <b>Events → Window → windowClosing</b>. NetBeans crea <code>formWindowClosing</code>. Ahí va <code>System.exit(0)</code>.</li>
+</ol>
+<h4>El código que se escribe a mano</h4>
+<p>Lo gris de la pestaña <b>Source</b> (los bloques marcados con <code>GEN-BEGIN</code> y <code>GEN-END</code>) lo genera NetBeans y no se toca. El resto es nuestro:</p>
+<p class="archivo">src/uasd/catalogo/formularios/Frm_Carreras.java</p><pre class="code"><code>package uasd.catalogo.formularios;
+
+import java.sql.SQLException;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import uasd.catalogo.dao.*;
+import uasd.catalogo.modelo.*;
+
+public class Frm_Carreras extends javax.swing.JFrame {
+    private FacultadDAO facultadDAO = new FacultadDAOJdbc();
+    private CarreraDAO carreraDAO = new CarreraDAOJdbc();
+    private DefaultTableModel modeloTabla = new ModeloCarreras();
+
+    public Frm_Carreras() {
+        initComponents();
+        configurarColumnas();
+        cargarFacultades();
+    }
+
+    private class ModeloCarreras extends DefaultTableModel {
+        public ModeloCarreras() {
+            super(new String[]{&quot;Escuela&quot;, &quot;Carrera&quot;, &quot;Nivel&quot;, &quot;Estado&quot;}, 0);
+        }
+
+        @Override
+        public boolean isCellEditable(int fila, int columna) {
+            return false;
+        }
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    // &lt;editor-fold defaultstate=&quot;collapsed&quot; desc=&quot;Generated Code&quot;&gt;//GEN-BEGIN:initComponents
+    private void initComponents() {
+        // NetBeans escribe este método solo, a partir de lo que armas en Design.
+        // No se escribe ni se edita a mano.
+    }// &lt;/editor-fold&gt;//GEN-END:initComponents
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        System.exit(0);
+    }//GEN-LAST:event_formWindowClosing
+
+    private void btnConsultarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConsultarActionPerformed
+        Facultad elegida = (Facultad) cmbFacultad.getSelectedItem();
+
+        if (elegida == null) {
+            mostrarMensaje(&quot;Primero elige una facultad.&quot;);
+            return;
+        }
+
+        try {
+            List&lt;Carrera&gt; carreras = carreraDAO.listarPorFacultad(elegida.getId());
+
+            modeloTabla.setRowCount(0);
+            for (Carrera carrera : carreras) {
+                String estado = &quot;Vigente&quot;;
+                if (carrera.isProyectada()) {
+                    estado = &quot;Proyectada&quot;;
+                }
+                modeloTabla.addRow(new Object[]{
+                        carrera.getEscuela(),
+                        carrera.getNombre(),
+                        carrera.getNivel(),
+                        estado});
+            }
+
+            if (carreras.isEmpty()) {
+                lblResultado.setText(&quot;Sin resultados para &quot; + elegida.getNombre() + &quot;.&quot;);
+            } else {
+                lblResultado.setText(carreras.size() + &quot; carreras en la Facultad de &quot; + elegida.getNombre());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mostrarMensaje(&quot;No se pudo consultar la base de datos.\nRevisa que SQL Server esté encendido.&quot;,
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnConsultarActionPerformed
+
+    private void configurarColumnas() {
+        tblCarreras.getColumnModel().getColumn(0).setPreferredWidth(260);
+        tblCarreras.getColumnModel().getColumn(1).setPreferredWidth(420);
+        tblCarreras.getColumnModel().getColumn(2).setPreferredWidth(70);
+        tblCarreras.getColumnModel().getColumn(3).setPreferredWidth(90);
+    }
+
+    private void cargarFacultades() {
+        try {
+            List&lt;Facultad&gt; facultades = facultadDAO.listarTodas();
+            for (Facultad facultad : facultades) {
+                cmbFacultad.addItem(facultad);
+            }
+            cmbFacultad.setSelectedIndex(-1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mostrarMensaje(&quot;No se pudo leer la base de datos.\nRevisa que SQL Server esté encendido.&quot;,
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void mostrarMensaje(String texto) {
+        mostrarMensaje(texto, JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void mostrarMensaje(String texto, int tipo) {
+        String titulo = &quot;Aviso&quot;;
+        if (tipo == JOptionPane.ERROR_MESSAGE) {
+            titulo = &quot;Error&quot;;
+        }
+        JOptionPane.showMessageDialog(this, texto, titulo, tipo);
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnConsultar;
+    private javax.swing.JComboBox&lt;Facultad&gt; cmbFacultad;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblFacultad;
+    private javax.swing.JLabel lblResultado;
+    private javax.swing.JLabel lblTitulo;
+    private javax.swing.JPanel pnlDatos;
+    private javax.swing.JPanel pnlNorte;
+    private javax.swing.JPanel pnlTitulo;
+    private javax.swing.JTable tblCarreras;
+    // End of variables declaration//GEN-END:variables
+}</code></pre>
+<ul>
+<li><code>extends javax.swing.JFrame</code>: es una ventana de Swing. NetBeans lo escribe al crear el formulario.</li>
+<li><code>ModeloCarreras</code>: clase interna con nombre que define las columnas de la tabla y la hace no editable. Es el <code>modeloTabla</code> que se puso como <i>Custom Code</i> en la tabla.</li>
+<li><code>initComponents()</code>: lo genera NetBeans. Crea las piezas, las acomoda con <code>BorderLayout</code> y <code>FlowLayout</code>, y conecta los eventos con clases anónimas (<code>ActionListener</code> y <code>WindowAdapter</code>).</li>
+<li><code>configurarColumnas()</code>: fija el ancho de cada columna. Se llama después de <code>initComponents()</code>, porque las columnas existen solo cuando la tabla ya está armada.</li>
+<li><code>cargarFacultades()</code>: llena el selector con las facultades que trae el DAO.</li>
+<li><code>btnConsultarActionPerformed()</code>: lee la facultad elegida, pide sus carreras al DAO y llena la tabla.</li>
+<li><code>mostrarMensaje</code> está dos veces, con datos distintos: es sobrecarga.</li>
+</ul>
+<div class="ok"><b class="k">Comprobar</b>
+<p>El proyecto que se entrega ya trae el <code>Frm_Carreras.form</code> hecho. Al abrir <code>Frm_Carreras.java</code> en NetBeans deben verse las pestañas <b>Source</b> y <b>Design</b>, y en <b>Design</b> la ventana con el título azul, el selector, el botón y la tabla.</p></div>
+<p class="mini">En el árbol de <i>Projects</i>, un formulario hecho con el diseñador aparece con dos archivos: <code>Frm_Carreras.java</code> y <code>Frm_Carreras.form</code>. Los pasos del asistente de arriba no se probaron en NetBeans 31: si el nombre de un menú no coincide, busca el equivalente.</p>
+
+<h3 class="paso"><span class="n">Paso 26</span>Main: el punto de arranque</h3>
+<p>Aquí empieza el programa. La máquina virtual de Java busca el método <code>main</code>, lo llama, y este prepara la base de datos y abre el formulario. Como creaste el proyecto con <code>uasd.catalogo.Main</code> en el paso 5, esta clase ya existe: ábrela con doble clic, selecciona todo (<code>Ctrl + A</code>) y reemplaza su contenido por este código.</p>
+<span class="donde-va">src\uasd\catalogo\Main.java</span>
+<p class="archivo">src/uasd/catalogo/Main.java</p><pre class="code"><code><span class="kw">package</span> uasd.catalogo;
+
+<span class="kw">import</span> javax.swing.JOptionPane;
+<span class="kw">import</span> javax.swing.SwingUtilities;
+<span class="kw">import</span> javax.swing.UIManager;
+<span class="kw">import</span> uasd.catalogo.conexion.InicializadorBD;
+<span class="kw">import</span> uasd.catalogo.formularios.Frm_Carreras;
+
+<span class="kw">public</span> <span class="kw">class</span> Main {
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> main(<span class="kw">String</span>[] args) {
+        <span class="kw">try</span> {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } <span class="kw">catch</span> (Exception e) {
+            System.out.println(<span class="str">&quot;Se usa el aspecto por defecto de Java&quot;</span>);
+        }
+
+        <span class="kw">try</span> {
+            InicializadorBD.preparar();
+        } <span class="kw">catch</span> (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(<span class="kw">null</span>,
+                    <span class="str">&quot;No se pudo preparar la base de datos.\n&quot;</span>
+                    + <span class="str">&quot;Revisa que SQL Server esté encendido y que los datos de\n&quot;</span>
+                    + <span class="str">&quot;conexión en ConexionBD.java sean correctos (ver README).&quot;</span>,
+                    <span class="str">&quot;Error de base de datos&quot;</span>, JOptionPane.ERROR_MESSAGE);
+            <span class="kw">return</span>;
+        }
+
+        SwingUtilities.invokeLater(<span class="kw">new</span> Runnable() {
+            <span class="ann">@Override</span>
+            <span class="kw">public</span> <span class="kw">void</span> run() {
+                <span class="kw">new</span> Frm_Carreras().setVisible(<span class="kw">true</span>);
+            }
+        });
+    }
+}</code></pre>
+<p>Si SQL Server está apagado, el <code>catch</code> muestra un mensaje claro y el programa termina, en lugar de abrir una ventana sin datos.</p>
+<div class="ok"><b class="k">Comprobar</b>
+<p><b>Build Project</b> da <code>BUILD SUCCESSFUL</code>, y en <b>Output</b> no aparecen errores.</p></div>
+
+<h2 id="fase8">Fase 8 · Ejecutar y probar</h2>
+
+<h3 class="paso"><span class="n">Paso 27</span>Ejecutar con el botón verde</h3>
+<p>Enciende SQL Server (paso 3). En NetBeans, pulsa el <b>botón verde</b> (el triángulo, <i>Run Project</i>, o <code>F6</code>).</p>
+<p>Por dentro, NetBeans compila y arranca la máquina virtual de Java con las clases del proyecto y el driver del <b>Libraries</b>, en la clase <code>uasd.catalogo.Main</code>, que se marcó como principal en el paso 5. Es lo mismo que haría un comando en la terminal.</p>
+<p><b>Por qué en la terminal hace falta un comando.</b> Un programa de Java no es un <code>.exe</code> que se abre con doble clic. A la máquina virtual de Java hay que decirle qué clase arrancar y dónde están las clases y el driver. El botón verde de NetBeans lo hace por ti.</p>
+<div class="ok"><b class="k">Comprobar</b>
+<p>Se abre la ventana <i>Catálogo de Carreras - UASD</i>, con el selector de facultades lleno. La primera vez, el programa crea la base y carga los datos si no lo hiciste a mano en los pasos 8 al 10.</p></div>
+
+<h3 class="paso"><span class="n">Paso 28</span>Probar el programa</h3>
+<ol>
+<li>Pulsa <b>Consultar</b> sin elegir nada: debe salir un aviso, "Primero elige una facultad."</li>
+<li>Elige <b>Ingeniería y Arquitectura</b> y pulsa <b>Consultar</b>: la tabla muestra 9 carreras y abajo dice "9 carreras en la Facultad de Ingeniería y Arquitectura".</li>
+<li>Elige <b>Ciencias</b> y pulsa <b>Consultar</b>: salen 20 carreras, con Técnico y Grado mezclados.</li>
+<li>Elige <b>Artes</b> y pulsa <b>Consultar</b>: salen 29 carreras, algunas con el estado "Proyectada".</li>
+<li>Haz clic en el encabezado de una columna: la tabla se ordena.</li>
+</ol>
+<div class="ok"><b class="k">Comprobar</b>
+<p>Las cantidades por facultad deben coincidir con las del paso 11. La columna Nivel muestra "Técnico" o "Grado" según el tipo de carrera, y esa respuesta sale del método <code>getNivel()</code> de cada clase hija.</p></div>
+
+<h3 class="paso"><span class="n">Paso 29</span>Si el programa no abre</h3>
+<div class="tabla"><table>
+<tr><th>Síntoma</th><th>Qué revisar</th></tr>
+<tr><td>El error <code>No se encontró el driver de SQL Server</code> en <b>Output</b></td><td>Falta el JAR en <b>Libraries</b>. Repite el paso 13. Es el error más común</td></tr>
+<tr><td>Aviso "No se pudo preparar la base de datos"</td><td>SQL Server apagado o datos de <code>ConexionBD.java</code> distintos. Revisa que el servicio <i>SQL Server (SQLEXPRESS)</i> esté en <i>Running</i> y que TCP/IP esté activo en el puerto 1433 (paso 3)</td></tr>
+<tr><td><code>Connection refused</code> en <b>Output</b></td><td>TCP/IP desactivado o puerto distinto de 1433 (paso 3)</td></tr>
+<tr><td><code>Login failed for user 'sa'</code></td><td>La clave no coincide. Usa la misma en SQL Server y en <code>ConexionBD.java</code></td></tr>
+<tr><td><code>No se encontró sql\01_esquema.sql</code></td><td>El programa no se ejecutó desde la carpeta del proyecto, o falta la carpeta <code>sql</code>. En NetBeans se ejecuta desde la carpeta del proyecto</td></tr>
+<tr><td>Líneas en rojo en el editor</td><td>Un <code>package</code> que no coincide con la carpeta, o falta un <code>import</code>. Pasa el cursor sobre la línea para ver el mensaje</td></tr>
+<tr><td>NetBeans no arranca</td><td>Ábrelo con <code>--jdkhome</code> (paso 4)</td></tr>
+<tr><td>El selector sale vacío</td><td>La base existe sin datos. Borra la base <code>CatalogoUASD</code> y vuelve a ejecutar</td></tr>
+</table></div>
+
+<h2 id="fase9">Fase 9 · Entregar</h2>
+
+<h3 class="paso"><span class="n">Paso 30</span>Tomar las capturas y armar el PDF</h3>
+<p>El trabajo pide un PDF con el código fuente y copias de pantalla del programa corriendo.</p>
+<ol>
+<li>Con el programa abierto, toma capturas con <code>Win + Shift + S</code> y guárdalas en <code>docs\capturas</code>: la pantalla inicial, el aviso sin facultad, Ingeniería y Arquitectura, y Artes.</li>
+<li>Junta en un documento las capturas y el código de los archivos del proyecto, y guárdalo como PDF en <code>docs\codigo-fuente.pdf</code>.</li>
+</ol>
+
+<h3 class="paso"><span class="n">Paso 31</span>Escribir el README y el .gitignore</h3>
+<p>El repositorio debe traer instrucciones de instalación y ejecución, y la lista de dependencias y requisitos. El <code>README.md</code> debe decir: qué necesitas (JDK 11 o superior y SQL Server por TCP en el 1433), cómo encender SQL Server (paso 3), cómo abrir el proyecto (<i>File → Open Project</i> en NetBeans y botón verde), que el driver viene en la carpeta <code>lib</code>, y dónde se cambian los datos de conexión (<code>ConexionBD.java</code>).</p>
+<p>El <code>.gitignore</code> evita subir a GitHub lo que se genera al compilar (las carpetas <code>build</code> y <code>dist</code>) y la carpeta <code>nbproject\private</code>, que guarda rutas de tu computadora. Los demás archivos de NetBeans (<code>build.xml</code>, <code>manifest.mf</code> y el resto de <code>nbproject</code>) <b>sí se suben</b>: gracias a ellos, quien descargue el proyecto lo abre en NetBeans con <i>File → Open Project</i>, sin repetir los pasos 5 al 7 y 13. Crea <code>.gitignore</code> en la carpeta del proyecto:</p>
+<p class="archivo">.gitignore</p><pre class="code"><code>build/
+dist/
+nbproject/private/
+
+.vs/
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+Thumbs.db
+.DS_Store</code></pre>
+
+<h3 class="paso"><span class="n">Paso 32</span>Subir el proyecto a GitHub</h3>
+<p>Crea un repositorio vacío en GitHub, copia su dirección y, desde la carpeta del proyecto, en una terminal:</p>
+<pre class="code"><code>git init
+git add .
+git commit -m &quot;Catálogo de carreras UASD&quot;
+git branch -M main
+git remote add origin &lt;URL-DE-TU-REPOSITORIO&gt;
+git push -u origin main</code></pre>
+<div class="ok"><b class="k">Comprobar</b>
+<p>Abre el repositorio en GitHub y confirma que se ven <code>README.md</code>, <code>build.xml</code>, <code>nbproject</code>, <code>lib</code>, <code>sql</code>, <code>src</code> y <code>docs</code>, y que no aparecen las carpetas <code>build</code> ni <code>dist</code>. Pide al profesor acceso, o deja el repositorio público. Después, la prueba final: clónalo en otra carpeta, ábrelo en NetBeans con <i>File → Open Project</i> y pulsa el botón verde.</p></div>
+
+<h2 id="terminal">Si no tienes NetBeans: la terminal</h2>
+<p>El proyecto también se compila y ejecuta sin NetBeans, con los archivos <code>compilar.bat</code> y <code>ejecutar.bat</code>. Desde la carpeta del proyecto:</p>
+<pre class="code"><code>.\ejecutar.bat</code></pre>
+<p>Ese archivo compila el programa con <code>javac</code> y lo arranca con <code>java -cp ...</code>, usando el JAR de <code>lib</code>. NetBeans y <code>compilar.bat</code> escriben en la misma carpeta de salida (<code>build\classes</code>), así que no los uses a la vez. Los dos archivos y su explicación están en <code>TUTORIAL-PASO-A-PASO-TERMINAL.html</code>.</p>
+
+<footer>Tutorial del proyecto Catálogo de Carreras UASD, en NetBeans. Fuente de los datos: Catálogo de Oferta Académica de la UASD, edición 2024, uasd.edu.do.</footer>
+</main>
+</div>
+
+</body>
+</html>
