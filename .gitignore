@@ -1,0 +1,14 @@
+build/
+dist/
+nbproject/private/
+
+.vs/
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+Thumbs.db
+.DS_Store
